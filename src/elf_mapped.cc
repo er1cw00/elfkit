@@ -10,11 +10,10 @@
 #include "elf_log.h"
 #include "elf_mapped.h"
 
-#include <mach/mach.h>
 
-#define PAGE_START(addr)             (~(PAGE_SIZE - 1) & (addr))
-#define PAGE_END(addr)               PAGE_START((addr) + (PAGE_SIZE-1))
-#define PAGE_OFFSET(x)               ((x) & ~PAGE_MASK)
+
+
+
 
 elf_mapped::elf_mapped() : m_map_start(NULL),
                             m_map_size(0),
@@ -23,17 +22,22 @@ elf_mapped::elf_mapped() : m_map_start(NULL),
 }
 
 elf_mapped::~elf_mapped() {
+    unmap();
+}
+
+void elf_mapped::unmap() {
     if (m_map_start != NULL) {
         munmap(m_map_start, m_map_size);
     }
 }
 
-bool elf_mapped::map(int fd, off64_t base_offset, size_t elf_offset, size_t size) {
-    off64_t offset;
+bool elf_mapped::map(int fd, off_t base_offset, size_t elf_offset, size_t size) {
+    off_t offset;
+
 
     CHECK(safe_add(&offset, base_offset, elf_offset));
-    off64_t page_min = PAGE_START(offset);
-    off64_t end_offset;
+    off_t page_min = PAGE_START(offset);
+    off_t end_offset;
 
     CHECK(safe_add(&end_offset, offset, size));
     CHECK(safe_add(&end_offset, end_offset, PAGE_OFFSET(offset)));
@@ -49,7 +53,6 @@ bool elf_mapped::map(int fd, off64_t base_offset, size_t elf_offset, size_t size
 
     m_map_start = map_start;
     m_map_size = map_size;
-
     m_data = map_start + PAGE_OFFSET(offset);
     m_size = size;
 

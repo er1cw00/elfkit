@@ -1,106 +1,89 @@
 #pragma once
 
 #include "elf_common.h"
-#include "elf_mapped.h"
 
 #include <string>
+#include <vector>
+
+class elf_reader;
+class elf_section;
+class elf_segment;
+class elf_symbol;
+class elf_reloc;
+class elf_symbol_tab;
+class elf_string_tab;
+class elf_hash_tab;
+class elf_gnu_hash_tab;
+class elf_func_array;
+class hash_tab;
+
+typedef std::vector<std::string> elf_needed_list_t;
+typedef std::vector<elf_reloc*> elf_reloc_list_t;
 
 class elf_image {
 public:
+    elf_image(elf_reader & reader);
     virtual ~elf_image();
-    static elf_image * create(const char * sopath);
 
-    bool load();
-    const int    get_fd() {return m_fd;}
+    const int    get_fd() {return this->m_fd;}
     const char * get_soname() {return m_soname.c_str();}
     const char * get_sopath() {return m_sopath.c_str();}
+    const size_t get_file_size() {return this->m_file_size;}
 
+    const size_t get_load_size() {return this->m_load_size;}
+    const addr_t get_load_bias() {return this->m_load_bias;}
+    const uint8_t get_elf_class() {return this->m_elf_class;}
 
-protected:
-    elf_image();
-    virtual bool check_file_range(off64_t offset, size_t size, size_t alignment);
-    virtual bool parse_program_headers() = 0;
-    virtual bool parse_section_headers() = 0;
-    virtual bool parse_sections() = 0;
+    const bool is_gnu_hash() {return this->m_is_gnu_hash;}
 
-protected:
-    elf_mapped     m_phdr_fragment;
-    elf_mapped     m_shdr_fragment;
-    elf_mapped     m_dynamic_fragment;
-    elf_mapped     m_dynstr_fragment;
-    elf_mapped     m_dynsym_fragment;
-    elf_mapped     m_strtab_fragment;
-    elf_mapped     m_symtab_fragment;
-    elf_mapped     m_shstrtab_fragment;
-
-    std::string     m_sopath;
-    std::string     m_soname;
-    int             m_fd;
-    int             m_file_size;
-    bool            m_loaded;
-    uint64_t        m_base_addr;
-};
-
-class elf_image64 : public elf_image {
 public:
-    virtual ~elf_image64();
+
+    virtual bool load() = 0;
+    virtual elf_section * get_elf_section(const int i) = 0;
+    virtual elf_segment * get_elf_segment(const int i) = 0;
+    virtual elf_string_tab* get_section_string_tab() {
+        return this->m_sh_str_tab;
+    }
+    virtual elf_string_tab * get_string_tab() {
+        return this->m_str_tab;
+    }
+    virtual elf_needed_list_t & get_needed_list() {
+        return this->m_needed_list;
+    }
+    virtual elf_symbol_tab * get_symbol_tab() {
+        return this->m_sym_tab;
+    }
+protected:
+    bool check_mem_range(addr_t offset, size_t size, size_t alignment);
 
 protected:
-    elf_image64();
-    virtual bool parse_program_headers();
-    virtual bool parse_section_headers();
-    virtual bool parse_sections();
+    int                 m_fd;
+    size_t              m_file_size;
+    std::string         m_soname;
+    std::string         m_sopath;
 
-protected:
-    Elf64_Ehdr      m_ehdr;
+    size_t              m_load_size;
+    addr_t              m_load_bias;
+    uint8_t             m_elf_class;
 
-    Elf64_Phdr     *m_phdr;
-    Elf64_Shdr      *m_shdr;
-    Elf64_Dyn       *m_dynamic;
-    Elf64_Sym       *m_dynsym;
-    Elf64_Sym       *m_symtab;
-    const char      *m_dynstr;
-    const char      *m_strtab;
-    const char      *m_shstrtab;  
-    size_t          m_phdr_num;
-    size_t          m_shdr_num;
-    size_t          m_dynamic_size;
-    size_t          m_dynsym_size;
-    size_t          m_symtab_size;
-    size_t          m_dynstr_size;
-    size_t          m_strtab_size;
-    size_t          m_shstrtab_size;
-    friend class elf_image;
-};
+    elf_string_tab*     m_sh_str_tab;
+    elf_string_tab*     m_str_tab;
 
-class elf_image32 : public elf_image {
-public:
-    virtual ~elf_image32();
+    hash_tab*           m_elf_hash_tab;
+    hash_tab*           m_gnu_hash_tab;
 
-protected:
-    elf_image32(); 
-    virtual bool parse_program_headers();
-    virtual bool parse_section_headers();
-    virtual bool parse_sections();
+    elf_symbol_tab*     m_sym_tab;
 
-protected:
-    Elf32_Ehdr      m_ehdr;
+    bool                m_is_gnu_hash;
+    bool                m_is_use_rela;
 
-    Elf32_Phdr      *m_phdr;
-    Elf32_Shdr      *m_shdr;
-    Elf32_Dyn       *m_dynamic;
-    Elf32_Sym       *m_dynsym;
-    Elf32_Sym       *m_symtab;
-    const char      *m_dynstr;
-    const char      *m_strtab;
-    const char      *m_shstrtab;  
-    size_t          m_phdr_num;
-    size_t          m_shdr_num;
-    size_t          m_dynamic_size;
-    size_t          m_dynsym_size;
-    size_t          m_symtab_size;
-    size_t          m_dynstr_size;
-    size_t          m_strtab_size;
-    size_t          m_shstrtab_size;
-    friend class elf_image;
+    addr_t              m_init_func;
+    addr_t              m_finit_func;
+    elf_func_array*     m_init_array;
+    elf_func_array*     m_finit_array;
+    elf_func_array*     m_preinit_array;
+
+    elf_needed_list_t   m_needed_list;
+    elf_reloc_list_t    m_plt_list;
+    elf_reloc_list_t    m_rel_list;
 };
