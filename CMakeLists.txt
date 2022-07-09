@@ -13,7 +13,8 @@ set(SOURCES src/elf_common.cc
             src/elf_reader.cc
             src/elf_image.cc
             src/elf_image32.cc
-            src/elf_image64.cc)
+            src/elf_image64.cc
+            src/elf_hash_tab.cc)
 
 set(HEADERS src/elf.h
             src/elf_common.h
