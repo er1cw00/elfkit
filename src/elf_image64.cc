@@ -91,6 +91,7 @@ bool elf_image64::load() {
                 uint32_t *chain   = (uint32_t*)(bucket + nbucket);
                 sym_size  = (size_t)nchain;
                 this->m_elf_hash_tab = new elf_hash_tab(nbucket, nchain, bucket, chain);
+                log_dbg("nchain: %d\n", nchain);
                 break;
             }
             case DT_GNU_HASH:
@@ -101,7 +102,7 @@ bool elf_image64::load() {
                 uint32_t gnu_maskwords     = rawdata[2];
                 uint32_t gnu_shift2        = rawdata[3];
                 uint64_t gnu_bloom_filter  = (uint64_t)(this->get_load_bias() + d->d_un.d_ptr + 16);
-                uint32_t* gnu_bucket       = (uint32_t *)(gnu_bloom_filter + gnu_maskwords);
+                uint32_t* gnu_bucket       = (uint32_t *)(gnu_bloom_filter + gnu_maskwords * sizeof(void*));
                 uint32_t* gnu_chain        = (uint32_t *)(gnu_bucket + gnu_nbucket - gnu_symndx);
                 if (!powerof2(gnu_maskwords)) {
                     log_error("invalid maskwords for gnu_hash = 0x%x, in \"%s\" expecting power to two\n",
@@ -109,7 +110,19 @@ bool elf_image64::load() {
                     return false;
                 }
                 gnu_maskwords -= 1;
-                this->m_gnu_hash_tab = new elf_gnu_hash_tab(gnu_nbucket, 
+
+                log_dbg("bbucket(%d), symndx(%d), maskworks(%d), shift2(%d) bfilter(%p), bucket(%p), chain(%p)\n",
+                        gnu_nbucket,   
+                        gnu_symndx,
+                        gnu_maskwords, 
+                        gnu_shift2,
+                        (uint32_t*)gnu_bloom_filter,
+                        gnu_bucket,
+                        gnu_chain);
+
+
+                this->m_gnu_hash_tab = new elf_gnu_hash_tab(get_elf_class(),
+                                                            gnu_nbucket, 
                                                             gnu_symndx,
                                                             gnu_maskwords,
                                                             gnu_shift2,
