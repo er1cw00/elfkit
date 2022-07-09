@@ -37,7 +37,3 @@ elf_section * elf_image32::get_elf_section(const int i) {
 elf_segment * elf_image32::get_elf_segment(const int i) {
     return NULL;
 }
-
-elf_string_tab * elf_image32::get_string_tab(const char * tab_name) {
-    return NULL;
-}

@@ -11,7 +11,6 @@ public:
     virtual bool load();
     virtual elf_section * get_elf_section(const int i);
     virtual elf_segment * get_elf_segment(const int i);
-    virtual elf_string_tab * get_string_tab(const char * tab_name);
 
 protected:
     Elf32_Ehdr*     m_ehdr;
