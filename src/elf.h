@@ -172,6 +172,15 @@ typedef struct elf64_phdr {
 #define SHF_RO_AFTER_INIT  0x00200000
 #define SHF_MASKPROC       0xf0000000
 
+#define SHN_UNDEF          0
+#define SHN_LORESERVE      0xff00
+#define SHN_LOPROC         0xff00
+#define SHN_HIPROC         0xff1f
+#define SHN_LIVEPATCH      0xff20
+#define SHN_ABS            0xfff1
+#define SHN_COMMON         0xfff2
+#define SHN_HIRESERVE      0xffff
+
 typedef struct elf32_shdr {
   Elf32_Word sh_name;
   Elf32_Word sh_type;
@@ -271,6 +280,21 @@ typedef struct elf64_shdr {
 #define DT_LOPROC 0x70000000
 #define DT_HIPROC 0x7fffffff
 
+#define STB_LOCAL          0
+#define STB_GLOBAL         1
+#define STB_WEAK           2
+
+#define STT_NOTYPE         0
+#define STT_OBJECT         1
+#define STT_FUNC           2
+#define STT_SECTION        3
+#define STT_FILE           4
+#define STT_COMMON         5
+#define STT_TLS            6
+
+#define ELF_ST_TYPE(x)     ((x) & 0xf)
+#define ELF_ST_INFO(b,t)   (((b) << 4) + ((t) & 0xf))
+
 typedef struct dynamic {
   Elf32_Sword d_tag;
   union {
@@ -285,6 +309,7 @@ typedef struct {
     Elf64_Addr d_ptr;
   } d_un;
 } Elf64_Dyn;
+
 
 
 
