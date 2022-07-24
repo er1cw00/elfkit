@@ -24,6 +24,7 @@ uint32_t elf_hash_tab::get_hash_code(const char * name) {
     }
     return h;
 }
+
 elf_symbol* elf_hash_tab::find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr) {
 
     // Search the library's symbol table for any defined symbol which
@@ -57,9 +58,7 @@ size_t elf_hash_tab::get_symbol_nums() {
     return (size_t)this->m_chain;
 }
 
-
-
-uint32_t elf_gnu_hash_tab::get_hash_code(const char * name) {
+uint32_t gnu_hash_tab::get_hash_code(const char * name) {
     uint32_t h = 5381;
     for (unsigned char c = *name; c != '\0'; c = *++name) {
         h = h * 33 + c;
@@ -67,7 +66,7 @@ uint32_t elf_gnu_hash_tab::get_hash_code(const char * name) {
     return h;
 }
 
-elf_symbol* elf_gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * name) {
+elf_symbol* gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * name) {
     
     if (!this->m_gnu_bloom_filter || !this->m_gnu_bucket || !this->m_gnu_chain) {
         return NULL;
@@ -116,7 +115,7 @@ elf_symbol* elf_gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const
     return NULL;
 }
 
-elf_symbol* elf_gnu_hash_tab::find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr) {
+elf_symbol* gnu_hash_tab::find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr) {
 
     for (size_t i = 0; i < m_gnu_nbucket; ++i) {
         uint32_t n = m_gnu_bucket[i];
@@ -134,11 +133,11 @@ elf_symbol* elf_gnu_hash_tab::find_symbol_by_addr(elf_symbol_tab* sym_tab, const
     return NULL;
 }
 
-size_t elf_gnu_hash_tab::get_symbol_nums() {
+size_t gnu_hash_tab::get_symbol_nums() {
     return this->m_symbol_nums + this->m_gnu_symndx;
 }
 
-void elf_gnu_hash_tab::caculate_symbol_nums() {
+void gnu_hash_tab::caculate_symbol_nums() {
     size_t total = 0;
     for (int i = 0; i < m_gnu_nbucket; ++i) {
         uint32_t n = m_gnu_bucket[i];
