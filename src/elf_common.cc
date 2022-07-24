@@ -165,7 +165,7 @@ const char * elf_shdr_type_name(int sh_type) {
         "RELR",      
         "SHT_NUM",      //20
     };
-    if (sh_type >= 0 && sh_type <= 12) {
+    if (sh_type >= 0 && sh_type <= 20) {
         return _labels[(int)sh_type];
     } else {
         if (sh_type == SHT_LOPROC) {
@@ -180,9 +180,16 @@ const char * elf_shdr_type_name(int sh_type) {
             return "ANDROID_REL";
         } else if (sh_type == SHT_ANDROID_RELA) {
             return "ANDROID_RELA";
+        } else if (sh_type == SHT_ANDROID_RELR) {
+            return "ANDROID_RELR";
+        } else if (sh_type == SHT_LOOS) {
+            return "SHT_LOOS";
+        } else if (sh_type == SHT_LOOS) {
+            return "SHT_LOOS";
         }
     }
     static char _unk_type[32];
     snprintf(_unk_type, 32, "0x%08X", (uint32_t)sh_type);
     return _unk_type;
 }
+
