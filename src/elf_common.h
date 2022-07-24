@@ -21,7 +21,7 @@ typedef uint64_t addr_t;
 // typedef uint64_t off_t;
 // #endif
 
-
+//#define PAGE_SIZE                    (0x1000)
 #define PAGE_START(addr)             ((~(PAGE_SIZE - 1)) & (addr))
 #define PAGE_END(addr)               PAGE_START((addr) + (PAGE_SIZE-1))
 #define PAGE_OFFSET(x)               ((x) & (PAGE_SIZE - 1))
