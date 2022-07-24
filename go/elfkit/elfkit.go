@@ -1,10 +1,10 @@
 package elfkit
 
-import (
-	"runtime"
-	"sync"
-	"unsafe"
-)
+//import (
+//	"runtime"
+//	"sync"
+//	"unsafe"
+//)
 
 /*
 #cgo CFLAGS: -O3 -Wall -Werror -I../../src
@@ -66,3 +66,20 @@ func (image *ElfImage) GetSoPath() string {
 	return ""
 }
 
+func (image *ElfImage) GetSectionByIndex(index int) *ElfSection {
+
+}
+
+func (image *ElfImage) GetSectionByType(type int32) *ElfSection {
+	
+}
+
+func (image *ElfImage) GetSegmentByIndex(index int) *ElfSegment {
+	if image != nil && image.handle != nil  {
+		C C.cgo_elf_image_get_segment_by_index(index);
+	}
+}
+
+func (image *ElfImage) GetSegmentByType(type int32) *ElfSegment {
+	
+}
