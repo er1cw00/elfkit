@@ -54,7 +54,7 @@ elf_image::~elf_image() {
     }
 }
 
-bool elf_image::check_mem_range(addr_t offset, size_t size, size_t alignment) {
+bool elf_image::_check_mem_range(addr_t offset, size_t size, size_t alignment) {
     off_t range_start;
     off_t range_end;
     off_t mem_end = m_load_bias + m_load_size;

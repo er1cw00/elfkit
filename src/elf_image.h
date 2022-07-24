@@ -63,7 +63,7 @@ public:
         return m_is_gnu_hash;
     }
 protected:
-    bool check_mem_range(addr_t offset, size_t size, size_t alignment);
+    bool _check_mem_range(addr_t offset, size_t size, size_t alignment);
 
 protected:
     int                 m_fd;

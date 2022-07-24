@@ -13,9 +13,9 @@ public:
     virtual elf_segment * get_elf_segment(const int i);
 
 protected:
-    Elf64_Phdr* find_segment_by_type(const uint32_t type);
-    Elf64_Shdr* find_section_by_name(const char *sname);
-    void create_reloc(std::vector<elf_reloc*>& list, addr_t offset, size_t size, size_t entry_size);
+    Elf64_Phdr* _find_segment_by_type(const uint32_t type);
+    Elf64_Shdr* _find_section_by_name(const char *sname);
+    void _create_reloc(std::vector<elf_reloc*>& list, addr_t offset, size_t size, size_t entry_size);
 protected:
     Elf64_Ehdr      *m_ehdr;
 

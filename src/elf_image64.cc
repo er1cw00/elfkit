@@ -41,7 +41,7 @@ bool elf_image64::load() {
     if (this->m_ehdr->e_type != ET_EXEC && this->m_ehdr->e_type != ET_DYN) {
         return false;
     }
-    Elf64_Phdr * dyn_phdr = find_segment_by_type(PT_DYNAMIC);
+    Elf64_Phdr * dyn_phdr = _find_segment_by_type(PT_DYNAMIC);
     if (dyn_phdr == NULL) {
         return  false;
     }
@@ -217,7 +217,7 @@ bool elf_image64::load() {
         }   
     }
     Elf64_Shdr * shstrtab_shdr = &this->m_shdr[this->m_ehdr->e_shstrndx];
-    if (shstrtab_shdr && check_mem_range(shstrtab_shdr->sh_offset, shstrtab_shdr->sh_size, 4)) {
+    if (shstrtab_shdr && _check_mem_range(shstrtab_shdr->sh_offset, shstrtab_shdr->sh_size, 4)) {
         this->m_sh_str_tab = new elf_string_tab((const char*)shstrtab_shdr->sh_offset, (size_t)
             shstrtab_shdr->sh_size);
     }
@@ -250,16 +250,50 @@ bool elf_image64::load() {
     assert(rel_count == (rel_size / rel_entry_size));
     assert(rel_entry_size == sizeof(Elf64_Rel) || rel_entry_size == sizeof(Elf64_Rela));
     if (plt_rel_offset && plt_rel_size > 0) {
-        create_reloc(m_plt_list, plt_rel_offset, plt_rel_size, rel_entry_size);
+        _create_reloc(m_plt_list, plt_rel_offset, plt_rel_size, rel_entry_size);
     }
     if (rel_offset && rel_size > 0) {
-        create_reloc(m_rel_list, rel_offset, rel_size, rel_entry_size);
+        _create_reloc(m_rel_list, rel_offset, rel_size, rel_entry_size);
     }
 
     return true;
 }
 
-void elf_image64::create_reloc(std::vector<elf_reloc*>& list, addr_t offset, size_t size, size_t entry_size) {
+elf_section * elf_image64::get_elf_section_by_index(const int index) {
+    if (index < m_shdr_num) {
+        elf_section * section = new elf_section(&m_shdr[index]);
+        return section;
+    }
+    return NULL;
+}
+
+elf_segment * elf_image64::get_elf_segment_by_index(const int index) {
+    if (index < m_phdr_num) {
+        elf_segment * segment = new elf_segment(&m_phdr[index]);
+        return segment;
+    }
+    return NULL;
+}
+
+elf_section * elf_image64::get_elf_section_by_type(const int type) {
+    Elf64_Shdr * shdr = _find_section_by_type(type);
+    if (shdr) {
+        elf_section * segment = new elf_section(shdr);
+        return segment;
+    }
+    return NULL;
+}
+
+elf_segment * elf_image64::get_elf_segment_by_type(const int type) {
+    Elf64_Phdr * phdr = _find_segment_by_type(type);
+    if (phdr) {
+        elf_segment * segment = new elf_segment(phdr);
+        return segment;
+    }
+    return NULL;
+}
+
+void elf_image64::_create_reloc(std::vector<elf_reloc*>& list, addr_t offset, size_t size, size_t entry_size) {
     if (m_is_use_rela) {
         assert(entry_size == sizeof(Elf64_Rela));
         size_t count = size / entry_size;
@@ -295,7 +329,7 @@ elf_segment * elf_image64::get_elf_segment(const int i) {
 }
 
 
-Elf64_Phdr* elf_image64::find_segment_by_type(const uint32_t type) {
+Elf64_Phdr* elf_image64::_find_segment_by_type(const uint32_t type) {
     Elf64_Phdr* target = NULL;
     Elf64_Phdr* phdr = this->m_phdr;
     for(int i = 0; i < this->m_ehdr->e_phnum; i += 1) {
@@ -308,6 +342,7 @@ Elf64_Phdr* elf_image64::find_segment_by_type(const uint32_t type) {
 }
 
 Elf64_Shdr* elf_image64::find_section_by_name(const char *sname) {
+Elf64_Shdr* elf_image64::_find_section_by_name(const char *sname) {
     Elf64_Shdr* target = NULL;
     Elf64_Shdr* shdr = this->m_shdr;
     if (!m_str_tab) {
