@@ -65,11 +65,9 @@ public:
         elf_symbol* symbol = NULL;
         if (m_elf_class == ELFCLASS32) {
             Elf32_Sym* sym = &((Elf32_Sym*)m_sym_tab)[i];
-            printf("sym: %d %p:\n", i, sym);
             symbol = new elf_symbol(sym);
         } else if (m_elf_class == ELFCLASS64) {
             Elf64_Sym* sym = &((Elf64_Sym*)m_sym_tab)[i];
-            printf("sym: %d, %p:\n", i, sym);
             symbol = new elf_symbol(sym);
         }
         if (symbol && m_str_tab) {

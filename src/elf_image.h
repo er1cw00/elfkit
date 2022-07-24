@@ -13,7 +13,7 @@ class elf_reloc;
 class elf_symbol_tab;
 class elf_string_tab;
 class elf_hash_tab;
-class elf_gnu_hash_tab;
+class gnu_hash_tab;
 class elf_func_array;
 class hash_tab;
 
@@ -52,6 +52,15 @@ public:
     }
     virtual elf_symbol_tab * get_symbol_tab() {
         return this->m_sym_tab;
+    }
+    virtual hash_tab * get_elf_hash_tab() {
+        return this->m_elf_hash_tab;
+    }
+    virtual hash_tab * get_gnu_hash_tab() {
+        return this->m_gnu_hash_tab;
+    }
+    virtual bool is_use_gnu_hash() {
+        return m_is_gnu_hash;
     }
 protected:
     bool check_mem_range(addr_t offset, size_t size, size_t alignment);
