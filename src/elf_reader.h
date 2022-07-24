@@ -40,10 +40,15 @@ protected:
     bool read_section_headers(void);
     bool read_dynamic_section(void);
     bool load_segment(void);
+    bool read_segment(void);
+    
+    addr_t page_start(addr_t addr, size_t page_size);
+    addr_t page_end(addr_t addr, size_t page_size);
+    off_t page_offset(addr_t addr, size_t page_size);
 
     size_t get_load_size(void* phdr, size_t phdr_num, addr_t* out_min_vaddr, addr_t* out_max_vaddr = NULL);
     size_t get_max_aligment(void* phdr, size_t phdr_num);
-
+    size_t get_min_aligment(void* phdr, size_t phdr_num); 
 protected:
     std::string     m_sopath;
     std::string     m_soname;
