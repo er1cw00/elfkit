@@ -613,7 +613,7 @@ bool elf_reader::read_segment(void) {
     m_load_size = load_size;
 
     log_info("m_load_bias: 0x%llx, load_size: 0x%lx\n", m_load_bias, m_load_size);
-    for (size_t i = 0; i < m_phdr_num; ++i) {
+    for (int i = 0; i < m_phdr_num; ++i) {
         uint32_t p_type;
         addr_t p_vaddr;
         addr_t p_offset;
@@ -639,15 +639,15 @@ bool elf_reader::read_segment(void) {
         }
 
         size_t nread = pread(m_fd, (void*)(m_load_bias + p_vaddr), p_filesz, (off_t)p_offset);
-        log_dbg("read segment: i(%d), addr(%p), filesz(%lx), offset(%p), nread(%lx)\n", 
+        log_dbg("read segment: i(%d), addr(%p), offset(%p), filesz(%lx), nread(%lx)\n", 
                 i, 
                 (void*)(m_load_bias + p_vaddr),
+                (void*)p_offset,
                 p_filesz,
-                p_offset,
                 nread);
 
         if (nread != p_filesz) {
-            log_error("couldn't read \"%s\" segment %zd: %s\n", m_soname.c_str(), i, strerror(errno));
+            log_error("couldn't read \"%s\" segment %d: %s\n", m_soname.c_str(), i, strerror(errno));
             return false;
         }
     }
