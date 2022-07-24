@@ -136,7 +136,6 @@ typedef struct elf64_phdr {
 
 
 // section headers
-
 #define SHT_NULL          0
 #define SHT_PROGBITS      1
 #define SHT_SYMTAB        2
@@ -314,8 +313,6 @@ typedef struct {
 } Elf64_Dyn;
 
 
-
-
 typedef struct elf32_sym {
   Elf32_Word st_name;
   Elf32_Addr st_value;
@@ -334,9 +331,9 @@ typedef struct elf64_sym {
 } Elf64_Sym;
 
 
-#define ELF32_R_SYM(x) ((x) >> 8)
+#define ELF32_R_SYM(x)  ((x) >> 8)
 #define ELF32_R_TYPE(x) ((x) & 0xff)
-#define ELF64_R_SYM(i) ((i) >> 32)
+#define ELF64_R_SYM(i)  ((i) >> 32)
 #define ELF64_R_TYPE(i) ((i) & 0xffffffff)
 
 typedef struct elf32_rel {
