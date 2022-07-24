@@ -59,6 +59,7 @@ bool elf_image64::load() {
     size_t plt_rel_size         = 0;
     addr_t rel_offset           = NULL;
     size_t rel_size             = 0;
+    size_t rel_count            = 0;
     size_t rel_entry_size       = 0;
 
     addr_t relr                 = NULL;
@@ -75,7 +76,7 @@ bool elf_image64::load() {
     std::vector<int> needed_list;
 
     for (Elf64_Dyn* d = this->m_dynamic; d->d_tag != DT_NULL; ++d) {
-        log_error("d = %p, d[0](tag) = %s d[1](val) = %p\n",
+        log_dbg("d = %p, d[0](tag) = %s d[1](val) = %p\n",
                   d, 
                   elf_dynamic_tag_name(d->d_tag),
                   reinterpret_cast<void*>(d->d_un.d_val));
@@ -121,14 +122,14 @@ bool elf_image64::load() {
                         gnu_chain);
 
 
-                this->m_gnu_hash_tab = new elf_gnu_hash_tab(get_elf_class(),
-                                                            gnu_nbucket, 
-                                                            gnu_symndx,
-                                                            gnu_maskwords,
-                                                            gnu_shift2,
-                                                            gnu_bucket,
-                                                            gnu_chain,
-                                                            gnu_bloom_filter);
+                this->m_gnu_hash_tab = new gnu_hash_tab(get_elf_class(),
+                                                        gnu_nbucket, 
+                                                        gnu_symndx,
+                                                        gnu_maskwords,
+                                                        gnu_shift2,
+                                                        gnu_bucket,
+                                                        gnu_chain,
+                                                        gnu_bloom_filter);
                 this->m_is_gnu_hash = true;
                 break;
             }
@@ -195,6 +196,10 @@ bool elf_image64::load() {
             case DT_RELAENT:
                 rel_entry_size = (size_t)d->d_un.d_val;
                 break;
+            case DT_RELCOUNT:
+            case DT_RELACOUNT:
+                rel_count = (size_t)d->d_un.d_val;
+                break;
             case DT_RELRSZ:
             case DT_ANDROID_RELRSZ:
                 relr_count = (size_t)(d->d_un.d_val / sizeof(Elf64_Relr));
@@ -233,7 +238,6 @@ bool elf_image64::load() {
     if (!needed_list.empty() && this->m_str_tab) {
         for(std::vector<int>::iterator itor = needed_list.begin(); itor !=needed_list.end(); itor++) {
             const char * name = this->m_str_tab->get_string(*itor);
-            log_dbg("needed: %s\n", name);
             if (name != NULL) {
                 this->m_needed_list.push_back(name);
             }
@@ -242,7 +246,8 @@ bool elf_image64::load() {
     if (symtab) {
         m_sym_tab = new elf_symbol_tab(symtab, this->m_str_tab, is_gnu_hash() ? m_gnu_hash_tab : m_elf_hash_tab);
     }
-
+    log_dbg("rel_entry_size: %zd, sizeof(Elf64_Rel): %lu\n", rel_entry_size, sizeof(Elf64_Rela));
+    assert(rel_count == (rel_size / rel_entry_size));
     assert(rel_entry_size == sizeof(Elf64_Rel) || rel_entry_size == sizeof(Elf64_Rela));
     if (plt_rel_offset && plt_rel_size > 0) {
         create_reloc(m_plt_list, plt_rel_offset, plt_rel_size, rel_entry_size);
