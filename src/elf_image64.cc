@@ -312,22 +312,6 @@ void elf_image64::_create_reloc(std::vector<elf_reloc*>& list, addr_t offset, si
         }
     }
 }
-elf_section * elf_image64::get_elf_section(const int i) {
-    if (i < m_shdr_num) {
-        elf_section * section = new elf_section(&m_shdr[i]);
-        return section;
-    }
-    return NULL;
-}
-
-elf_segment * elf_image64::get_elf_segment(const int i) {
-    if (i < m_phdr_num) {
-        elf_segment * segment = new elf_segment(&m_phdr[i]);
-        return segment;
-    }
-    return NULL;
-}
-
 
 Elf64_Phdr* elf_image64::_find_segment_by_type(const uint32_t type) {
     Elf64_Phdr* target = NULL;
@@ -341,7 +325,18 @@ Elf64_Phdr* elf_image64::_find_segment_by_type(const uint32_t type) {
     return target;
 }
 
-Elf64_Shdr* elf_image64::find_section_by_name(const char *sname) {
+Elf64_Shdr* elf_image64::_find_section_by_type(const uint32_t type) {
+    Elf64_Shdr* target = NULL;
+    Elf64_Shdr* shdr = this->m_shdr;
+    for(int i = 0; i < this->m_ehdr->e_shnum; i += 1) {
+        if(shdr[i].sh_type == type) {
+            target = shdr + i;
+            break;
+        }
+    }
+    return target;
+}
+
 Elf64_Shdr* elf_image64::_find_section_by_name(const char *sname) {
     Elf64_Shdr* target = NULL;
     Elf64_Shdr* shdr = this->m_shdr;

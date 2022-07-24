@@ -9,12 +9,16 @@ public:
 
 public:
     virtual bool load();
-    virtual elf_section * get_elf_section(const int i);
-    virtual elf_segment * get_elf_segment(const int i);
+    virtual elf_section* get_elf_section_by_index(const int index);
+    virtual elf_section* get_elf_section_by_type(const int type);
+    virtual elf_segment* get_elf_segment_by_index(const int index);
+    virtual elf_segment* get_elf_segment_by_type(const int type);
 
 protected:
     Elf64_Phdr* _find_segment_by_type(const uint32_t type);
     Elf64_Shdr* _find_section_by_name(const char *sname);
+    Elf64_Shdr* _find_section_by_type(const uint32_t type);
+
     void _create_reloc(std::vector<elf_reloc*>& list, addr_t offset, size_t size, size_t entry_size);
 protected:
     Elf64_Ehdr      *m_ehdr;

@@ -30,10 +30,18 @@ bool elf_image32::load() {
     return false;
 }
 
-elf_section * elf_image32::get_elf_section(const int i) {
+elf_section * elf_image32::get_elf_section_by_index(const int i) {
     return NULL;
 }
 
-elf_segment * elf_image32::get_elf_segment(const int i) {
+elf_segment * elf_image32::get_elf_segment_by_index(const int i) {
+    return NULL;
+}
+
+elf_section * elf_image32::get_elf_section_by_type(const int type) {
+    return NULL;
+}
+
+elf_segment * elf_image32::get_elf_segment_by_type(const int type) {
     return NULL;
 }

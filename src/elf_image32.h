@@ -9,8 +9,10 @@ public:
 
 public:
     virtual bool load();
-    virtual elf_section * get_elf_section(const int i);
-    virtual elf_segment * get_elf_segment(const int i);
+    virtual elf_section* get_elf_section_by_index(const int index);
+    virtual elf_section* get_elf_section_by_type(const int type);
+    virtual elf_segment* get_elf_segment_by_index(const int index);
+    virtual elf_segment* get_elf_segment_by_type(const int type);
 
 protected:
     Elf32_Ehdr*     m_ehdr;
