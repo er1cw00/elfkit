@@ -42,9 +42,9 @@ int main(const int argc, const char * args[]) {
     elf_symbol_tab * symtab = image->get_symbol_tab();
     if (hashtab && symtab) {
         for(int i = 0; i < hashtab->get_symbol_nums(); i++) {
-            elf_symbol * sym = symtab->get_symbol(i);
-            if (sym != NULL) {
-                printf("%d, sym name:  %s\n", i, sym->get_sym_name());
+            elf_symbol sym;
+            if (symtab->get_symbol(i, &sym)) {
+                printf("%d, sym name:  %s\n", i, sym.get_sym_name());
             }
         }
     }

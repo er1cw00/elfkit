@@ -3,11 +3,11 @@
 #include "elf_symbol_tab.h"
 
 
-bool hash_tab::symbol_matches_soaddr(elf_symbol* sym, addr_t soaddr) {
+bool hash_tab::_symbol_matches_soaddr(elf_symbol* sym, addr_t soaddr) {
     // Skip TLS symbols. A TLS symbol's value is relative to the start of the TLS segment rather than
     // to the start of the solib. The solib only reserves space for the initialized part of the TLS
     // segment. (i.e. .tdata is followed by .tbss, and .tbss overlaps other sections.)
-    return sym->get_section_index() != SHN_UNDEF &&
+    return sym->get_shndx() != SHN_UNDEF &&
            ELF_ST_TYPE(sym->get_info()) != STT_TLS &&
            soaddr >= sym->get_value() &&
            soaddr < sym->get_value() + sym->get_size();
@@ -25,33 +25,33 @@ uint32_t elf_hash_tab::get_hash_code(const char * name) {
     return h;
 }
 
-elf_symbol* elf_hash_tab::find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr) {
+bool elf_hash_tab::find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr, elf_symbol* symbol) {
 
-    // Search the library's symbol table for any defined symbol which
-    // contains this address.
+    if (!symbol) {
+        return false;
+    }
     for (size_t i = 0; i < m_nchain; ++i) {
-        elf_symbol* sym = sym_tab->get_symbol(i);
-        if (symbol_matches_soaddr(sym, addr)) {
-            return sym;
+        if (sym_tab->get_symbol(i, symbol) && 
+            _symbol_matches_soaddr(symbol, addr)) {
+            return true;
         }
     }
-    return NULL;
+    return false;
 }
 
-elf_symbol* elf_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * name) {
-    if (!this->m_bucket || !this-> m_chain) {
-        return NULL;
+bool elf_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * name, elf_symbol* symbol) {
+    if (!symbol || !this->m_bucket || !this-> m_chain) {
+        return false;
     }
     uint32_t hash = get_hash_code(name);
     uint32_t index = this->m_bucket[hash % this->m_nbucket];
 
     log_dbg("search sym name(%s), hash(%x), index(%x)\n", name, hash, index);
     for (uint32_t n = index; n != 0; n = m_chain[n]) {
-        elf_symbol* sym = sym_tab->get_symbol(n);
-        return sym;
+        return sym_tab->get_symbol(n, symbol);
     }
     log_warn("sym name(%s) not found\n", name);
-    return NULL;
+    return false;
 }
 
 size_t elf_hash_tab::get_symbol_nums() {
@@ -66,10 +66,10 @@ uint32_t gnu_hash_tab::get_hash_code(const char * name) {
     return h;
 }
 
-elf_symbol* gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * name) {
+bool gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * name, elf_symbol* symbol) {
     
-    if (!this->m_gnu_bloom_filter || !this->m_gnu_bucket || !this->m_gnu_chain) {
-        return NULL;
+    if (!symbol || !this->m_gnu_bloom_filter || !this->m_gnu_bucket || !this->m_gnu_chain) {
+        return false;
     }
     uint32_t hash = this->get_hash_code(name);
     uint32_t bloom_mask_bits = (m_elf_class == ELFCLASS32 ? 4 : 8) * 8;
@@ -89,55 +89,53 @@ elf_symbol* gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const cha
         assert(0);
     }
 
-    elf_symbol* sym = NULL;
     // test against bloom filter
     if ((1 & (bloom_word >> (hash % bloom_mask_bits)) & (bloom_word >> (h2 % bloom_mask_bits))) == 0) {
         log_dbg("lookup name(%s) NOT Found\n", name);
-        return NULL;
+        return false;
     }
 
     // bloom test says "probably yes"...
     uint32_t n = this->m_gnu_bucket[hash % this->m_gnu_nbucket];
     if (n == 0) {
         log_dbg("lookup name(%s) NOT Found\n", name);
-        return NULL;
+        return false;
     }
 
     do {
-        sym = sym_tab->get_symbol(n);
-        if (sym != NULL && 
+        if (sym_tab->get_symbol(n, symbol) && 
                 ((this->m_gnu_chain[n] ^ hash) >> 1) == 0 &&
-                strcmp(sym->get_sym_name(), name) == 0) {
+                strcmp(symbol->get_sym_name(), name) == 0) {
             log_dbg("symbol (%s) Found\n", name);
-            return sym;
+            return true;
         }
     } while ((this->m_gnu_chain[n++] & 1) == 0);
-    return NULL;
+    return false;
 }
 
-elf_symbol* gnu_hash_tab::find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr) {
-
+bool gnu_hash_tab::find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr, elf_symbol* symbol) {
+    if (!symbol) {
+        return false;
+    }
     for (size_t i = 0; i < m_gnu_nbucket; ++i) {
         uint32_t n = m_gnu_bucket[i];
         if (n == 0) {
             continue;
         }
-
         do {
-            elf_symbol* sym = sym_tab->get_symbol(n);
-            if (symbol_matches_soaddr(sym, addr)) {
-                return sym;
+            if (sym_tab->get_symbol(n, symbol) && _symbol_matches_soaddr(symbol, addr)) {
+                return true;
             }
         } while ((m_gnu_chain[n++] & 1) == 0);
     }
-    return NULL;
+    return false;
 }
 
 size_t gnu_hash_tab::get_symbol_nums() {
     return this->m_symbol_nums + this->m_gnu_symndx;
 }
 
-void gnu_hash_tab::caculate_symbol_nums() {
+void gnu_hash_tab::_caculate_symbol_nums() {
     size_t total = 0;
     for (int i = 0; i < m_gnu_nbucket; ++i) {
         uint32_t n = m_gnu_bucket[i];

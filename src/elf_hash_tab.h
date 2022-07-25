@@ -1,21 +1,25 @@
 #pragma once
 
+#include "elf_log.h"
 #include "elf_common.h"
-
 
 class elf_symbol;
 class elf_symbol_tab;
 
 class hash_tab {
 public:
-    hash_tab() {;}
-    virtual ~hash_tab() { return; }
+    hash_tab() {
+        log_trace("hash_tab ctor: %p\n", this);
+    }
+    virtual ~hash_tab() { 
+        log_trace("hash_tab dtor: %p\n", this);
+    }
     virtual uint32_t get_hash_code(const char * name) = 0 ;
     virtual size_t get_symbol_nums() = 0; 
-    virtual elf_symbol* find_symbol_by_name(elf_symbol_tab* sym_tab, const char* name) = 0;
-    virtual elf_symbol* find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr) = 0;
+    virtual bool find_symbol_by_name(elf_symbol_tab* sym_tab, const char* name, elf_symbol* symbol) = 0;
+    virtual bool find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr, elf_symbol* symbol) = 0;
 protected:
-    bool symbol_matches_soaddr(elf_symbol* sym, addr_t soaddr);
+    bool _symbol_matches_soaddr(elf_symbol* sym, addr_t soaddr);
 };
 
 class elf_hash_tab : public hash_tab {
@@ -30,8 +34,9 @@ public:
 
     virtual uint32_t get_hash_code(const char* name);
     virtual size_t get_symbol_nums(); 
-    virtual elf_symbol* find_symbol_by_name(elf_symbol_tab* sym_tab, const char* name);
-    virtual elf_symbol* find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr); 
+    virtual bool find_symbol_by_name(elf_symbol_tab* sym_tab, const char* name, elf_symbol* symbol);
+    virtual bool find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr, elf_symbol* symbol); 
+
 protected:
     uint32_t     m_nbucket;
     uint32_t     m_nchain;
@@ -57,16 +62,17 @@ public:
         this->m_gnu_bucket          = bucket;
         this->m_gnu_chain           = chain;
         this->m_gnu_bloom_filter    = bloom_filter;
-        caculate_symbol_nums();
+        _caculate_symbol_nums();
     } 
     virtual ~gnu_hash_tab() {}    
 
     virtual uint32_t get_hash_code(const char* name);
     virtual size_t get_symbol_nums();
-    virtual elf_symbol* find_symbol_by_name(elf_symbol_tab* sym_tab, const char* name);
-    virtual elf_symbol* find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr); 
+    virtual bool find_symbol_by_name(elf_symbol_tab* sym_tab, const char* name, elf_symbol* symbol);
+    virtual bool find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr, elf_symbol* symbol); 
+
 protected:
-    void caculate_symbol_nums();
+    void _caculate_symbol_nums();
 
 protected:
     uint8_t     m_elf_class;
