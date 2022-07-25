@@ -30,18 +30,17 @@ bool elf_image32::load() {
     return false;
 }
 
-elf_section * elf_image32::get_elf_section_by_index(const int i) {
-    return NULL;
+bool elf_image32::get_elf_section_by_index(const int index, elf_section* section) {
+    return false;
 }
 
-elf_segment * elf_image32::get_elf_segment_by_index(const int i) {
-    return NULL;
+bool elf_image32::get_elf_section_by_type(const int type, elf_section* section) {
+    return false;
 }
 
-elf_section * elf_image32::get_elf_section_by_type(const int type) {
-    return NULL;
+bool elf_image32::get_elf_segment_by_index(const int index, elf_segment* segment) {
+    return false;
 }
-
-elf_segment * elf_image32::get_elf_segment_by_type(const int type) {
-    return NULL;
+bool elf_image32::get_elf_segment_by_type(const int type, elf_segment* segment) {
+    return false;
 }

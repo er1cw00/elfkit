@@ -259,38 +259,39 @@ bool elf_image64::load() {
     return true;
 }
 
-elf_section * elf_image64::get_elf_section_by_index(const int index) {
-    if (index < m_shdr_num) {
-        elf_section * section = new elf_section(&m_shdr[index]);
-        return section;
+
+
+bool elf_image64::get_elf_section_by_index(const int index, elf_section * section) {
+    if (index < m_shdr_num && section) {
+        section->reset(&m_shdr[index]);
+        return true;
     }
-    return NULL;
+    return false;
 }
 
-elf_segment * elf_image64::get_elf_segment_by_index(const int index) {
-    if (index < m_phdr_num) {
-        elf_segment * segment = new elf_segment(&m_phdr[index]);
-        return segment;
-    }
-    return NULL;
-}
-
-elf_section * elf_image64::get_elf_section_by_type(const int type) {
+bool elf_image64::get_elf_section_by_type(const int type, elf_section * section) {
     Elf64_Shdr * shdr = _find_section_by_type(type);
     if (shdr) {
-        elf_section * segment = new elf_section(shdr);
-        return segment;
+        section->reset(shdr);
+        return true;
     }
-    return NULL;
+    return false;
 }
 
-elf_segment * elf_image64::get_elf_segment_by_type(const int type) {
+bool elf_image64::get_elf_segment_by_index(const int index, elf_segment * segment) {
+    if (index < m_phdr_num && segment) {
+        segment->reset(&m_phdr[index]);
+        return true;
+    }
+    return false;
+}
+bool elf_image64::get_elf_segment_by_type(const int type, elf_segment * segment) {
     Elf64_Phdr * phdr = _find_segment_by_type(type);
     if (phdr) {
-        elf_segment * segment = new elf_segment(phdr);
-        return segment;
+        segment->reset(phdr);
+        return true;
     }
-    return NULL;
+    return false;
 }
 
 void elf_image64::_create_reloc(std::vector<elf_reloc*>& list, addr_t offset, size_t size, size_t entry_size) {

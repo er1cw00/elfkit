@@ -39,10 +39,10 @@ public:
 public:
 
     virtual bool load() = 0;
-    virtual elf_section * get_elf_section_by_index(const int index) = 0;
-    virtual elf_section * get_elf_section_by_type(const int type) = 0;
-    virtual elf_segment * get_elf_segment_by_index(const int index) = 0;
-    virtual elf_segment * get_elf_segment_by_type(const int type) = 0;
+    virtual bool get_elf_section_by_index(const int index, elf_section* section) = 0;
+    virtual bool get_elf_section_by_type(const int type, elf_section* section) = 0;
+    virtual bool get_elf_segment_by_index(const int index, elf_segment* segment) = 0;
+    virtual bool get_elf_segment_by_type(const int type, elf_segment* segment) = 0;
 
     virtual elf_string_tab* get_section_string_tab() {
         return this->m_sh_str_tab;

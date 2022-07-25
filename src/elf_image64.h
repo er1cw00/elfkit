@@ -9,10 +9,10 @@ public:
 
 public:
     virtual bool load();
-    virtual elf_section* get_elf_section_by_index(const int index);
-    virtual elf_section* get_elf_section_by_type(const int type);
-    virtual elf_segment* get_elf_segment_by_index(const int index);
-    virtual elf_segment* get_elf_segment_by_type(const int type);
+    virtual bool get_elf_section_by_index(const int index, elf_section* section);
+    virtual bool get_elf_section_by_type(const int type, elf_section* section);
+    virtual bool get_elf_segment_by_index(const int index, elf_segment* segment);
+    virtual bool get_elf_segment_by_type(const int type, elf_segment* segment);
 
 protected:
     Elf64_Phdr* _find_segment_by_type(const uint32_t type);
