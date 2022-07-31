@@ -119,7 +119,10 @@ size_t cgo_elf_image_get_needed_list(ElfImage img, const char** plist) {
         string_list needed_list = image->get_needed_list();
         size_t s = needed_list.size();
         if (plist != NULL) {
-            *plist = needed_list.get(0);
+            for(int i = 0; i < s; i++) {
+                plist[i] = needed_list.get(0);
+                log_dbg(">>>> %d:    %p, %s\n",i, plist[i], plist[i]);
+            }
         }
         return s;
     }

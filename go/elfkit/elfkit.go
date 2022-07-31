@@ -1,10 +1,11 @@
 package elfkit
 
-//import (
+import (
+	"fmt"
 //	"runtime"
 //	"sync"
-//	"unsafe"
-//)
+	"unsafe"
+)
 
 /*
 #cgo CFLAGS: -O3 -Wall -Werror -I../../src 
@@ -148,11 +149,20 @@ func (image *ElfImage) GetNeededList() []string {
 	if image == nil || image.handle == nil {
 		return nil
 	}
-	var p *C.char = nil;
-	s := cgo_elf_image_get_needed_list(image.handle, &p);
-	fmt.Printf("s: %d\n",s);
-	if s > 0 && p != nil {
-
+	
+	s := int(C.cgo_elf_image_get_needed_list(image.handle, nil));
+	if s > 0 {
+		var array *C.char = make([]*C.char,s + 1);
+	}
+	fmt.Printf("s: %d, %d\n",s, uintptr(unsafe.Sizeof(array)));
+	if s > 0 && array != nil {
+		list := make([]string, s)
+		for i := 0; i < s; i++ {
+			p := (*C.char)(unsafe.Pointer(uintptr(unsafe.Pointer(array)) + uintptr(unsafe.Sizeof(array)) * uintptr(i)))
+			fmt.Printf("%d:  %x\n", i, p);
+			list = append(list, C.GoString(p))
+		}
+		return list
 	}
 	return nil;
 }

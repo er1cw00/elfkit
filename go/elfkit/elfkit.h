@@ -26,6 +26,7 @@ bool cgo_elf_image_get_segment_by_index(ElfImage img, const int index, ElfSegmen
 bool cgo_elf_image_get_section_by_index(ElfImage img, const int index, ElfSection* section);
 bool cgo_elf_image_get_segment_by_type(ElfImage img, const int type, ElfSegment* segment);
 bool cgo_elf_image_get_section_by_type(ElfImage img, const int type, ElfSection* section);
+size_t cgo_elf_image_get_needed_list(ElfImage img, const char** plist);
 
 #ifdef __cplusplus
 };

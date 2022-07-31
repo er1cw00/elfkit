@@ -20,5 +20,9 @@ func main() {
 	if segment != nil {
 		fmt.Printf("PT_DYNAMIC: %bv\n", segment);
 	}
+	neededList := image.GetNeededList();
+	for so := range neededList {
+		fmt.Printf("  Need: %s\n", so);
+	}
 	return;
 }
