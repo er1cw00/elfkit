@@ -77,3 +77,51 @@ const uint8_t cgo_elf_image_get_elf_class(ElfImage img) {
     }
     return elf_class;
 }
+
+extern "C"
+bool cgo_elf_image_get_segment_by_index(ElfImage img, const int index, ElfSegment* segment) {
+    if (img != NULL) {
+        elf_image* image = (elf_image*)img;
+        return image->get_elf_segment_by_index(index, segment);
+    }
+    return false;
+}
+extern "C"
+bool cgo_elf_image_get_section_by_index(ElfImage img, const int index, ElfSection* section) {
+        if (img != NULL) {
+        elf_image* image = (elf_image*)img;
+        return image->get_elf_section_by_index(index, section);
+    }
+    return false;
+}
+
+extern "C"
+bool cgo_elf_image_get_segment_by_type(ElfImage img, const int type, ElfSegment* segment) {
+    if (img != NULL) {
+        elf_image* image = (elf_image*)img;
+        return image->get_elf_segment_by_type(type, segment);
+    }
+    return false;
+}
+extern "C"
+bool cgo_elf_image_get_section_by_type(ElfImage img, const int type, ElfSection* section) {
+    if (img != NULL) {
+        elf_image* image = (elf_image*)img;
+        return image->get_elf_section_by_type(type, section);
+    }
+    return false;
+}
+
+extern "C"
+size_t cgo_elf_image_get_needed_list(ElfImage img, const char** plist) {
+    if (img != NULL) {
+        elf_image* image = (elf_image*)img;
+        string_list needed_list = image->get_needed_list();
+        size_t s = needed_list.size();
+        if (plist != NULL) {
+            *plist = needed_list.get(0);
+        }
+        return s;
+    }
+    return 0;
+}

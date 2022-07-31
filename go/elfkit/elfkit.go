@@ -7,7 +7,7 @@ package elfkit
 //)
 
 /*
-#cgo CFLAGS: -O3 -Wall -Werror -I../../src
+#cgo CFLAGS: -O3 -Wall -Werror -I../../src 
 #cgo LDFLAGS: -L../../build -lelfkit-dev -Wl,-rpath,${SRCDIR}/../../
 #cgo linux LDFLAGS: -L../../ -lelfkit-dev -lrt -Wl,-rpath,${SRCDIR}/../../
 #include "elfkit.h"
@@ -66,20 +66,93 @@ func (image *ElfImage) GetSoPath() string {
 	return ""
 }
 
-func (image *ElfImage) GetSectionByIndex(index int) *ElfSection {
-
+func NewElfSection(sec *C.ElfSection) *ElfSection {
+	section := &ElfSection {
+		NameIndex:  uint32(sec.sh_name),
+		Type:       uint32(sec.sh_type),
+		Flags:		uint64(sec.sh_flags),
+		Addr:		ElfAddr(sec.sh_addr),
+		Offset:		ElfOffset(sec.sh_offset),
+		Size:		ElfSize(sec.sh_size),
+		Link:		uint32(sec.sh_link),
+		Info:		uint32(sec.sh_info),
+		AddrAlign:  uint64(sec.sh_addralign),
+		EntrySize:  ElfSize(sec.sh_entsize),
+	}
+	return section;
 }
 
-func (image *ElfImage) GetSectionByType(type int32) *ElfSection {
-	
+func NewElfSegment(seg *C.ElfSegment) *ElfSegment {
+	segment := &ElfSegment {
+			Type:      uint32(seg.p_type),
+			Flags:     uint32(seg.p_flags),
+			Offset:    ElfOffset(seg.p_offset),
+			VirtAddr:  ElfAddr(seg.p_vaddr),
+			PhyAddr:   ElfAddr(seg.p_paddr),
+			FileSize:  ElfSize(seg.p_filesz),
+			MemSize:   ElfSize(seg.p_memsz),
+			Align:     uint64(seg.p_align),
+		}
+	return segment;
+}
+
+func (image *ElfImage) GetSectionByIndex(index int) *ElfSection {
+	if image == nil || image.handle == nil {
+		return nil
+	}
+	var sec C.ElfSection;
+	if C.cgo_elf_image_get_section_by_index(image.handle, C.int(index), &sec) {
+		section := NewElfSection(&sec);
+		return section;
+	}
+	return nil;
+}
+
+func (image *ElfImage) GetSectionByType(t uint32) *ElfSection {
+	if image == nil || image.handle == nil {
+		return nil
+	}
+	var sec C.ElfSection;
+	if C.cgo_elf_image_get_section_by_type(image.handle, C.int(t), &sec) {
+		section := NewElfSection(&sec);
+		return section;
+	}
+	return nil;
 }
 
 func (image *ElfImage) GetSegmentByIndex(index int) *ElfSegment {
-	if image != nil && image.handle != nil  {
-		C C.cgo_elf_image_get_segment_by_index(index);
+	if image == nil || image.handle == nil {
+		return nil
 	}
+	var seg C.ElfSegment;
+	if C.cgo_elf_image_get_segment_by_index(image.handle, C.int(index), &seg) {
+		segment := NewElfSegment(&seg);
+		return segment;
+	}
+	return nil;
 }
 
-func (image *ElfImage) GetSegmentByType(type int32) *ElfSegment {
-	
+func (image *ElfImage) GetSegmentByType(t uint32) *ElfSegment {
+	if image == nil || image.handle == nil {
+		return nil
+	}
+	var seg C.ElfSegment;
+	if C.cgo_elf_image_get_segment_by_type(image.handle, C.int(t), &seg) {
+		segment := NewElfSegment(&seg);
+		return segment;
+	}
+	return nil;
+}
+
+func (image *ElfImage) GetNeededList() []string {
+	if image == nil || image.handle == nil {
+		return nil
+	}
+	var p *C.char = nil;
+	s := cgo_elf_image_get_needed_list(image.handle, &p);
+	fmt.Printf("s: %d\n",s);
+	if s > 0 && p != nil {
+
+	}
+	return nil;
 }

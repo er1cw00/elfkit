@@ -1,10 +1,11 @@
 package elfkit
 
-//import (
+import (
+	"fmt"
 //	"runtime"
 //	"sync"
 //	"unsafe"
-//)
+)
 
 /*
 #include "elfkit.h"
@@ -38,10 +39,24 @@ type ElfSegment struct {
     Flags     uint32;
     Offset    ElfOffset;
     VirtAddr  ElfAddr;
-    phyAddr   ElfAddr;
+    PhyAddr   ElfAddr;
     FileSize  ElfSize;
     MemSize   ElfSize;
     Align     uint64;
+}
+
+func (segment *ElfSegment) String() string {
+	var result string = "";
+	result = fmt.Sprintf("%d,  %x,  %x    %x    %x    %d   %d   %d",
+					segment.Type,
+					segment.Flags,
+					segment.Offset,
+					segment.VirtAddr,
+					segment.PhyAddr,
+					segment.FileSize,
+					segment.MemSize,
+					segment.Align);
+	return result;
 }
 
 
@@ -94,6 +109,7 @@ const SHN_HIRESERVE      uint32 = C.SHN_HIRESERVE
 
 type ElfSection struct {
     Name       string;
+    NameIndex  uint32;
     Type       uint32;
     Flags      uint64;
     Addr       ElfAddr;
@@ -101,7 +117,7 @@ type ElfSection struct {
     Size       ElfSize;
     Link       uint32;
     Info       uint32;
-    AddrAglign uint64;
+    AddrAlign  uint64;
     EntrySize  ElfSize;
 }
 

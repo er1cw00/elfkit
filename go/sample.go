@@ -16,5 +16,9 @@ func main() {
 		soname := image.GetSoName()
 		fmt.Printf("SoName: %s\n", soname)
 	}
+	segment := image.GetSegmentByType(elfkit.PT_DYNAMIC);
+	if segment != nil {
+		fmt.Printf("PT_DYNAMIC: %bv\n", segment);
+	}
 	return;
 }
