@@ -11,7 +11,8 @@ project(${PROJECT})
 
 aux_source_directory(src  SOURCES)
 
-set(HEADERS src/elf.h
+set(HEADERS src/string_list.h
+            src/elf.h
             src/elf_log.h
             src/elf_common.h
             src/elf_mapped.h
