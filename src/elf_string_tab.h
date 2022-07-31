@@ -1,21 +1,26 @@
 #pragma once
 
 #include "elf.h"
+#include "elf_log.h"
 
-class elf_string_tab {
-    public:
+struct elf_string_tab {
     elf_string_tab(const char *tab, const size_t tab_size) {
-        this->m_str_tab = (char*)tab;
-        this->m_tab_size = tab_size;
+        log_trace("elf_string_tab ctor: %p\n", this);
+        this->str_tab = (char*)tab;
+        this->tab_size = tab_size;
     }
+
+    ~elf_string_tab() {
+        log_trace("elf_string_tab dtor: %p\n", this);
+    }
+
     const char * get_string(const int index) {
-        if (m_str_tab != NULL && m_tab_size > 0 && index < (int)m_tab_size) {
-            return &m_str_tab[index];
+        if (str_tab != NULL && tab_size > 0 && index < (int)tab_size) {
+            return &str_tab[index];
         }
         return NULL;
     }
-protected:
-    
-    char * m_str_tab;
-    size_t m_tab_size;
+
+    char * str_tab;
+    size_t tab_size;
 };

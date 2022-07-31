@@ -52,18 +52,22 @@ struct elf_symbol {
 class elf_symbol_tab {
 public:
     elf_symbol_tab(Elf64_Sym* sym, elf_string_tab * strtab, hash_tab * hashtab) {
+        log_trace("elf_symbol_tab ctor: %p\n", this);
         this->m_sym_tab   = (addr_t)sym;
         this->m_elf_class = ELFCLASS64;
         this->m_str_tab   = strtab;
         this->m_hash_tab  = hashtab;
     }
     elf_symbol_tab(Elf32_Sym* sym, elf_string_tab * strtab, hash_tab * hashtab) {
+        log_trace("elf_symbol_tab ctor: %p\n", this);
         this->m_sym_tab   = (addr_t)sym;
         this->m_elf_class = ELFCLASS32;
         this->m_str_tab   = strtab;
         this->m_hash_tab  = hashtab;
     }
-    ~elf_symbol_tab();
+    ~elf_symbol_tab() {
+        log_trace("elf_symbol_tab dtor: %p\n", this);
+    }
 
     bool get_symbol(const int i, elf_symbol* symbol) {
         if (symbol) {

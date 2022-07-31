@@ -1,24 +1,31 @@
 #pragma once
 
-#include "elf_common.h"
+
 
 #include <string>
 #include <vector>
 
+
+#include "elf_common.h"
+#include "elf_reloc_tab.h"
+#include "string_list.h"
+
+
+struct elf_section;
+struct elf_segment;
+struct elf_symbol;
+
+
+class hash_tab;
 class elf_reader;
-class elf_section;
-class elf_segment;
-class elf_symbol;
-class elf_reloc;
-class elf_symbol_tab;
-class elf_string_tab;
 class elf_hash_tab;
 class gnu_hash_tab;
 class elf_func_array;
-class hash_tab;
+class elf_reloc_tab;
+class elf_symbol_tab;
+class elf_string_tab;
 
-typedef std::vector<std::string> elf_needed_list_t;
-typedef std::vector<elf_reloc*> elf_reloc_list_t;
+
 
 class elf_image {
 public:
@@ -50,7 +57,7 @@ public:
     virtual elf_string_tab * get_string_tab() {
         return this->m_str_tab;
     }
-    virtual elf_needed_list_t & get_needed_list() {
+    virtual string_list & get_needed_list() {
         return this->m_needed_list;
     }
     virtual elf_symbol_tab * get_symbol_tab() {
@@ -95,7 +102,7 @@ protected:
     elf_func_array*     m_finit_array;
     elf_func_array*     m_preinit_array;
 
-    elf_needed_list_t   m_needed_list;
-    elf_reloc_list_t    m_plt_list;
-    elf_reloc_list_t    m_rel_list;
+    string_list         m_needed_list;
+    elf_reloc_tab       m_plt_list;
+    elf_reloc_tab       m_rel_list;
 };

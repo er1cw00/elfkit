@@ -28,10 +28,10 @@ int main(const int argc, const char * args[]) {
     }
 
     elf_image * image = reader.load_image();
-    elf_needed_list_t needed_list = image->get_needed_list();
+    string_list & needed_list = image->get_needed_list();
     fprintf(stderr, "needed list size: %ld\n", needed_list.size());
-    for (elf_needed_list_t::iterator itor = needed_list.begin(); itor != needed_list.end(); itor++) {
-        printf("needed: %s\n", itor->c_str());
+    for (int i = 0; i < needed_list.size(); i++) {
+        printf("needed: %s\n", needed_list.get(i));
     }
     hash_tab * hashtab = NULL;
     if (image->is_use_gnu_hash()) {
@@ -49,6 +49,7 @@ int main(const int argc, const char * args[]) {
         }
     }
    
+
     //sleep(100);
     delete image;
 

@@ -192,4 +192,3 @@ const char * elf_shdr_type_name(int sh_type) {
     snprintf(_unk_type, 32, "0x%08X", (uint32_t)sh_type);
     return _unk_type;
 }
-

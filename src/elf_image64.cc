@@ -18,7 +18,7 @@
 #include "elf_image64.h"
 #include "elf_section.h"
 #include "elf_segment.h"
-#include "elf_reloc.h"
+#include "elf_reloc_tab.h"
 #include "elf_hash_tab.h"
 #include "elf_string_tab.h"
 #include "elf_symbol_tab.h"
@@ -239,7 +239,7 @@ bool elf_image64::load() {
         for(std::vector<int>::iterator itor = needed_list.begin(); itor !=needed_list.end(); itor++) {
             const char * name = this->m_str_tab->get_string(*itor);
             if (name != NULL) {
-                this->m_needed_list.push_back(name);
+                this->m_needed_list.append(name);
             }
         }
     }
@@ -263,7 +263,7 @@ bool elf_image64::load() {
 
 bool elf_image64::get_elf_section_by_index(const int index, elf_section * section) {
     if (index < m_shdr_num && section) {
-        section->reset(&m_shdr[index]);
+        elf_section_reset_with_shdr64(section, &m_shdr[index]);
         return true;
     }
     return false;
@@ -272,7 +272,7 @@ bool elf_image64::get_elf_section_by_index(const int index, elf_section * sectio
 bool elf_image64::get_elf_section_by_type(const int type, elf_section * section) {
     Elf64_Shdr * shdr = _find_section_by_type(type);
     if (shdr) {
-        section->reset(shdr);
+        elf_section_reset_with_shdr64(section, shdr);
         return true;
     }
     return false;
@@ -280,7 +280,7 @@ bool elf_image64::get_elf_section_by_type(const int type, elf_section * section)
 
 bool elf_image64::get_elf_segment_by_index(const int index, elf_segment * segment) {
     if (index < m_phdr_num && segment) {
-        segment->reset(&m_phdr[index]);
+        elf_segment_reset_with_phdr64(segment, &m_phdr[index]);
         return true;
     }
     return false;
@@ -288,20 +288,20 @@ bool elf_image64::get_elf_segment_by_index(const int index, elf_segment * segmen
 bool elf_image64::get_elf_segment_by_type(const int type, elf_segment * segment) {
     Elf64_Phdr * phdr = _find_segment_by_type(type);
     if (phdr) {
-        segment->reset(phdr);
+        elf_segment_reset_with_phdr64(segment, phdr);
         return true;
     }
     return false;
 }
 
-void elf_image64::_create_reloc(std::vector<elf_reloc*>& list, addr_t offset, size_t size, size_t entry_size) {
+void elf_image64::_create_reloc(elf_reloc_tab& list, addr_t offset, size_t size, size_t entry_size) {
     if (m_is_use_rela) {
         assert(entry_size == sizeof(Elf64_Rela));
         size_t count = size / entry_size;
         Elf64_Rela* plt_rela = (Elf64_Rela*)offset;
         for (int i = 0; i < count; i++) {
             elf_reloc * reloc = new elf_reloc(&plt_rela[i]);
-            list.push_back(reloc);
+            list.append(reloc);
         }
     } else {
         assert(entry_size == sizeof(Elf64_Rel));
@@ -309,7 +309,7 @@ void elf_image64::_create_reloc(std::vector<elf_reloc*>& list, addr_t offset, si
         Elf64_Rel* plt_rel = (Elf64_Rel*)offset;
         for (int i = 0; i < count; i++) {
             elf_reloc * reloc = new elf_reloc(&plt_rel[i]);
-            list.push_back(reloc);
+            list.append(reloc);
         }
     }
 }

@@ -6,12 +6,13 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <sys/mman.h>
-
+#include <stdbool.h>
 #if defined __APPLE__
 #include <mach/mach.h>
 #endif
 
 #include "elf.h"
+#include "elf_log.h"
 
 #include <unistd.h>
 
@@ -40,6 +41,5 @@ const char * elf_shdr_type_name(int sh_type);
 const char * elf_dynamic_tag_name(int d_tag);
 
 bool safe_add(off_t* out, off_t a, size_t b);
-
 
 void dump_hex(uint8_t * pbuf, int size);
