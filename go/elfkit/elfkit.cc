@@ -127,3 +127,21 @@ size_t cgo_elf_image_get_needed_list(ElfImage img, const char** plist) {
     }
     return 0;
 }
+
+extern "C"
+bool cgo_elf_image_get_symbol_by_name(ElfImage img, const char* name, ElfSymbol* symbol) {
+    if (img != NULL) {
+        elf_image* image = (elf_image*)img;
+        return image->get_symbol_by_name(name, symbol);
+    }
+    return false;
+}
+
+extern "C"
+bool cgo_elf_image_get_symbol_by_addr(ElfImage img, const ElfAddr addr, ElfSymbol* symbol) {
+    if (img != NULL) {
+        elf_image* image = (elf_image*)img;
+        return image->get_symbol_by_addr(addr, symbol);
+    }
+    return false;
+}

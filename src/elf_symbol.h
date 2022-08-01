@@ -11,8 +11,10 @@ struct elf_symbol {
     uint8_t     st_info;
     uint8_t     st_other;
     uint16_t    st_shndx;
-    char*        sym_name;
+    char*       sym_name;
 };
+
+typedef struct elf_symbol elf_symbol;
 
 void elf_symbol_reset_with_sym32(elf_symbol *symbol, Elf32_Sym *sym);
 void elf_symbol_reset_with_sym64(elf_symbol *symbol, Elf64_Sym *sym); 

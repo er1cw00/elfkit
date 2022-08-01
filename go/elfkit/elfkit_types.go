@@ -45,6 +45,20 @@ type ElfSegment struct {
     Align     uint64;
 }
 
+func NewElfSegment(seg *C.ElfSegment) *ElfSegment {
+	segment := &ElfSegment {
+			Type:      uint32(seg.p_type),
+			Flags:     uint32(seg.p_flags),
+			Offset:    ElfOffset(seg.p_offset),
+			VirtAddr:  ElfAddr(seg.p_vaddr),
+			PhyAddr:   ElfAddr(seg.p_paddr),
+			FileSize:  ElfSize(seg.p_filesz),
+			MemSize:   ElfSize(seg.p_memsz),
+			Align:     uint64(seg.p_align),
+		}
+	return segment;
+}
+
 func (segment *ElfSegment) String() string {
 	var result string = "";
 	result = fmt.Sprintf("%d,  %x,  %x    %x    %x    %d   %d   %d",
@@ -121,6 +135,21 @@ type ElfSection struct {
     EntrySize  ElfSize;
 }
 
+func NewElfSection(sec *C.ElfSection) *ElfSection {
+	section := &ElfSection {
+		NameIndex:  uint32(sec.sh_name),
+		Type:       uint32(sec.sh_type),
+		Flags:		uint64(sec.sh_flags),
+		Addr:		ElfAddr(sec.sh_addr),
+		Offset:		ElfOffset(sec.sh_offset),
+		Size:		ElfSize(sec.sh_size),
+		Link:		uint32(sec.sh_link),
+		Info:		uint32(sec.sh_info),
+		AddrAlign:  uint64(sec.sh_addralign),
+		EntrySize:  ElfSize(sec.sh_entsize),
+	}
+	return section;
+}
 
 // dynamic headers
 const DT_NULL                 uint32 = C.DT_NULL
@@ -199,13 +228,40 @@ type ElfDynamic struct {
 	Value uint64;
 }
 
-type ElfSymbols struct{
-	Name       uint32
+type ElfSymbol struct{
+	Name       string
+	NameIndex  uint32
 	Info       byte
-	other      byte
+	Other      byte
 	ShdrIndex  uint32
 	Value      ElfAddr
-	Size       uint64
+	Size       ElfSize
+}
+
+func NewElfSymbol(sym *C.ElfSymbol) *ElfSymbol {
+	symbol := &ElfSymbol {
+		Name:       C.GoString(sym.sym_name),
+		NameIndex:  uint32(sym.st_name),
+		Info:       byte(sym.st_info),
+		Other:      byte(sym.st_other),
+		ShdrIndex:  uint32(sym.st_shndx),
+		Value:      ElfAddr(sym.st_value),
+		Size:       ElfSize(sym.st_size),
+	}
+	return symbol;
+}
+
+func (symbol *ElfSymbol) String() string {
+	var result string = "";
+	result = fmt.Sprintf("%s, %d, 0x%x, 0x%x, %d, %d, %d",
+					symbol.Name,
+					symbol.NameIndex,
+					symbol.Value,
+					symbol.Size,
+					symbol.Info,
+					symbol.Other,
+					symbol.ShdrIndex);
+	return result;
 }
 
 type ElfRel struct {
