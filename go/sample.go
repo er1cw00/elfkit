@@ -18,11 +18,11 @@ func main() {
 	}
 	segment := image.GetSegmentByType(elfkit.PT_DYNAMIC);
 	if segment != nil {
-		fmt.Printf("PT_DYNAMIC: %bv\n", segment);
+		fmt.Printf("PT_DYNAMIC: %v\n", segment);
 	}
 	neededList := image.GetNeededList();
-	for so := range neededList {
-		fmt.Printf("  Need: %s\n", so);
+	for i, so := range neededList {
+		fmt.Printf("  Need(%d): %s\n", i, so);
 	}
 	return;
 }
