@@ -8,6 +8,7 @@ extern "C"  {
 #include <elfkit/elf_segment.h>
 #include <elfkit/elf_section.h>
     
+typedef const char* CChar;
 typedef void* ElfReader;
 typedef void* ElfImage;
 typedef elf_section ElfSection;

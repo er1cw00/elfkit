@@ -1,7 +1,7 @@
 package elfkit
 
 import (
-	"fmt"
+//	"fmt"
 //	"runtime"
 //	"sync"
 	"unsafe"
@@ -149,17 +149,13 @@ func (image *ElfImage) GetNeededList() []string {
 	if image == nil || image.handle == nil {
 		return nil
 	}
-	
-	s := int(C.cgo_elf_image_get_needed_list(image.handle, nil));
-	if s > 0 {
-		var array *C.char = make([]*C.char,s + 1);
-	}
-	fmt.Printf("s: %d, %d\n",s, uintptr(unsafe.Sizeof(array)));
-	if s > 0 && array != nil {
-		list := make([]string, s)
-		for i := 0; i < s; i++ {
-			p := (*C.char)(unsafe.Pointer(uintptr(unsafe.Pointer(array)) + uintptr(unsafe.Sizeof(array)) * uintptr(i)))
-			fmt.Printf("%d:  %x\n", i, p);
+	nums := int(C.cgo_elf_image_get_needed_list(image.handle, nil));
+	if nums > 0 {
+		list := make([]string, 0)
+		array := make([]*C.char, nums, nums);
+		_ = C.cgo_elf_image_get_needed_list(image.handle, (**C.char)(unsafe.Pointer(&array[0])))
+		for i := 0; i < nums; i++ {
+			p := array[i];
 			list = append(list, C.GoString(p))
 		}
 		return list
