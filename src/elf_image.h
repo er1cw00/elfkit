@@ -50,6 +50,8 @@ public:
     virtual bool get_elf_section_by_type(const int type, elf_section* section) = 0;
     virtual bool get_elf_segment_by_index(const int index, elf_segment* segment) = 0;
     virtual bool get_elf_segment_by_type(const int type, elf_segment* segment) = 0;
+    virtual bool get_symbol_by_addr(const addr_t addr, elf_symbol* symbol);
+    virtual bool get_symbol_by_name(const char* name, elf_symbol* symbol) ;
 
     virtual elf_string_tab* get_section_string_tab() {
         return this->m_sh_str_tab;

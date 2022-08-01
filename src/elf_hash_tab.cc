@@ -1,3 +1,5 @@
+
+#include "elf.h"
 #include "elf_log.h"
 #include "elf_hash_tab.h"
 #include "elf_symbol_tab.h"
@@ -7,10 +9,10 @@ bool hash_tab::_symbol_matches_soaddr(elf_symbol* sym, addr_t soaddr) {
     // Skip TLS symbols. A TLS symbol's value is relative to the start of the TLS segment rather than
     // to the start of the solib. The solib only reserves space for the initialized part of the TLS
     // segment. (i.e. .tdata is followed by .tbss, and .tbss overlaps other sections.)
-    return sym->get_shndx() != SHN_UNDEF &&
-           ELF_ST_TYPE(sym->get_info()) != STT_TLS &&
-           soaddr >= sym->get_value() &&
-           soaddr < sym->get_value() + sym->get_size();
+    return sym->st_shndx != SHN_UNDEF &&
+           ELF_ST_TYPE(sym->st_info) != STT_TLS &&
+           soaddr >= sym->st_value &&
+           soaddr < sym->st_value + sym->st_size;
 }
 
 uint32_t elf_hash_tab::get_hash_code(const char * name) {
@@ -105,7 +107,8 @@ bool gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * nam
     do {
         if (sym_tab->get_symbol(n, symbol) && 
                 ((this->m_gnu_chain[n] ^ hash) >> 1) == 0 &&
-                strcmp(symbol->get_sym_name(), name) == 0) {
+                symbol->sym_name != NULL &&
+                strcmp(symbol->sym_name, name) == 0) {
             log_dbg("symbol (%s) Found\n", name);
             return true;
         }

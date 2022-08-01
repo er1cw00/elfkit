@@ -103,7 +103,21 @@ elf_image::~elf_image() {
 
 }
 
+bool elf_image::get_symbol_by_addr(const addr_t addr, elf_symbol* symbol) {
+    hash_tab * hashtab = is_gnu_hash() ? m_gnu_hash_tab : m_elf_hash_tab;
+    if (hashtab && m_sym_tab) {
+        return hashtab->find_symbol_by_addr(m_sym_tab, addr, symbol);
+    }
+    return false;
+}
 
+bool elf_image::get_symbol_by_name(const char* name, elf_symbol* symbol) {
+    hash_tab * hashtab = is_gnu_hash() ? m_gnu_hash_tab : m_elf_hash_tab;
+    if (hashtab && m_sym_tab) {
+        return hashtab->find_symbol_by_name(m_sym_tab, name, symbol);
+    }
+    return false;
+}
 
 bool elf_image::_check_mem_range(addr_t offset, size_t size, size_t alignment) {
     off_t range_start;
