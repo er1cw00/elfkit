@@ -713,12 +713,12 @@ bool elf_reader::load_segment(void) {
         addr_t file_page_start = PAGE_START(file_start);
         addr_t file_length     = file_end - file_page_start;
 
-        void* seg_addr = mmap((void*)seg_start,
+        void* seg_addr = mmap((void*)seg_page_start,
                                 file_length,
                                 PROT_EXEC | PROT_READ,
                                 MAP_FIXED | MAP_PRIVATE,
                                 this->m_fd,
-                                this->m_file_offset + file_start);
+                                this->m_file_offset + file_page_start);
 
         log_dbg("load segment: i(%d), addr(%p), seg_start(%p), seg_page_start(%p), file_start(%p), file_page_start(%p)\n", 
                         i, 
