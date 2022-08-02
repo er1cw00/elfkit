@@ -48,7 +48,10 @@ int main(const int argc, const char * args[]) {
             }
         }
     }
-   
+    elf_symbol symbol;
+    if (image->get_symbol_by_name("printf", &symbol)) {
+        printf("find printf, %p, %p\n", symbol.st_value, symbol.st_size);
+    }
 
     //sleep(100);
     delete image;

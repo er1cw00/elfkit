@@ -24,5 +24,9 @@ func main() {
 	for i, so := range neededList {
 		fmt.Printf("  Need(%d): %s\n", i, so);
 	}
+	symbol := image.GetSymbolByName("printf")
+	fmt.Printf("printf(): %v\n", symbol);
+	symbol = image.GetSymbolByName("add")
+	fmt.Printf("add(): %v\n", symbol);
 	return;
 }
