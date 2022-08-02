@@ -92,7 +92,8 @@ bool gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * nam
     }
 
     // test against bloom filter
-    if ((1 & (bloom_word >> (hash % bloom_mask_bits)) & (bloom_word >> (h2 % bloom_mask_bits))) == 0) {
+    printf("hash: %d word_num:%d, bloom_word: %x, h1: %x, h2: %x\n", hash, word_num, bloom_word, h1,h2);
+    if ((1 & (bloom_word >> h1) & (bloom_word >> h2)) == 0) {
         log_dbg("lookup name(%s) NOT Found\n", name);
         return false;
     }
@@ -100,7 +101,7 @@ bool gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * nam
     // bloom test says "probably yes"...
     uint32_t n = this->m_gnu_bucket[hash % this->m_gnu_nbucket];
     if (n == 0) {
-        log_dbg("lookup name(%s) NOT Found\n", name);
+        log_dbg(" lookup name(%s) NOT Found\n", name);
         return false;
     }
 
