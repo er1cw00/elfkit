@@ -50,26 +50,33 @@ public:
     virtual bool get_elf_section_by_type(const int type, elf_section* section) = 0;
     virtual bool get_elf_segment_by_index(const int index, elf_segment* segment) = 0;
     virtual bool get_elf_segment_by_type(const int type, elf_segment* segment) = 0;
+
     virtual bool get_symbol_by_addr(const addr_t addr, elf_symbol* symbol);
     virtual bool get_symbol_by_name(const char* name, elf_symbol* symbol) ;
 
     virtual elf_string_tab* get_section_string_tab() {
         return this->m_sh_str_tab;
     }
-    virtual elf_string_tab * get_string_tab() {
+    virtual elf_string_tab* get_string_tab() {
         return this->m_str_tab;
     }
-    virtual string_list & get_needed_list() {
+    virtual string_list& get_needed_list() {
         return this->m_needed_list;
     }
-    virtual elf_symbol_tab * get_symbol_tab() {
+    virtual elf_symbol_tab* get_symbol_tab() {
         return this->m_sym_tab;
     }
-    virtual hash_tab * get_elf_hash_tab() {
+    virtual hash_tab* get_elf_hash_tab() {
         return this->m_elf_hash_tab;
     }
-    virtual hash_tab * get_gnu_hash_tab() {
+    virtual hash_tab* get_gnu_hash_tab() {
         return this->m_gnu_hash_tab;
+    }
+    virtual elf_reloc_tab* get_plt_tab() {
+        return this->m_plt_tab;
+    }
+    virtual elf_reloc_tab* get_rel_tab() {
+        return this->m_rel_tab;
     }
     virtual bool is_use_gnu_hash() {
         return m_is_gnu_hash;
@@ -105,6 +112,6 @@ protected:
     elf_func_array*     m_preinit_array;
 
     string_list         m_needed_list;
-    elf_reloc_tab       m_plt_list;
-    elf_reloc_tab       m_rel_list;
+    elf_reloc_tab*      m_plt_tab;
+    elf_reloc_tab*      m_rel_tab;
 };

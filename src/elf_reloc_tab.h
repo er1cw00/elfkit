@@ -1,82 +1,55 @@
 #pragma once
 
 #include "elf_common.h"
+#include "elf_reloc.h"
 
-struct elf_reloc {
-    elf_reloc(Elf32_Rel * rel) {reset(rel);}
-    elf_reloc(Elf64_Rel * rel) {reset(rel);}
-    elf_reloc(Elf32_Rela * rela) {reset(rela);}
-    elf_reloc(Elf64_Rela * rela) {reset(rela);}
-    void reset(Elf32_Rel * rel) {
-        assert(rel != NULL);
-        this->r_offset      = (addr_t)rel->r_offset;
-        this->r_info        = (uint64_t)rel->r_info;
-        this->r_addend      = 0;
-        this->r_elf_class   = ELFCLASS32;
-    }
-    void reset(Elf64_Rel * rel) {
-        assert(rel != NULL);
-        this->r_offset      = (addr_t)rel->r_offset;
-        this->r_info        = (uint64_t)rel->r_info;
-        this->r_addend      = 0;
-        this->r_elf_class   = ELFCLASS64;
-    }
-    void reset(Elf32_Rela * rela) {
-        assert(rela != NULL);
-        this->r_offset      = (addr_t)rela->r_offset;
-        this->r_info        = (uint64_t)rela->r_info;
-        this->r_addend      = (int64_t)rela->r_addend;
-        this->r_elf_class   = ELFCLASS32;
-    }
-    void reset(Elf64_Rela * rela) {
-        assert(rela != NULL);
-        this->r_offset      = (addr_t)rela->r_offset;
-        this->r_info        = (uint64_t)rela->r_info;
-        this->r_addend      = (int64_t)rela->r_addend;
-        this->r_elf_class   = ELFCLASS64;
-    }
-    addr_t   r_offset;
-    uint64_t r_info;
-    int64_t  r_addend;
-    uint8_t  r_elf_class;
-};
 
 typedef std::vector<elf_reloc*> elf_reloc_list_t;
 
 class elf_reloc_tab {
 public:
-    elf_reloc_tab() {
-        log_trace("elf_reloc_tab ctor: %p\n", this);        
-        m_reloc_list.clear();
+    elf_reloc_tab(uint8_t elf_class, addr_t offset, size_t size, bool is_rela) {
+        log_trace("elf_reloc_tab ctor: %p\n", this);  
+        m_elf_class   = elf_class;
+        m_offset      = offset;
+        m_size        = size;  
+        m_is_use_rela = is_rela;
     }
     ~elf_reloc_tab() {
         log_trace("elf_reloc_tab dtor: %p\n", this);
-        clear();
     }
-    void clear() {
-        for (elf_reloc_list_t::iterator itor = m_reloc_list.begin(); itor != m_reloc_list.end();) {
-            elf_reloc* reloc = *itor;
-            delete reloc;
-            m_reloc_list.erase(itor);
+    bool get_reloc(const int i, elf_reloc* reloc) {
+        if (i >= m_size) {
+            return false;
         }
-    }
-    elf_reloc* get(const int i) {
-        elf_reloc * reloc = NULL;
-        if (i < m_reloc_list.size()) {
-            reloc = m_reloc_list[i];
-        }   
-        return reloc;
-    }
-    void append(elf_reloc * reloc) {
-        m_reloc_list.push_back(reloc);
+        if (m_elf_class == ELFCLASS32) {
+            if (m_is_use_rela) {
+                Elf32_Rela* rela = (Elf32_Rela*)m_offset;
+                elf_reloc_reset_with_rela32(reloc, &rela[i]);
+            } else {
+                Elf32_Rel* rel = (Elf32_Rel*)m_offset;
+                elf_reloc_reset_with_rel32(reloc, &rel[i]);
+            }
+            return true;
+        } else if (m_elf_class == ELFCLASS64){
+            if (m_is_use_rela) {
+                Elf64_Rela* rela = (Elf64_Rela*)m_offset;
+                elf_reloc_reset_with_rela64(reloc, &rela[i]);
+            } else {
+                Elf64_Rel* rel = (Elf64_Rel*)m_offset;
+                elf_reloc_reset_with_rel64(reloc, &rel[i]);
+            }
+            return true;
+        }
+    
+        return false;
     }
     size_t size() {
-        return m_reloc_list.size();
+        return m_size;
     }
-    bool empty() {
-        return m_reloc_list.empty();
-    }
-
 protected:
-    elf_reloc_list_t   m_reloc_list;
+    addr_t  m_offset;
+    size_t  m_size;
+    bool    m_is_use_rela;
+    uint8_t m_elf_class;
 };

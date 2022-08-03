@@ -250,10 +250,10 @@ bool elf_image64::load() {
     assert(rel_count == (rel_size / rel_entry_size));
     assert(rel_entry_size == sizeof(Elf64_Rel) || rel_entry_size == sizeof(Elf64_Rela));
     if (plt_rel_offset && plt_rel_size > 0) {
-        _create_reloc(m_plt_list, plt_rel_offset, plt_rel_size, rel_entry_size);
+        m_plt_tab = new elf_reloc_tab(get_elf_class(), plt_rel_offset, plt_rel_size/rel_entry_size, m_is_use_rela);
     }
     if (rel_offset && rel_size > 0) {
-        _create_reloc(m_rel_list, rel_offset, rel_size, rel_entry_size);
+        m_rel_tab = new elf_reloc_tab(get_elf_class(), rel_offset, rel_size/rel_entry_size, m_is_use_rela);
     }
 
     return true;
@@ -295,23 +295,24 @@ bool elf_image64::get_elf_segment_by_type(const int type, elf_segment * segment)
 }
 
 void elf_image64::_create_reloc(elf_reloc_tab& list, addr_t offset, size_t size, size_t entry_size) {
-    if (m_is_use_rela) {
-        assert(entry_size == sizeof(Elf64_Rela));
-        size_t count = size / entry_size;
-        Elf64_Rela* plt_rela = (Elf64_Rela*)offset;
-        for (int i = 0; i < count; i++) {
-            elf_reloc * reloc = new elf_reloc(&plt_rela[i]);
-            list.append(reloc);
-        }
-    } else {
-        assert(entry_size == sizeof(Elf64_Rel));
-        size_t count = size / entry_size;
-        Elf64_Rel* plt_rel = (Elf64_Rel*)offset;
-        for (int i = 0; i < count; i++) {
-            elf_reloc * reloc = new elf_reloc(&plt_rel[i]);
-            list.append(reloc);
-        }
-    }
+    // if (m_is_use_rela) {
+    //     assert(entry_size == sizeof(Elf64_Rela));
+    //     size_t count = size / entry_size;
+    //     Elf64_Rela* plt_rela = (Elf64_Rela*)offset;
+    //     for (int i = 0; i < count; i++) {
+    //         elf_reloc * reloc = new elf_reloc(&plt_rela[i]);
+    //         elf_reloc_reset_with_rela64
+    //         list.append(reloc);
+    //     }
+    // } else {
+    //     assert(entry_size == sizeof(Elf64_Rel));
+    //     size_t count = size / entry_size;
+    //     Elf64_Rel* plt_rel = (Elf64_Rel*)offset;
+    //     for (int i = 0; i < count; i++) {
+    //         elf_reloc * reloc = new elf_reloc(&plt_rel[i]);
+    //         list.append(reloc);
+    //     }
+    // }
 }
 
 Elf64_Phdr* elf_image64::_find_segment_by_type(const uint32_t type) {

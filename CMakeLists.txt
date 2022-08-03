@@ -18,6 +18,7 @@ set(HEADERS src/string_list.h
             src/elf_mapped.h
             src/elf_reader.h
             src/elf_image.h
+            src/elf_reloc.h
             src/elf_symbol.h
             src/elf_section.h
             src/elf_segment.h

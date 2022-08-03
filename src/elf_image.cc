@@ -43,6 +43,9 @@ elf_image::elf_image(elf_reader & reader) {
     m_elf_hash_tab      = NULL;
     m_gnu_hash_tab      = NULL;
 
+    m_rel_tab           = NULL;
+    m_plt_tab           = NULL;
+
     m_sh_str_tab        = NULL;
     m_str_tab           = NULL;
     m_sym_tab           = NULL;
@@ -87,6 +90,14 @@ elf_image::~elf_image() {
     if (m_sym_tab) {
         delete m_sym_tab;
         m_sym_tab = NULL;
+    }
+    if (m_rel_tab) {
+        delete m_rel_tab;
+        m_rel_tab = NULL;
+    }
+    if (m_rel_tab) {
+        delete m_rel_tab;
+        m_rel_tab = NULL;
     }
     if (m_init_array) {
         delete m_init_array;
