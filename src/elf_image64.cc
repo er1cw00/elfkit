@@ -91,7 +91,6 @@ bool elf_image64::load() {
                 uint32_t *chain   = (uint32_t*)(bucket + nbucket);
                 sym_size  = (size_t)nchain;
                 this->m_elf_hash_tab = new elf_hash_tab(nbucket, nchain, bucket, chain);
-                log_dbg("nchain: %d\n", nchain);
                 break;
             }
             case DT_GNU_HASH:
@@ -111,15 +110,14 @@ bool elf_image64::load() {
                 }
                 gnu_maskwords -= 1;
 
-                log_dbg("bbucket(%d), symndx(%d), maskworks(%d), shift2(%d) bfilter(%p), bucket(%p), chain(%p)\n",
-                        gnu_nbucket,   
-                        gnu_symndx,
-                        gnu_maskwords, 
-                        gnu_shift2,
-                        (uint32_t*)gnu_bloom_filter,
-                        gnu_bucket,
-                        gnu_chain);
-
+                // log_dbg("bbucket(%d), symndx(%d), maskworks(%d), shift2(%d) bfilter(%p), bucket(%p), chain(%p)\n",
+                //         gnu_nbucket,   
+                //         gnu_symndx,
+                //         gnu_maskwords, 
+                //         gnu_shift2,
+                //         (uint32_t*)gnu_bloom_filter,
+                //         gnu_bucket,
+                //         gnu_chain);
 
                 this->m_gnu_hash_tab = new gnu_hash_tab(get_elf_class(),
                                                         gnu_nbucket, 
@@ -211,7 +209,7 @@ bool elf_image64::load() {
             case DT_DEBUG:
             case DT_RUNPATH:
             default:
-                log_warn("unsupport dyn tag: %s\n", elf_dynamic_tag_name(d->d_tag));
+                //log_warn("unsupport dyn tag: %s\n", elf_dynamic_tag_name(d->d_tag));
                 break;
         }   
     }
