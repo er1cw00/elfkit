@@ -157,9 +157,9 @@ const char * elf_shdr_type_name(int sh_type) {
         "SHT_DYNSYM",
         "SHT_NUM",      //  12
         "UNKNOWN",
-        "INIT_ARRAY"    //14
-        "FINI_ARRAY" 
-        "PREINIT_ARRAY"
+        "INIT_ARRAY",    //14
+        "FINI_ARRAY", 
+        "PREINIT_ARRAY",
         "GROUP",
         "SYMTAB_SHNDX",
         "RELR",      
