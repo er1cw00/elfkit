@@ -18,6 +18,8 @@ public:
     virtual size_t get_symbol_nums() = 0; 
     virtual bool find_symbol_by_name(elf_symbol_tab* sym_tab, const char* name, elf_symbol* symbol) = 0;
     virtual bool find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr, elf_symbol* symbol) = 0;
+    virtual void dump_hash_table() = 0;
+
 protected:
     bool _symbol_matches_soaddr(elf_symbol* sym, addr_t soaddr);
 };
@@ -36,6 +38,7 @@ public:
     virtual size_t get_symbol_nums(); 
     virtual bool find_symbol_by_name(elf_symbol_tab* sym_tab, const char* name, elf_symbol* symbol);
     virtual bool find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr, elf_symbol* symbol); 
+    virtual void dump_hash_table();
 
 protected:
     uint32_t     m_nbucket;
@@ -70,7 +73,8 @@ public:
     virtual size_t get_symbol_nums();
     virtual bool find_symbol_by_name(elf_symbol_tab* sym_tab, const char* name, elf_symbol* symbol);
     virtual bool find_symbol_by_addr(elf_symbol_tab* sym_tab, const addr_t addr, elf_symbol* symbol); 
-
+    virtual void dump_hash_table();
+    
 protected:
     void _caculate_symbol_nums();
 

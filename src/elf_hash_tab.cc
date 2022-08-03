@@ -59,6 +59,10 @@ bool elf_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * nam
 size_t elf_hash_tab::get_symbol_nums() {
     return (size_t)this->m_chain;
 }
+void elf_hash_tab::dump_hash_table() {
+
+}
+
 
 uint32_t gnu_hash_tab::get_hash_code(const char * name) {
     uint32_t h = 5381;
@@ -92,7 +96,7 @@ bool gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char * nam
     }
 
     // test against bloom filter
-    printf("hash: %d word_num:%d, bloom_word: %x, h1: %x, h2: %x\n", hash, word_num, bloom_word, h1,h2);
+    printf("hash: %d word_num:%d, bloom_word: %llx, h1: %x, h2: %x\n", hash, word_num, bloom_word, h1,h2);
     if ((1 & (bloom_word >> h1) & (bloom_word >> h2)) == 0) {
         log_dbg("lookup name(%s) NOT Found\n", name);
         return false;
@@ -139,6 +143,57 @@ size_t gnu_hash_tab::get_symbol_nums() {
     return this->m_symbol_nums + this->m_gnu_symndx;
 }
 
+void gnu_hash_tab::dump_hash_table() {
+    log_info("dump gnu hash tab: \n");
+    log_info("buckets num:    %d\n",    m_gnu_nbucket);
+    log_info("symbol index:   %d\n",    m_gnu_symndx);
+    log_info("mask words num: %d\n",    m_gnu_maskwords + 1);
+    log_info("shift count:    %d\n",    m_gnu_shift2);
+
+    std::string filters = "[";
+    if (m_elf_class == ELFCLASS32) {
+        uint32_t* p = (uint32_t*)m_gnu_bloom_filter;
+        for(int i = 0; i < m_gnu_maskwords; i++) {
+            char buf[32];
+            uint32_t n = p[i];
+            snprintf(buf, sizeof(buf), i == 0 ? "%x" : ",%x", n);
+            filters.append(buf);
+        }
+    } else {
+        uint64_t* p = (uint64_t*)m_gnu_bloom_filter;
+        for(int i = 0; i < m_gnu_maskwords + 1; i++) {
+            char buf[64];
+            uint64_t n = p[i];
+            snprintf(buf, sizeof(buf), i == 0 ? "%llx" : ",%llx", n);
+            filters.append(buf);
+        }
+
+    }
+    filters.append("]");
+    log_info("bloom filter:   %s\n",    filters.c_str());
+
+    std::string buckets = "[";
+    for(int i = 0; i < m_gnu_nbucket; i++) {
+        char buf[32];
+        uint32_t n = m_gnu_bucket[i];
+        snprintf(buf, sizeof(buf), i == 0 ? "%d" : ",%d", n);
+        buckets.append(buf);
+    }
+    buckets.append("]");
+    log_info("buckets:        %s\n", buckets.c_str());
+
+    std::string chains = "[";
+    // for(int i = 0; i < m_gnu_nbucket; i++) {
+    //     char buf[32];
+    //     uint32_t n = m_gnu_chain[i];
+    //     snprintf(buf, 32, i == 0 ? "%d" : ",%d", n);
+    //     chains.append(buf);
+    // }
+    chains.append("]");
+    log_info("chains:        %s\n", chains.c_str());
+
+    return;
+}
 void gnu_hash_tab::_caculate_symbol_nums() {
     size_t total = 0;
     for (int i = 0; i < m_gnu_nbucket; ++i) {
