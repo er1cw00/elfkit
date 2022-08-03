@@ -76,10 +76,9 @@ bool elf_image64::load() {
     std::vector<int> needed_list;
 
     for (Elf64_Dyn* d = this->m_dynamic; d->d_tag != DT_NULL; ++d) {
-        log_dbg("d = %p, d[0](tag) = %s d[1](val) = %p\n",
-                  d, 
-                  elf_dynamic_tag_name(d->d_tag),
-                  reinterpret_cast<void*>(d->d_un.d_val));
+        log_dbg("dyn: %p  %-16s   0x%0.16lx\n",  d, 
+                                            elf_dynamic_tag_name(d->d_tag),
+                                            (uint64_t)d->d_un.d_val);
         switch(d->d_tag) {
             case DT_SONAME:
                 break;

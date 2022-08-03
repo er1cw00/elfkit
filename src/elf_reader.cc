@@ -841,7 +841,7 @@ void elf_reader::dump_section_headers() {
         Elf64_Shdr * shdr = (Elf64_Shdr*)this->m_shdr;
         log_info("[Index]   Type          NameIndex   Address             Offset      Size        ES      Flags     Link\n");
         for(int i = 0; i < shnum; i += 1, shdr += 1) {
-            log_info("[%0.2d]      %-12s  0x%0.8x  0x%0.16lx  0x%0.8lx  0x%0.8lu  0x%0.4lx  0x%0.4lx    0x%0.4lx\n",
+            log_info("[%0.2d]      %-14s  0x%0.8x  0x%0.16lx  0x%0.8lx  0x%0.8lx  0x%0.4lx  0x%0.4lx    0x%0.4lx\n",
                 i,
                 elf_shdr_type_name((int)shdr->sh_type),
                 (int)shdr->sh_name,
@@ -856,7 +856,7 @@ void elf_reader::dump_section_headers() {
         Elf32_Shdr * shdr = (Elf32_Shdr*)this->m_shdr;
         log_info("[Index]   Type          NameIndex   Address             Offset      Size        ES      Flags     Link\n");
         for(int i = 0; i < shnum; i += 1, shdr += 1) {
-            log_info("[%0.2d]      %-12s  0x%0.8x  0x%0.8lx  0x%0.8lx  0x%0.8lu  0x%0.4lx  0x%0.4lx    0x%0.4lx\n",
+            log_info("[%0.2d]      %-14s  0x%0.8x  0x%0.8lx  0x%0.8lx  0x%0.8lx  0x%0.4lx  0x%0.4lx    0x%0.4lx\n",
                 i,
                 elf_shdr_type_name((int)shdr->sh_type),
                 (int)shdr->sh_name,
