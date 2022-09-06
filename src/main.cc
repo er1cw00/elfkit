@@ -43,7 +43,7 @@ int main(const int argc, const char * args[]) {
     }
     elf_symbol_tab * symtab = image->get_symbol_tab();
     if (hashtab && symtab) {
-        printf("symbol nums: %d\n", hashtab->get_symbol_nums());
+        printf("symbol nums: %ld\n", hashtab->get_symbol_nums());
         for(int i = 0; i < hashtab->get_symbol_nums(); i++) {
             elf_symbol sym;
             if (symtab->get_symbol(i, &sym) && sym.sym_name != NULL) {
@@ -53,7 +53,7 @@ int main(const int argc, const char * args[]) {
     }
     elf_symbol symbol;
     if (image->get_symbol_by_name("printf", &symbol)) {
-        printf("find printf, %p, %p\n", symbol.st_value, symbol.st_size);
+        printf("find printf, %p, %p\n", (void*)symbol.st_value, (void*)symbol.st_size);
     }
     image->get_gnu_hash_tab()->dump_hash_table();
 
@@ -64,7 +64,7 @@ int main(const int argc, const char * args[]) {
         for(int i = 0; i < plt_tab->size(); i++) {
             elf_reloc reloc;
             if (plt_tab->get_reloc(i, &reloc)) {
-                printf("  [%d] %p, %llx\n", i, reloc.r_offset, reloc.r_info);
+                printf("  [%d] %p, %llx\n", i, (void*)reloc.r_offset, reloc.r_info);
             }
         }
     }
@@ -73,7 +73,7 @@ int main(const int argc, const char * args[]) {
         for(int i = 0; i < rel_tab->size(); i++) {
             elf_reloc reloc;
             if (rel_tab->get_reloc(i, &reloc)) {
-                printf("  [%d] %p, %llx\n", i, reloc.r_offset, reloc.r_info);
+                printf("  [%d] %p, %llx\n", i, (void*)reloc.r_offset, reloc.r_info);
             }
         }
     }

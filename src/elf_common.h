@@ -4,9 +4,10 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <memory.h>
 #include <sys/mman.h>
-#include <stdbool.h>
+
 #if defined __APPLE__
 #include <mach/mach.h>
 #endif

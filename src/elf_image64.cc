@@ -76,7 +76,7 @@ bool elf_image64::load() {
     std::vector<int> needed_list;
 
     for (Elf64_Dyn* d = this->m_dynamic; d->d_tag != DT_NULL; ++d) {
-        log_dbg("dyn: %p  %-16s   0x%0.16lx\n",  d, 
+        log_dbg("dyn: %p  %-16s   0x%0.16llx\n",  d, 
                                             elf_dynamic_tag_name(d->d_tag),
                                             (uint64_t)d->d_un.d_val);
         switch(d->d_tag) {
@@ -252,11 +252,8 @@ bool elf_image64::load() {
     if (rel_offset && rel_size > 0) {
         m_rel_tab = new elf_reloc_tab(get_elf_class(), rel_offset, rel_size/rel_entry_size, m_is_use_rela);
     }
-
     return true;
 }
-
-
 
 bool elf_image64::get_elf_section_by_index(const int index, elf_section * section) {
     if (index < m_shdr_num && section) {
