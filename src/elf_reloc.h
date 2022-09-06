@@ -17,3 +17,6 @@ void elf_reloc_reset_with_rel32(elf_reloc * reloc, const Elf32_Rel * rel);
 void elf_reloc_reset_with_rel64(elf_reloc * reloc, const Elf64_Rel * rel);
 void elf_reloc_reset_with_rela32(elf_reloc * reloc, const Elf32_Rela * rela);
 void elf_reloc_reset_with_rela64(elf_reloc * reloc, const Elf64_Rela * rela);
+
+int elf_reloc_get_symbol_index(elf_reloc * reloc);
+int elf_reloc_get_symbol_type(elf_reloc * reloc);
