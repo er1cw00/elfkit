@@ -11,11 +11,6 @@
 #include <mach/mach.h>
 #endif
 
-#include "elf.h"
-#include "elf_log.h"
-
-#include <unistd.h>
-
 typedef uint64_t  addr_t;
 
 #define PAGE_START(addr)             ((~(PAGE_SIZE - 1)) & (addr))

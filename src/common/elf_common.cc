@@ -2,14 +2,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string>
-#include "elf_common.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string>
-#include "elf_common.h"
-
+#include <common/elf.h>
+#include <common/elf_common.h>
 
 bool elf_safe_add(off_t* out, off_t a, size_t b) {
     assert(a >= 0);
