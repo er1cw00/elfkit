@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 #include <stdint.h>
+#include <assert.h>
 
 typedef uint32_t Elf32_Addr;
 typedef uint16_t Elf32_Half;
