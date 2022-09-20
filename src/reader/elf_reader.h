@@ -47,23 +47,24 @@ public:
 
     void* get_symtab_base(void) {return m_symtab;}
     size_t get_symtab_size(void) {return m_symtab_size;}
-    
+
     void* get_dyntab_base(void) {return m_dyntab;}
     size_t get_dyntab_size(void) {return m_dyntab_size;}
 
+    void* find_section_by_name(const char *sname);
+    void* find_section_by_type(const uint32_t type);
+
 protected:
-    bool check_elf_header(void);
-    bool read_section_headers(void);
-    bool read_segment_headers(void);
-    bool read_section_data(void);
+    bool _check_elf_header(void);
+    bool _read_section_headers(void);
+    bool _read_segment_headers(void);
+    bool _read_section_data(void);
+    bool _load_segments(void);
+    bool _read_segments(void);
 
-    size_t get_load_size(void* phdr, size_t phdr_num, addr_t* out_min_vaddr, addr_t* out_max_vaddr);
-    size_t get_min_aligment(void* phdr, size_t phdr_num);
-
-    bool load_segments(void);
-    bool read_segments(void);
-
-    bool check_file_range(off_t offset, size_t size, size_t alignment);
+    size_t _get_load_size(void* phdr, size_t phdr_num, addr_t* out_min_vaddr, addr_t* out_max_vaddr);
+    size_t _get_min_aligment(void* phdr, size_t phdr_num);
+    bool _check_file_range(off_t offset, size_t size, size_t alignment);
     
 protected:
     std::string     m_sopath;

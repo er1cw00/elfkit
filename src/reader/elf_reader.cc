@@ -10,6 +10,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <libgen.h>
+#include <assert.h>
 
 #include <common/elf.h>
 #include <common/elf_log.h>
@@ -55,10 +56,10 @@ bool elf_reader::open(const char * sopath) {
     this->m_fd          = fd;
     this->m_file_size   = file_stat.st_size;
     this->m_file_offset = 0;
-    if (!this->check_elf_header() || 
-        !this->read_segment_headers() ||
-        !this->read_section_headers() ||
-        !this->read_section_data()) {
+    if (!this->_check_elf_header() || 
+        !this->_read_segment_headers() ||
+        !this->_read_section_headers() ||
+        !this->_read_section_data()) {
         goto fail;
     }
     return true;
@@ -72,7 +73,86 @@ void elf_reader::close() {
     }
     m_fd = -1;
 }
-bool elf_reader::check_elf_header() {
+
+elf_image* elf_reader::load() {
+    assert(m_fd != -1);
+    size_t min_aligment = _get_min_aligment((void*)m_phdr, m_phdr_num);
+    if (min_aligment < PAGE_SIZE) {
+        log_info("min_align(0x%lx), page_size(0x%lx), read_segments\n", min_aligment, (size_t)PAGE_SIZE);
+        if (!_read_segments()) {
+            return NULL;
+        }
+    } else {
+        log_info("min_align(0x%lx), page_size(0x%lx), load_segments\n", min_aligment, (size_t)PAGE_SIZE);
+        if (!_load_segments()) {
+            return NULL;
+        }
+    }
+
+    elf_image * image = NULL;
+    if (this->get_elf_class() == ELFCLASS32) {
+        image = new elf_image32(*this);
+    } else if (this->get_elf_class() == ELFCLASS64) {
+        image = new elf_image64(*this);
+    }
+    if (image && image->load()) {
+        return image;
+    }
+    return NULL;
+}
+
+void* elf_reader::find_section_by_type(const uint32_t type) {
+    void* target = NULL;
+    assert(get_elf_class() == ELFCLASS32 || get_elf_class() == ELFCLASS64); 
+    if (get_elf_class() == ELFCLASS32) {
+        Elf32_Shdr* shdr = (Elf32_Shdr*)this->m_shdr;
+        for(int i = 0; i < this->m_shdr_num; i += 1) {
+            if(shdr[i].sh_type == type) {
+                target = (void*)(shdr + i);
+                break;
+            }
+        }
+    } else if (get_elf_class() == ELFCLASS64) {
+        Elf64_Shdr* shdr = (Elf64_Shdr*)this->m_shdr;
+        for(int i = 0; i < this->m_shdr_num; i += 1) {
+            if(shdr[i].sh_type == type) {
+                target = (void*)(shdr + i);
+                break;
+            }
+        }
+    }
+    return target;
+}
+
+void* elf_reader::find_section_by_name(const char *sname) {
+    void* target = NULL;
+    assert(get_elf_class() == ELFCLASS32 || get_elf_class() == ELFCLASS64); 
+    if (!m_shstr) {
+        return NULL;
+    }
+    if (get_elf_class() == ELFCLASS32) {
+        Elf32_Shdr* shdr = (Elf32_Shdr*)this->m_shdr;
+        for(int i = 0; i < this->m_shdr_num; i += 1) {
+            const char *name = (const char *)(shdr[i].sh_name + this->m_shstr);
+            if(name != NULL && !strncmp(name, sname, strlen(sname))) {
+                target = (void*)(shdr + i);
+                break;
+            }
+        }
+    } else if (get_elf_class() == ELFCLASS64) {
+        Elf64_Shdr* shdr = (Elf64_Shdr*)this->m_shdr;
+        for(int i = 0; i < this->m_shdr_num; i += 1) {
+            const char *name = (const char *)(shdr[i].sh_name + this->m_shstr);
+            if(name != NULL && !strncmp(name, sname, strlen(sname))) {
+                target = (void*)(shdr + i);
+                break;
+            }
+        }
+    }
+    return target;
+}
+
+bool elf_reader::_check_elf_header() {
     uint8_t *ident = (uint8_t*)&m_ehdr;
     uint8_t elf_class = ident[4];
     uint8_t elf_data = ident[5];
@@ -125,7 +205,7 @@ bool elf_reader::check_elf_header() {
     return true;
 }
 
-bool elf_reader::read_section_headers() {
+bool elf_reader::_read_section_headers() {
 
     uint16_t shstrndx = 0;
     addr_t  shdr_offset = 0;
@@ -157,7 +237,7 @@ bool elf_reader::read_section_headers() {
 
     size_t size = this->m_shdr_num * shdr_size;
     //log_dbg("filesize: %ld\n", m_file_size);
-    if (!check_file_range(shdr_offset, size, 1)) {
+    if (!_check_file_range(shdr_offset, size, 1)) {
         log_error("\"%s\" has invalid shdr offset/size: %zu/%zu\n",
                   this->get_sopath(),
                   (size_t)shdr_offset,
@@ -187,7 +267,7 @@ bool elf_reader::read_section_headers() {
         return false;
     }
 
-    if (!this->check_file_range(shstr_offset, shstr_size, 1)) {
+    if (!this->_check_file_range(shstr_offset, shstr_size, 1)) {
        log_error("\"%s\" has invalid shdr offset/size: %zu/%zu\n",
                   this->get_sopath(),
                   (size_t)shstr_offset,
@@ -204,7 +284,7 @@ bool elf_reader::read_section_headers() {
     return true;
 }
 
-bool elf_reader::read_segment_headers() {
+bool elf_reader::_read_segment_headers() {
     size_t phdr_size        = 0;
     addr_t phdr_offset      = NULL;
     if (get_elf_class() == ELFCLASS64) {
@@ -230,7 +310,7 @@ bool elf_reader::read_segment_headers() {
     }
     // Boundary checks
     size_t size = this->m_phdr_num * phdr_size;
-    if (!check_file_range(phdr_offset, size, 4)) {
+    if (!_check_file_range(phdr_offset, size, 4)) {
         log_error("\"%s\" has invalid phdr offset/size: %zu/%zu\n",
                 this->get_soname(),
                 static_cast<size_t>(phdr_offset),
@@ -246,7 +326,7 @@ bool elf_reader::read_segment_headers() {
     return true;
 }
 
-bool elf_reader::read_section_data(void) {
+bool elf_reader::_read_section_data(void) {
     if (get_elf_class() == ELFCLASS64) {
         Elf64_Shdr * symstr_shdr = NULL;
         Elf64_Shdr * symtab_shdr = NULL;
@@ -265,7 +345,7 @@ bool elf_reader::read_section_data(void) {
             }
         }
         if (symtab_shdr && 
-            check_file_range(symtab_shdr->sh_offset, symtab_shdr->sh_size, 4)) {
+            _check_file_range(symtab_shdr->sh_offset, symtab_shdr->sh_size, 4)) {
             if (!this->m_symtab_fragment.map(this->m_fd, 0, symtab_shdr->sh_offset, symtab_shdr->sh_size)) {
                 log_warn("symtab map fail, %s\n", strerror(errno));
             }
@@ -273,7 +353,7 @@ bool elf_reader::read_section_data(void) {
             this->m_symtab_size = symtab_shdr->sh_size;
         }
         if (symstr_shdr && 
-            check_file_range(symstr_shdr->sh_offset, symstr_shdr->sh_size, 1)) {
+            _check_file_range(symstr_shdr->sh_offset, symstr_shdr->sh_size, 1)) {
             if (!this->m_symstr_fragment.map(this->m_fd, 0, symstr_shdr->sh_offset, symstr_shdr->sh_size)) {
                 log_warn("symstr map fail, %s\n", strerror(errno));
             }
@@ -299,7 +379,7 @@ bool elf_reader::read_section_data(void) {
             }
         }
         if (symtab_shdr && 
-            check_file_range(symtab_shdr->sh_offset, symtab_shdr->sh_size, 4)) {
+            _check_file_range(symtab_shdr->sh_offset, symtab_shdr->sh_size, 4)) {
             if (!this->m_symtab_fragment.map(this->m_fd, 0, symtab_shdr->sh_offset, symtab_shdr->sh_size)) {
                 log_warn("symtab map fail, %s\n", strerror(errno));
             }
@@ -307,7 +387,7 @@ bool elf_reader::read_section_data(void) {
             this->m_symtab_size = symtab_shdr->sh_size;
         }
         if (symstr_shdr && 
-            check_file_range(symstr_shdr->sh_offset, symstr_shdr->sh_size, 1)) {
+            _check_file_range(symstr_shdr->sh_offset, symstr_shdr->sh_size, 1)) {
             if (!this->m_symstr_fragment.map(this->m_fd, 0, symstr_shdr->sh_offset, symstr_shdr->sh_size)) {
                 log_warn("strtab map fail, %s\n", strerror(errno));
             }
@@ -319,102 +399,12 @@ bool elf_reader::read_section_data(void) {
     log_error("unsupported ELF Class: %d", get_elf_class()); 
     return false;
 }
-bool elf_reader::check_file_range(off_t offset, size_t size, size_t alignment) {
-    off_t range_start;
-    off_t range_end;
-    return offset > 0 &&
-        elf_safe_add(&range_start, 0, offset) &&
-        elf_safe_add(&range_end, range_start, size) &&
-        (range_start < m_file_size) &&
-        (range_end <= m_file_size) &&
-        ((offset % alignment) == 0);
-}
 
-size_t elf_reader::get_load_size(void* phdr, size_t phdr_num, addr_t* out_min_vaddr, addr_t* out_max_vaddr) {
-    uint8_t * p = (uint8_t*)phdr;
-    addr_t min_vaddr = UINTPTR_MAX;
-    addr_t max_vaddr = 0;
-    bool found_pt_load = false;
-    assert(get_elf_class() == ELFCLASS32 || get_elf_class() == ELFCLASS64); 
-
-    for (int i = 0; i < phdr_num; i++) {
-        addr_t p_vaddr;
-        addr_t p_memsz;
-        uint32_t p_type;
-        if (get_elf_class() == ELFCLASS32) {
-            Elf32_Phdr *phdr32 = (Elf32_Phdr*)p;
-            p_type             = phdr32->p_type;
-            p_vaddr            = (uint64_t)phdr32->p_vaddr;
-            p_memsz            = (uint64_t)phdr32->p_memsz;
-            p += sizeof(Elf32_Phdr);
-        } else if (get_elf_class() == ELFCLASS64) {
-            Elf64_Phdr *phdr64 = (Elf64_Phdr*)p;
-            p_type             = phdr64->p_type;
-            p_vaddr            = (uint64_t)phdr64->p_vaddr;
-            p_memsz            = (uint64_t)phdr64->p_memsz;
-            p += sizeof(Elf64_Phdr);
-        } 
-        if (p_type != PT_LOAD) {
-            continue;
-        }
-        found_pt_load = true;
-        if (p_vaddr < min_vaddr) {
-            min_vaddr = p_vaddr;
-        }
-
-        if (p_vaddr + p_memsz > max_vaddr) {
-            max_vaddr = p_vaddr + p_memsz;
-        }
-    }
-    if (!found_pt_load) {
-        min_vaddr = 0;
-    }
-
-    min_vaddr = PAGE_START(min_vaddr);
-    max_vaddr = PAGE_END(max_vaddr);
-
-    if (out_min_vaddr != NULL) {
-        *out_min_vaddr = min_vaddr;
-    }
-    if (out_max_vaddr != NULL) {
-        *out_max_vaddr = max_vaddr;
-    }
-    return max_vaddr - min_vaddr;
-}
-
-size_t elf_reader::get_min_aligment(void* phdr, size_t phdr_num) {
-    uint8_t * p = (uint8_t*)phdr;
-    size_t min_aligment = 0x400000;
-    uint32_t p_type;
-    assert(get_elf_class() == ELFCLASS32 || get_elf_class() == ELFCLASS64);
-    for (int i = 0; i < phdr_num; i++) {
-        uint64_t p_align;
-        if (get_elf_class() == ELFCLASS32) {
-            Elf32_Phdr *phdr32 = (Elf32_Phdr*)p;
-            p_type             = phdr32->p_type;
-            p_align            = (uint64_t)phdr32->p_align;
-            p += sizeof(Elf32_Phdr);
-        } else if (get_elf_class() == ELFCLASS64) {
-            Elf64_Phdr *phdr64 = (Elf64_Phdr*)p;
-            p_type             = phdr64->p_type;
-            p_align            = (uint64_t)phdr64->p_align;
-            p += sizeof(Elf64_Phdr);
-        }
-        if (p_type != PT_LOAD || (p_align & (p_align - 1)) != 0) {
-            continue;
-        }
-        if (p_align < min_aligment) {
-            min_aligment = p_align;
-        }
-    }
-    return min_aligment;
-}
-
-bool elf_reader::load_segments(void) {
+bool elf_reader::_load_segments(void) {
     addr_t p_min_addr = (addr_t)NULL;
     addr_t p_max_addr = (addr_t)NULL;
 
-    size_t load_size = get_load_size((void*)m_phdr, m_phdr_num, &p_min_addr, &p_max_addr);
+    size_t load_size = _get_load_size((void*)m_phdr, m_phdr_num, &p_min_addr, &p_max_addr);
     assert(load_size > 0);
     
     void* mmap_ptr = mmap(nullptr, load_size,  PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -467,11 +457,11 @@ bool elf_reader::load_segments(void) {
     return true;
 }
 
-bool elf_reader::read_segments(void) {
+bool elf_reader::_read_segments(void) {
     addr_t p_min_addr = (addr_t)NULL;
     addr_t p_max_addr = (addr_t)NULL;
       
-    size_t load_size = get_load_size((void*)m_phdr, m_phdr_num, &p_min_addr, &p_max_addr);
+    size_t load_size = _get_load_size((void*)m_phdr, m_phdr_num, &p_min_addr, &p_max_addr);
     assert(load_size > 0);
 
     void* mmap_ptr = mmap(nullptr, load_size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -549,29 +539,93 @@ bool elf_reader::read_segments(void) {
     return true;
 }
 
-elf_image* elf_reader::load() {
-    assert(m_fd != -1);
-    size_t min_aligment = get_min_aligment((void*)m_phdr, m_phdr_num);
-    if (min_aligment < PAGE_SIZE) {
-        log_info("min_align(0x%lx), page_size(0x%lx), read_segments\n", min_aligment, (size_t)PAGE_SIZE);
-        if (!read_segments()) {
-            return NULL;
+size_t elf_reader::_get_min_aligment(void* phdr, size_t phdr_num) {
+    uint8_t * p = (uint8_t*)phdr;
+    size_t min_aligment = 0x400000;
+    uint32_t p_type;
+    assert(get_elf_class() == ELFCLASS32 || get_elf_class() == ELFCLASS64);
+    for (int i = 0; i < phdr_num; i++) {
+        uint64_t p_align;
+        if (get_elf_class() == ELFCLASS32) {
+            Elf32_Phdr *phdr32 = (Elf32_Phdr*)p;
+            p_type             = phdr32->p_type;
+            p_align            = (uint64_t)phdr32->p_align;
+            p += sizeof(Elf32_Phdr);
+        } else if (get_elf_class() == ELFCLASS64) {
+            Elf64_Phdr *phdr64 = (Elf64_Phdr*)p;
+            p_type             = phdr64->p_type;
+            p_align            = (uint64_t)phdr64->p_align;
+            p += sizeof(Elf64_Phdr);
         }
-    } else {
-        log_info("min_align(0x%lx), page_size(0x%lx), load_segments\n", min_aligment, (size_t)PAGE_SIZE);
-        if (!load_segments()) {
-            return NULL;
+        if (p_type != PT_LOAD || (p_align & (p_align - 1)) != 0) {
+            continue;
         }
+        if (p_align < min_aligment) {
+            min_aligment = p_align;
+        }
+    }
+    return min_aligment;
+}
+
+size_t elf_reader::_get_load_size(void* phdr, size_t phdr_num, addr_t* out_min_vaddr, addr_t* out_max_vaddr) {
+    uint8_t * p = (uint8_t*)phdr;
+    addr_t min_vaddr = UINTPTR_MAX;
+    addr_t max_vaddr = 0;
+    bool found_pt_load = false;
+    assert(get_elf_class() == ELFCLASS32 || get_elf_class() == ELFCLASS64); 
+
+    for (int i = 0; i < phdr_num; i++) {
+        addr_t p_vaddr;
+        addr_t p_memsz;
+        uint32_t p_type;
+        if (get_elf_class() == ELFCLASS32) {
+            Elf32_Phdr *phdr32 = (Elf32_Phdr*)p;
+            p_type             = phdr32->p_type;
+            p_vaddr            = (uint64_t)phdr32->p_vaddr;
+            p_memsz            = (uint64_t)phdr32->p_memsz;
+            p += sizeof(Elf32_Phdr);
+        } else if (get_elf_class() == ELFCLASS64) {
+            Elf64_Phdr *phdr64 = (Elf64_Phdr*)p;
+            p_type             = phdr64->p_type;
+            p_vaddr            = (uint64_t)phdr64->p_vaddr;
+            p_memsz            = (uint64_t)phdr64->p_memsz;
+            p += sizeof(Elf64_Phdr);
+        } 
+        if (p_type != PT_LOAD) {
+            continue;
+        }
+        found_pt_load = true;
+        if (p_vaddr < min_vaddr) {
+            min_vaddr = p_vaddr;
+        }
+
+        if (p_vaddr + p_memsz > max_vaddr) {
+            max_vaddr = p_vaddr + p_memsz;
+        }
+    }
+    if (!found_pt_load) {
+        min_vaddr = 0;
     }
 
-    elf_image * image = NULL;
-    if (this->get_elf_class() == ELFCLASS32) {
-        image = new elf_image32(*this);
-    } else if (this->get_elf_class() == ELFCLASS64) {
-        image = new elf_image64(*this);
+    min_vaddr = PAGE_START(min_vaddr);
+    max_vaddr = PAGE_END(max_vaddr);
+
+    if (out_min_vaddr != NULL) {
+        *out_min_vaddr = min_vaddr;
     }
-    if (image && image->load()) {
-        return image;
+    if (out_max_vaddr != NULL) {
+        *out_max_vaddr = max_vaddr;
     }
-    return NULL;
+    return max_vaddr - min_vaddr;
+}
+
+bool elf_reader::_check_file_range(off_t offset, size_t size, size_t alignment) {
+    off_t range_start;
+    off_t range_end;
+    return offset > 0 &&
+        elf_safe_add(&range_start, 0, offset) &&
+        elf_safe_add(&range_end, range_start, size) &&
+        (range_start < m_file_size) &&
+        (range_end <= m_file_size) &&
+        ((offset % alignment) == 0);
 }
