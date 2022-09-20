@@ -21,8 +21,8 @@ file(GLOB_RECURSE HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src "*.h")
 message(status " SOURCE_FILES : ${SOURCE_FILES}")
 message(status " HEADER_FILES : ${HEADER_FILES}")
 
-set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS}    -fno-omit-frame-pointer -Wno-null-conversion -Wno-null-arithmetic")
-set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fno-omit-frame-pointer ")
+set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS}    -g -fsanitize=address -fno-omit-frame-pointer -Wno-null-conversion -Wno-null-arithmetic")
+set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -g -fsanitize=address -fno-omit-frame-pointer ")
 
 add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 
