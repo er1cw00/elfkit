@@ -25,3 +25,6 @@ elf_image32::~elf_image32() {
 bool elf_image32::load() {
     return false;
 }
+void elf_image32::unload() {
+    return;
+}

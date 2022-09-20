@@ -9,14 +9,15 @@ public:
 
 public:
     virtual bool load();
-
+    virtual void unload();
+    
 protected:
     Elf64_Phdr* _find_segment_by_type(const uint32_t type);
-    Elf64_Shdr* _find_section_by_name(const char *sname);
-    Elf64_Shdr* _find_section_by_type(const uint32_t type);
 
     void _create_reloc(elf_reloc_tab& list, addr_t offset, size_t size, size_t entry_size);
+
     void _create_str_tab(const char* strtab, const size_t strtab_size);
+
     void _create_needed_list(std::vector<int> & needed_list);
     void _create_symbol_tab(Elf64_Sym* symtab);
     void _create_reloc_tab(addr_t relr_offset, size_t relr_size,
@@ -29,12 +30,6 @@ protected:
 
 protected:
     Elf64_Ehdr      *m_ehdr;
-
-    Elf64_Phdr      *m_phdr;
-    size_t          m_phdr_num;
-
-    Elf64_Shdr      *m_shdr;
-    size_t          m_shdr_num;
     
     Elf64_Dyn       *m_dynamic;
     size_t          m_dynamic_size;

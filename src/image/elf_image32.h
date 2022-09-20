@@ -9,7 +9,7 @@ public:
 
 public:
     virtual bool load();
-
+    virtual void unload();
 protected:
 
 };

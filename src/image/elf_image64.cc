@@ -25,8 +25,8 @@ elf_image64::~elf_image64() {
 bool elf_image64::load() {
 
     this->m_ehdr = (Elf64_Ehdr*)this->get_load_bias();
-    this->m_shdr = (Elf64_Shdr*)(this->get_load_bias() + this->m_ehdr->e_shoff);
-    this->m_phdr = (Elf64_Phdr*)(this->get_load_bias() + this->m_ehdr->e_phoff);
+    dump_elf_header((uint8_t*)this->m_ehdr);
+
     if (this->m_ehdr->e_type != ET_EXEC && this->m_ehdr->e_type != ET_DYN) {
         return false;
     }
@@ -38,11 +38,15 @@ bool elf_image64::load() {
     this->m_dynamic_size        = (size_t)(dyn_phdr->p_memsz/sizeof(Elf64_Dyn));
 
     Elf64_Sym* symtab           = NULL;
-    size_t symtab_size          = 0;
     size_t sym_size             = 0;
 
-    char* strtab                = NULL;
+    const char* strtab          = NULL;
     size_t strtab_size          = 0;
+    // const char* shstr           = m_reader.get_shstr_base();
+    // size_t shstr_size           = m_reader.get_shstr_size();
+    // const char* symstr          = m_reader.get_symstr_base();
+    // size_t symstr_size          = m_reader.get_symstr_size();
+
 
     addr_t plt_offset           = NULL;
     size_t plt_size             = 0;
@@ -203,6 +207,7 @@ bool elf_image64::load() {
         }   
     }
     _create_str_tab(strtab, strtab_size);
+
     _create_func_array(init_array, init_array_count,
                        finit_array, finit_array_count, 
                        preinit_array, preinit_array_count);
@@ -219,13 +224,13 @@ bool elf_image64::load() {
 
     return true;
 }
-
+void elf_image64::unload() {
+    return;
+}
 void elf_image64::_create_str_tab(const char* strtab, const size_t strtab_size) {
-    Elf64_Shdr * shstrtab_shdr = &this->m_shdr[this->m_ehdr->e_shstrndx];
-    if (shstrtab_shdr && _check_mem_range(shstrtab_shdr->sh_offset, shstrtab_shdr->sh_size, 4)) {
-        this->m_shstr_tab = new elf_string_tab((const char*)shstrtab_shdr->sh_offset, 
-                                               (size_t)shstrtab_shdr->sh_size);
-    }
+    // if (shstr && shstr_size > 0) {
+    //     this->m_shstr_tab = new elf_string_tab(shstr, shstr_size);
+    // }
     if (strtab && strtab_size > 0) {
         this->m_str_tab = new elf_string_tab(strtab, strtab_size);
     }
@@ -256,7 +261,7 @@ void elf_image64::_create_needed_list(std::vector<int> & needed_list) {
 }
 void elf_image64::_create_symbol_tab(Elf64_Sym* symtab) {
     if (symtab) {
-        this->m_sym_tab = new elf_symbol_tab(symtab, this->m_str_tab, is_use_gnu_hash() ? m_gnu_hash_tab : m_sysv_hash_tab);
+        this->m_sym_tab = new elf_symbol_tab(symtab, 0, this->m_str_tab);
     }
 }
 void elf_image64::_create_reloc_tab(addr_t relr_offset, size_t relr_size,
@@ -278,38 +283,11 @@ void elf_image64::_create_reloc_tab(addr_t relr_offset, size_t relr_size,
 
 Elf64_Phdr* elf_image64::_find_segment_by_type(const uint32_t type) {
     Elf64_Phdr* target = NULL;
-    Elf64_Phdr* phdr = this->m_phdr;
+    //Elf64_Phdr* phdr = this->m_phdr;
+    Elf64_Phdr* phdr = (Elf64_Phdr*)this->m_reader.get_phdr_base();
     for(int i = 0; i < this->m_ehdr->e_phnum; i += 1) {
         if(phdr[i].p_type == type) {
             target = phdr + i;
-            break;
-        }
-    }
-    return target;
-}
-
-Elf64_Shdr* elf_image64::_find_section_by_type(const uint32_t type) {
-    Elf64_Shdr* target = NULL;
-    Elf64_Shdr* shdr = this->m_shdr;
-    for(int i = 0; i < this->m_ehdr->e_shnum; i += 1) {
-        if(shdr[i].sh_type == type) {
-            target = shdr + i;
-            break;
-        }
-    }
-    return target;
-}
-
-Elf64_Shdr* elf_image64::_find_section_by_name(const char *sname) {
-    Elf64_Shdr* target = NULL;
-    Elf64_Shdr* shdr = this->m_shdr;
-    if (!m_str_tab) {
-        return NULL;
-    }
-    for(int i = 0; i < this->m_ehdr->e_shnum; i += 1) {
-        const char *name = m_str_tab->get_string((int)shdr[i].sh_name);//(const char *)(shdr[i].sh_name + this->m_shstr_ptr);
-        if(name != NULL && !strncmp(name, sname, strlen(sname))) {
-            target = (Elf64_Shdr*)(shdr + i);
             break;
         }
     }
