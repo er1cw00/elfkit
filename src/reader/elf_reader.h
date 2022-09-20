@@ -21,7 +21,7 @@ public:
     }
     bool open(const char* sopath);
     void close();
-    void detach();
+
     elf_image* load();
 
     const int   get_fd() {return m_fd;}
@@ -33,9 +33,30 @@ public:
     const size_t get_load_size() {return m_load_size;}
     const size_t get_file_size() {return m_file_size;}
 
+    void* get_shdr_base(void) {return m_shdr;}
+    size_t get_shdr_num(void) {return m_shdr_num;}
+
+    void* get_phdr_base(void) {return m_phdr;}
+    size_t get_phdr_num(void) {return m_phdr_num;}
+
+    const char* get_shstr_base(void) {return m_shstr;}
+    size_t get_shstr_size(void) {return m_shstr_size;}
+    
+    const char* get_symstr_base(void) {return m_symstr;}
+    size_t get_symstr_size(void) {return m_symstr_size;}
+
+    void* get_symtab_base(void) {return m_symtab;}
+    size_t get_symtab_size(void) {return m_symtab_size;}
+    
+    void* get_dyntab_base(void) {return m_dyntab;}
+    size_t get_dyntab_size(void) {return m_dyntab_size;}
+
 protected:
-    bool check_elf_header();
-    bool read_segment_headers();
+    bool check_elf_header(void);
+    bool read_section_headers(void);
+    bool read_segment_headers(void);
+    bool read_section_data(void);
+
     size_t get_load_size(void* phdr, size_t phdr_num, addr_t* out_min_vaddr, addr_t* out_max_vaddr);
     size_t get_min_aligment(void* phdr, size_t phdr_num);
 
@@ -55,14 +76,34 @@ protected:
     elf_mapped      m_phdr_fragment;
     elf_mapped      m_shdr_fragment;
 
+    elf_mapped      m_shstr_fragment;
+    elf_mapped      m_symstr_fragment;
+    elf_mapped      m_symtab_fragment;
+    elf_mapped      m_dyntab_fragment;
+
     uint8_t         m_elf_class;
     union {
         Elf32_Ehdr  ehdr32;
         Elf64_Ehdr  ehdr64;
     } m_ehdr;
+
     void*           m_phdr;
     size_t          m_phdr_num;
 
+    void*           m_shdr;
+    size_t          m_shdr_num;
+
+    const char*     m_shstr;  
+    size_t          m_shstr_size;
+
+    const char*     m_symstr;
+    size_t          m_symstr_size;
+
+    void*           m_symtab;
+    size_t          m_symtab_size;
+
+    void*           m_dyntab;
+    size_t          m_dyntab_size;
 };
 
 

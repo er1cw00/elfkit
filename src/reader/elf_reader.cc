@@ -56,7 +56,9 @@ bool elf_reader::open(const char * sopath) {
     this->m_file_size   = file_stat.st_size;
     this->m_file_offset = 0;
     if (!this->check_elf_header() || 
-        !this->read_segment_headers()) {
+        !this->read_segment_headers() ||
+        !this->read_section_headers() ||
+        !this->read_section_data()) {
         goto fail;
     }
     return true;
@@ -68,10 +70,6 @@ void elf_reader::close() {
     if (m_fd != -1) {
         ::close(m_fd);
     }
-    m_fd = -1;
-}
-void elf_reader::detach() {
-    assert(m_fd != -1);
     m_fd = -1;
 }
 bool elf_reader::check_elf_header() {
@@ -127,6 +125,84 @@ bool elf_reader::check_elf_header() {
     return true;
 }
 
+bool elf_reader::read_section_headers() {
+
+    uint16_t shstrndx = 0;
+    addr_t  shdr_offset = 0;
+    size_t shdr_size = 0;
+    if (get_elf_class() == ELFCLASS64) {
+        this->m_shdr_num = m_ehdr.ehdr64.e_shnum;
+        shstrndx         = m_ehdr.ehdr64.e_shstrndx;
+        shdr_offset      = (addr_t)m_ehdr.ehdr64.e_shoff;
+        shdr_size        = sizeof(Elf64_Shdr);
+    } else if (get_elf_class() == ELFCLASS32) {
+        this->m_shdr_num = m_ehdr.ehdr32.e_shnum;
+        shstrndx         = m_ehdr.ehdr32.e_shstrndx;
+        shdr_offset      = (addr_t)m_ehdr.ehdr32.e_shoff;
+        shdr_size        = sizeof(Elf32_Shdr);
+    } else {
+        log_error("unsupported ELF Class: %d\n", get_elf_class()); 
+        return false;
+    }
+
+    if (this->m_shdr_num == 0) {
+        log_error("\"%s\" has no section headers\n", this->get_sopath());
+        return false;
+    }
+
+    if (shstrndx >= this->m_shdr_num) {
+        log_error("\"%s\" section headers nums less than e_shstrndx\n", this->get_sopath());
+        return false;
+    }
+
+    size_t size = this->m_shdr_num * shdr_size;
+    //log_dbg("filesize: %ld\n", m_file_size);
+    if (!check_file_range(shdr_offset, size, 1)) {
+        log_error("\"%s\" has invalid shdr offset/size: %zu/%zu\n",
+                  this->get_sopath(),
+                  (size_t)shdr_offset,
+                  size);
+        return false;
+    }
+
+    if (!this->m_shdr_fragment.map(this->m_fd, 0, shdr_offset, size)) {
+        log_error("\"%s\" shdr mmap failed: %s\n", this->get_sopath(), strerror(errno));
+        return false;
+    }
+
+    this->m_shdr = this->m_shdr_fragment.data();
+
+    size_t shstr_size = 0;
+    addr_t shstr_offset = 0;
+    if (get_elf_class() == ELFCLASS64) {
+        Elf64_Shdr* shstr_shdr = &((Elf64_Shdr*)this->m_shdr)[shstrndx];
+        shstr_offset          = shstr_shdr->sh_offset;
+        shstr_size            = shstr_shdr->sh_size;
+    } else if (get_elf_class() == ELFCLASS32) {
+        Elf32_Shdr* shstr_shdr = &((Elf32_Shdr*)this->m_shdr)[shstrndx];
+        shstr_offset          = shstr_shdr->sh_offset;
+        shstr_size             = shstr_shdr->sh_size;
+    } else {
+        log_error("unsupported ELF Class: %d\n", get_elf_class()); 
+        return false;
+    }
+
+    if (!this->check_file_range(shstr_offset, shstr_size, 1)) {
+       log_error("\"%s\" has invalid shdr offset/size: %zu/%zu\n",
+                  this->get_sopath(),
+                  (size_t)shstr_offset,
+                  (size_t)shstr_size);
+       return false;
+    }
+    if (!this->m_shstr_fragment.map(this->m_fd, 0, shstr_offset, shstr_size)) {
+        log_error("\"%s\" shstr mmap failed: %s\n", this->get_sopath(), strerror(errno));
+        return false;
+    }
+    this->m_shstr = (const char *)this->m_shstr_fragment.data();
+    this->m_shstr_size = shstr_size;
+    log_info("read section header: shdr(0x%p), shdr_num(%zu)\n", this->m_shdr, this->m_shdr_num);
+    return true;
+}
 
 bool elf_reader::read_segment_headers() {
     size_t phdr_size        = 0;
@@ -168,6 +244,80 @@ bool elf_reader::read_segment_headers() {
     this->m_phdr = m_phdr_fragment.data();
     log_info("read program header: phdr(0x%p), phdr_num(%zu)\n", this->m_phdr, this->m_phdr_num);
     return true;
+}
+
+bool elf_reader::read_section_data(void) {
+    if (get_elf_class() == ELFCLASS64) {
+        Elf64_Shdr * symstr_shdr = NULL;
+        Elf64_Shdr * symtab_shdr = NULL;
+        Elf64_Shdr * shdr = (Elf64_Shdr*)this->m_shdr;
+        for (size_t i = 0; i < this->m_shdr_num; ++i) {
+            const char * sh_name = &this->m_shstr[shdr[i].sh_name];
+            log_dbg("%-30s %d\n", sh_name, shdr[i].sh_type);
+            if (shdr[i].sh_type == SHT_STRTAB) {
+                if (strncmp(sh_name, ".strtab", 7) == 0) {
+                    symstr_shdr = &shdr[i];
+                }
+            } else if (shdr[i].sh_type == SHT_SYMTAB) {
+                if (strncmp(sh_name, ".symtab", 7) == 0) {
+                    symtab_shdr = &shdr[i];
+                }
+            }
+        }
+        if (symtab_shdr && 
+            check_file_range(symtab_shdr->sh_offset, symtab_shdr->sh_size, 4)) {
+            if (!this->m_symtab_fragment.map(this->m_fd, 0, symtab_shdr->sh_offset, symtab_shdr->sh_size)) {
+                log_warn("symtab map fail, %s\n", strerror(errno));
+            }
+            this->m_symtab = (void *)this->m_symtab_fragment.data();
+            this->m_symtab_size = symtab_shdr->sh_size;
+        }
+        if (symstr_shdr && 
+            check_file_range(symstr_shdr->sh_offset, symstr_shdr->sh_size, 1)) {
+            if (!this->m_symstr_fragment.map(this->m_fd, 0, symstr_shdr->sh_offset, symstr_shdr->sh_size)) {
+                log_warn("symstr map fail, %s\n", strerror(errno));
+            }
+            this->m_symstr = (const char *)this->m_symstr_fragment.data();
+            this->m_symstr_size = symstr_shdr->sh_size; 
+        }
+        return true;
+    } else if (get_elf_class() == ELFCLASS32) {
+        Elf32_Shdr * symstr_shdr = NULL;
+        Elf32_Shdr * symtab_shdr = NULL;
+        Elf32_Shdr * shdr = (Elf32_Shdr*)this->m_shdr;
+        for (size_t i = 0; i < this->m_shdr_num; ++i) {
+            const char * sh_name = &this->m_shstr[shdr[i].sh_name];
+            log_dbg("%-30s %d\n", sh_name, shdr[i].sh_type);
+            if (shdr[i].sh_type == SHT_STRTAB) {
+                if (strncmp(sh_name, ".strtab", 7) == 0) {
+                    symstr_shdr = &shdr[i];
+                } 
+            } else if (shdr[i].sh_type == SHT_SYMTAB) {
+                if (strncmp(sh_name, ".symtab", 7) == 0) {
+                    symtab_shdr = &shdr[i];
+                }
+            }
+        }
+        if (symtab_shdr && 
+            check_file_range(symtab_shdr->sh_offset, symtab_shdr->sh_size, 4)) {
+            if (!this->m_symtab_fragment.map(this->m_fd, 0, symtab_shdr->sh_offset, symtab_shdr->sh_size)) {
+                log_warn("symtab map fail, %s\n", strerror(errno));
+            }
+            this->m_symtab = (void *)this->m_symtab_fragment.data();
+            this->m_symtab_size = symtab_shdr->sh_size;
+        }
+        if (symstr_shdr && 
+            check_file_range(symstr_shdr->sh_offset, symstr_shdr->sh_size, 1)) {
+            if (!this->m_symstr_fragment.map(this->m_fd, 0, symstr_shdr->sh_offset, symstr_shdr->sh_size)) {
+                log_warn("strtab map fail, %s\n", strerror(errno));
+            }
+            this->m_symstr = (const char *)this->m_symstr_fragment.data();
+            this->m_symstr_size = symstr_shdr->sh_size; 
+        }
+        return true;
+    }
+    log_error("unsupported ELF Class: %d", get_elf_class()); 
+    return false;
 }
 bool elf_reader::check_file_range(off_t offset, size_t size, size_t alignment) {
     off_t range_start;
