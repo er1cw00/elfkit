@@ -6,6 +6,7 @@
 #include <image/elf_image.h>
 #include <model/elf_type.h>
 #include <model/elf_reloc_tab.h>
+#include <model/elf_symbol_tab.h>
 
 void usage() {
     fprintf(stderr, "./elfkit [sofile]");
@@ -30,36 +31,55 @@ int main(const int argc, const char * args[]) {
         fprintf(stderr, "elf_reader load image fail!");
         return -1;
     }
+    elf_hash_tab* gnu_hash_tab = image->get_gnu_hash_tab();
+    elf_hash_tab* sysv_hash_tab = image->get_sysv_hash_tab();
+    elf_symbol_tab* symtab = image->get_sym_tab();
 
     elf_reloc_tab* plt_tab = image->get_plt_tab();
     elf_reloc_tab* rel_tab = image->get_rel_tab();
     printf("plt tab >>>>>\n");
     if (plt_tab) {
-        elf_reloc_list_t list;
-        plt_tab->get_list(list);
+        elf_reloc_list_t& list = plt_tab->get_list();
         for (int i = 0; i < list.size(); i++) {
             elf_reloc & reloc = list[i];
-            fprintf(stderr, "reloc(%d), offset(%p), addend(%p), info(%16llx)\n", 
+            int sym_idx = elf_reloc_get_symbol_index(&reloc);
+            int sym_type = elf_reloc_get_symbol_type(&reloc);
+                 const char* sym_name = "<<not found>>";
+            elf_symbol sym;
+            if (symtab->get_symbol(sym_idx, &sym)) {
+                sym_name = sym.sym_name;
+            }
+            fprintf(stderr, "reloc(%d), offset(%p), addend(%p), sym(%d), type(%x), name(%s)\n", 
                             i,
                             (void*)reloc.r_offset,
                             (void*)reloc.r_addend,
-                            (uint64_t)reloc.r_info);
+                            sym_idx,
+                            sym_type,
+                            sym_name);
         }
     }
     
     printf("rel tab >>>>>\n");
     if (rel_tab) {
-        elf_reloc_list_t list;
-        rel_tab->get_list(list);
+        elf_reloc_list_t list = rel_tab->get_list();
         for (int i = 0; i < list.size(); i++) {
             elf_reloc & reloc = list[i];
-            fprintf(stderr, "reloc(%d), offset(%p), addend(%p), info(%16llx)\n",
+            int sym_idx = elf_reloc_get_symbol_index(&reloc);
+            int sym_type = elf_reloc_get_symbol_type(&reloc);
+            const char* sym_name = "<<not found>>";
+            elf_symbol sym;
+            if (symtab->get_symbol(sym_idx, &sym)) {
+                sym_name = sym.sym_name;
+            }
+            fprintf(stderr, "reloc(%d), offset(%p), addend(%p), sym(%d), type(%x), name(%s)\n",
                             i,
                             (void*)reloc.r_offset,
                             (void*)reloc.r_addend,
-                            (uint64_t)reloc.r_info);
+                            sym_idx,
+                            sym_type,
+                            sym_name);
         }
     }
-    
+    image->unload();
     return 0;
 }
