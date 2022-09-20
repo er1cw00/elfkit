@@ -60,6 +60,7 @@ struct elf_reloc {
     uint64_t r_info;
     int64_t  r_addend;
     uint8_t  r_elf_class;
+    bool     r_use_rela;
 };
 
 typedef struct elf_reloc elf_reloc;
