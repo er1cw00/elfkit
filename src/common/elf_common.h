@@ -32,3 +32,4 @@ const char * elf_dynamic_tag_name(int d_tag);
 
 bool elf_safe_add(off_t* out, off_t a, size_t b);
 void elf_dump_hex(uint8_t * pbuf, int size);
+void dump_elf_header(const uint8_t* p);

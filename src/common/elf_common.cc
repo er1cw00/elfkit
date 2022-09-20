@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string>
 #include <common/elf.h>
+#include <common/elf_log.h>
 #include <common/elf_common.h>
 
 bool elf_safe_add(off_t* out, off_t a, size_t b) {
@@ -30,6 +31,55 @@ void elf_dump_hex(uint8_t * pbuf, int size) {
         fprintf(stderr, "%02X ", pbuf[j]);
     }
     fprintf(stderr, "\n");
+    return;
+}
+
+
+void dump_elf_header(const uint8_t* p) {
+    static char alpha_tab[17] = "0123456789ABCDEF";
+    char buff[EI_NIDENT*3+1];
+    uint8_t elf_class = p[EI_CLASS];
+    log_info("ELF%d Header :\n", elf_class == ELFCLASS64 ? 64 : 32);
+    for(int i = 0; i < EI_NIDENT; i++) {
+        uint8_t ch = p[i];
+        buff[i*3 + 0] = alpha_tab[(int)((ch >> 4) & 0x0F)];
+        buff[i*3 + 1] = alpha_tab[(int)(ch & 0x0F)];
+        buff[i*3 + 2] = ' ';
+    }
+    buff[EI_NIDENT*3] = '\0';
+    log_info("e_ident:     %s\n",         buff);
+    
+    if (elf_class == ELFCLASS64) {
+        Elf64_Ehdr* ehdr = (Elf64_Ehdr*)p;
+        log_info("e_type:      0x%x\n",       ehdr->e_type);
+        log_info("e_machine:   0x%x\n",       ehdr->e_machine);
+        log_info("e_version:   0x%x\n",       ehdr->e_version);
+        log_info("e_entry:     0x%lx\n",      (unsigned long)ehdr->e_entry);
+        log_info("e_phoff:     0x%lx\n",      (unsigned long)ehdr->e_phoff);
+        log_info("e_shoff:     0x%lx\n",      (unsigned long)ehdr->e_shoff);
+        log_info("e_flags:     0x%x\n",       ehdr->e_flags);
+        log_info("e_ehsize:    0x%x\n",       ehdr->e_ehsize);
+        log_info("e_phentsize: 0x%x\n",       ehdr->e_phentsize);
+        log_info("e_phnum:     0x%x\n",       ehdr->e_phnum);
+        log_info("e_shentsize: 0x%x\n",       ehdr->e_shentsize);
+        log_info("e_shnum:     0x%x\n",       ehdr->e_shnum);
+        log_info("e_shstrndx:  0x%x\n",       ehdr->e_shstrndx);
+    } else if (elf_class == ELFCLASS32) {
+        Elf32_Ehdr* ehdr = (Elf32_Ehdr*)p;
+        log_info("e_type:      0x%x\n",       ehdr->e_type);
+        log_info("e_machine:   0x%x\n",       ehdr->e_machine);
+        log_info("e_version:   0x%x\n",       ehdr->e_version);
+        log_info("e_entry:     0x%lx\n",      (unsigned long)ehdr->e_entry);
+        log_info("e_phoff:     0x%lx\n",      (unsigned long)ehdr->e_phoff);
+        log_info("e_shoff:     0x%lx\n",      (unsigned long)ehdr->e_shoff);
+        log_info("e_flags:     0x%x\n",       ehdr->e_flags);
+        log_info("e_ehsize:    0x%x\n",       ehdr->e_ehsize);
+        log_info("e_phentsize: 0x%x\n",       ehdr->e_phentsize);
+        log_info("e_phnum:     0x%x\n",       ehdr->e_phnum);
+        log_info("e_shentsize: 0x%x\n",       ehdr->e_shentsize);
+        log_info("e_shnum:     0x%x\n",       ehdr->e_shnum);
+        log_info("e_shstrndx:  0x%x\n",       ehdr->e_shstrndx);
+    }
     return;
 }
 
