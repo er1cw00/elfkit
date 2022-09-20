@@ -41,7 +41,7 @@ typedef int64_t  Elf64_Sxword;
 #define ET_LOPROC     0xff00
 #define ET_HIPROC     0xffff
 
-
+#define EM_NONE       0
 #define EM_386        3
 #define EM_486        6
 #define EM_ARM        40
