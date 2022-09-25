@@ -44,7 +44,7 @@ install(
         COMPONENT lib
 )
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/src" # source directory
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/" # source directory
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/elfkit # target directory
         FILES_MATCHING # install only matched files
         PATTERN "*.h" # select header files
