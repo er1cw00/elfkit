@@ -39,6 +39,16 @@ typedef struct elf_segment elf_segment;
 void elf_segment_reset_with_phdr32(elf_segment *segment, Elf32_Phdr *phdr);
 void elf_segment_reset_with_phdr64(elf_segment *segment, Elf64_Phdr *phdr);
 
+struct elf_dynamic {
+    int64_t d_tag;
+    uint64_t d_val;
+};
+
+typedef struct elf_dynamic elf_dynamic;
+void elf_dynamic_reset_with_dyn32(elf_dynamic *dynamic, Elf32_Dyn* dyn);
+void elf_dynamic_reset_with_dyn64(elf_dynamic *dynamic, Elf64_Dyn* dyn);
+
+
 struct elf_symbol {
 
     int         st_name;

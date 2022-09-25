@@ -56,6 +56,18 @@ void elf_segment_reset_with_phdr64(elf_segment *segment, Elf64_Phdr *phdr) {
     segment->p_align       = (uint64_t)phdr->p_align;
 }
 
+void elf_dynamic_reset_with_dyn32(elf_dynamic *dynamic, Elf32_Dyn* dyn) {
+    assert(dynamic != NULL);
+    assert(dyn != NULL);
+    dynamic->d_tag = (int64_t)dyn->d_tag;
+    dynamic->d_val = (uint64_t)dyn->d_un.d_val;
+}
+void elf_dynamic_reset_with_dyn64(elf_dynamic *dynamic, Elf64_Dyn* dyn) {
+    assert(dynamic != NULL);
+    assert(dyn != NULL);
+    dynamic->d_tag = (int64_t)dyn->d_tag;
+    dynamic->d_val = (uint64_t)dyn->d_un.d_val;
+}
 
 void elf_symbol_reset_with_sym32(elf_symbol* symbol, Elf32_Sym *sym) {
     symbol->st_name      = (int)sym->st_name;
@@ -76,7 +88,6 @@ void elf_symbol_reset_with_sym64(elf_symbol* symbol, Elf64_Sym *sym) {
     symbol->st_size      = (size_t)sym->st_size;
     symbol->sym_name     = NULL;
 }
-
 
 void elf_reloc_reset_with_rel32(elf_reloc * reloc, const Elf32_Rel * rel) {
     assert(rel != NULL);
