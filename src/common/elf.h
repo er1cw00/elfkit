@@ -282,6 +282,9 @@ typedef struct elf64_shdr {
 #define DT_LOPROC            0x70000000
 #define DT_HIPROC            0x7fffffff
 
+#define PF_X              0x1
+#define PF_W              0x2
+#define PF_R              0x4
 
 #define STB_LOCAL          0
 #define STB_GLOBAL         1
