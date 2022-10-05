@@ -4,6 +4,7 @@
 #include <reader/elf_reader.h>
 #include <model/elf_hash_tab.h>
 
+#include <model/elf_type.h>
 elf_image::elf_image(elf_reader & reader) {
     log_trace("elf_image ctor, this: %p\n", this);
     m_reader = reader;
@@ -59,6 +60,29 @@ const uint16_t elf_image::get_machine_type() {
 const uint8_t elf_image::get_data_order() {
     uint8_t* ident = (uint8_t*)get_load_bias();
     return ident[5];
+}
+
+const size_t elf_image::get_segment_size() {
+    return m_reader.get_phdr_num();
+}
+const size_t elf_image::get_segment_list(elf_segment* segs) {
+    size_t phnum = m_reader.get_phdr_num();
+    if (get_elf_class() == ELFCLASS32) {
+        Elf32_Phdr* phdr = (Elf32_Phdr*)m_reader.get_phdr_base();
+        if (segs && phdr) {
+            for (int i = 0; i < phnum; i++) {
+                elf_segment_reset_with_phdr32(&segs[i], &phdr[i]);
+            }
+        }
+    } else if (get_elf_class() == ELFCLASS64) {
+        Elf64_Phdr* phdr = (Elf64_Phdr*)m_reader.get_phdr_base();
+        if (segs && phdr) {
+            for (int i = 0; i < phnum; i++) {
+                elf_segment_reset_with_phdr64(&segs[i], &phdr[i]);
+            }
+        }
+    }
+    return phnum;
 }
 
 bool elf_image::get_symbol_by_addr(const addr_t addr, elf_symbol* symbol) {

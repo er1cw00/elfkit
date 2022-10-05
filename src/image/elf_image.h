@@ -4,7 +4,8 @@
 #include <common/elf_string_list.h>
 #include <reader/elf_reader.h>
 
-class elf_symbol;
+struct elf_symbol;
+struct elf_segment;
 class elf_hash_tab;
 class elf_reloc_tab;
 class elf_string_tab;
@@ -26,12 +27,16 @@ public:
     const uint8_t get_elf_class();
     const uint16_t get_machine_type();
     const uint8_t get_data_order();
+    const size_t get_segment_size();
+    const size_t get_segment_list(elf_segment* segs);
+
     const bool is_use_gnu_hash() {return this->m_is_gnu_hash;}
     const bool is_use_rela() {return this->m_is_use_rela;}
     elf_reader& get_reader() {return this->m_reader;}
 
     virtual bool load();
     virtual void unload();
+
     virtual bool get_symbol_by_addr(const addr_t addr, elf_symbol* symbol);
     virtual bool get_symbol_by_name(const char* name, elf_symbol* symbol);
 
