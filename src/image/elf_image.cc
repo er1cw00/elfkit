@@ -3,18 +3,10 @@
 #include <image/elf_image.h>
 #include <reader/elf_reader.h>
 #include <model/elf_hash_tab.h>
-
 #include <model/elf_type.h>
 elf_image::elf_image(elf_reader & reader) {
     log_trace("elf_image ctor, this: %p\n", this);
     m_reader = reader;
-    // m_file_size         = reader.get_file_size();
-    // m_load_bias         = reader.get_load_bias();
-    // m_load_size         = reader.get_load_size();
-    // m_elf_class         = reader.get_elf_class();
-    // m_soname            = reader.get_soname();
-    // m_sopath            = reader.get_sopath();
-    //reader.detach();
 }
 
 elf_image::~elf_image() {
