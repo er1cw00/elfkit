@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 #include <common/elf.h>
 #include <common/elf_log.h>

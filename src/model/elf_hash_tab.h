@@ -3,7 +3,7 @@
 #include <common/elf_log.h>
 #include <common/elf_common.h>
 
-class elf_symbol;
+struct elf_symbol;
 class elf_symbol_tab;
 class elf_hash_tab {
 public:
