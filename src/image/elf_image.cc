@@ -4,6 +4,7 @@
 #include <reader/elf_reader.h>
 #include <model/elf_hash_tab.h>
 #include <model/elf_type.h>
+
 elf_image::elf_image(elf_reader & reader) {
     log_trace("elf_image ctor, this: %p\n", this);
     m_reader = reader;
@@ -54,23 +55,45 @@ const uint8_t elf_image::get_data_order() {
     return ident[5];
 }
 
+const size_t elf_image::get_section_size() {
+    return m_reader.get_shdr_num();
+}
+const size_t elf_image::get_section_list(elf_section* sections) {
+    size_t shnum = m_reader.get_shdr_num();
+    if (get_elf_class() == ELFCLASS32) {
+        Elf32_Shdr* shdr = (Elf32_Shdr*)m_reader.get_shdr_base();
+        if (sections && shdr) {
+            for (int i = 0; i < shnum; i++) {
+                elf_section_reset_with_shdr32(&sections[i], &shdr[i]);
+            }
+        }
+    } else if (get_elf_class() == ELFCLASS64) {
+        Elf64_Shdr* shdr = (Elf64_Shdr*)m_reader.get_shdr_base();
+        if (sections && shdr) {
+            for (int i = 0; i < shnum; i++) {
+                elf_section_reset_with_shdr64(&sections[i], &shdr[i]);
+            }
+        }
+    }
+    return shnum;
+}
 const size_t elf_image::get_segment_size() {
     return m_reader.get_phdr_num();
 }
-const size_t elf_image::get_segment_list(elf_segment* segs) {
+const size_t elf_image::get_segment_list(elf_segment* segments) {
     size_t phnum = m_reader.get_phdr_num();
     if (get_elf_class() == ELFCLASS32) {
         Elf32_Phdr* phdr = (Elf32_Phdr*)m_reader.get_phdr_base();
-        if (segs && phdr) {
+        if (segments && phdr) {
             for (int i = 0; i < phnum; i++) {
-                elf_segment_reset_with_phdr32(&segs[i], &phdr[i]);
+                elf_segment_reset_with_phdr32(&segments[i], &phdr[i]);
             }
         }
     } else if (get_elf_class() == ELFCLASS64) {
         Elf64_Phdr* phdr = (Elf64_Phdr*)m_reader.get_phdr_base();
-        if (segs && phdr) {
+        if (segments && phdr) {
             for (int i = 0; i < phnum; i++) {
-                elf_segment_reset_with_phdr64(&segs[i], &phdr[i]);
+                elf_segment_reset_with_phdr64(&segments[i], &phdr[i]);
             }
         }
     }

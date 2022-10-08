@@ -5,7 +5,9 @@
 #include <reader/elf_reader.h>
 
 struct elf_symbol;
+struct elf_section;
 struct elf_segment;
+
 class elf_hash_tab;
 class elf_reloc_tab;
 class elf_string_tab;
@@ -27,8 +29,12 @@ public:
     const uint8_t get_elf_class();
     const uint16_t get_machine_type();
     const uint8_t get_data_order();
+
+    const size_t get_section_size();
+    const size_t get_section_list(elf_section* sections);
+
     const size_t get_segment_size();
-    const size_t get_segment_list(elf_segment* segs);
+    const size_t get_segment_list(elf_segment* segments);
 
     const bool is_use_gnu_hash() {return this->m_is_gnu_hash;}
     const bool is_use_rela() {return this->m_is_use_rela;}
