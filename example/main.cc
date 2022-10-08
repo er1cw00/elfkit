@@ -49,7 +49,7 @@ int main(const int argc, const char * args[]) {
             if (symtab->get_symbol(sym_idx, &sym)) {
                 sym_name = sym.sym_name;
             }
-            fprintf(stderr, "reloc(%d), offset(%p), addend(%p), sym(%d), type(%x), name(%s)\n", 
+            fprintf(stdout, "reloc(%d), offset(%p), addend(%p), sym(%d), type(%x), name(%s)\n", 
                             i,
                             (void*)reloc.r_offset,
                             (void*)reloc.r_addend,
@@ -71,7 +71,7 @@ int main(const int argc, const char * args[]) {
             if (symtab->get_symbol(sym_idx, &sym)) {
                 sym_name = sym.sym_name;
             }
-            fprintf(stderr, "reloc(%d), offset(%p), addend(%p), sym(%d), type(%x), name(%s)\n",
+            fprintf(stdout, "reloc(%d), offset(%p), addend(%p), sym(%d), type(%x), name(%s)\n",
                             i,
                             (void*)reloc.r_offset,
                             (void*)reloc.r_addend,
