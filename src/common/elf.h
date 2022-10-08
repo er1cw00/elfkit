@@ -108,9 +108,11 @@ typedef struct elf64_hdr {
 #define PT_LOPROC           0x70000000
 #define PT_HIPROC           0x7fffffff
 #define PT_GNU_EH_FRAME     0x6474e550
+#define PT_GNU_RELRO        0x6474e552
 #define PT_GNU_PROPERTY     0x6474e553
 #define PT_GNU_STACK        (PT_LOOS + 0x474e551)
 #define PT_ARM_EXIDX        (PT_LOPROC + 1)
+
 #define PN_XNUM             0xffff
 
 typedef struct elf32_phdr {
@@ -183,6 +185,26 @@ typedef struct elf64_phdr {
 #define SHN_COMMON         0xfff2
 #define SHN_HIRESERVE      0xffff
 
+#define STB_LOCAL          0
+#define STB_GLOBAL         1
+#define STB_WEAK           2
+#define STB_LOOS           10
+#define STB_HIOS           12
+#define STB_LOPROC         13
+#define STB_HIPROC         15
+
+#define STT_NOTYPE         0
+#define STT_OBJECT         1
+#define STT_FUNC           2
+#define STT_SECTION        3
+#define STT_FILE           4
+#define STT_COMMON         5
+#define STT_TLS            6
+#define STT_GNU_IFUNC      10
+#define STT_LOOS           10
+#define STT_HIOS           12
+#define STT_LOPROC         13
+#define STT_HIPROC         15
 typedef struct elf32_shdr {
   Elf32_Word sh_name;
   Elf32_Word sh_type;
