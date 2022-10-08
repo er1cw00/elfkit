@@ -356,6 +356,60 @@ typedef struct elf64_sym {
   Elf64_Xword st_size;
 } Elf64_Sym;
 
+#define R_ARM_NONE              0
+#define R_ARM_JUMP_SLOT         22
+#define R_ARM_ABS32             2
+#define R_ARM_GLOB_DAT          21
+#define R_ARM_RELATIVE          23
+#define R_ARM_IRELATIVE         160
+#define R_ARM_COPY              20
+#define R_ARM_TLS_DTPMOD32      17  /* ID of module containing symbol */
+#define R_ARM_TLS_DTPOFF32      18  /* Offset in TLS block */
+#define R_ARM_TLS_TPOFF32       19  /* Offset in static TLS block */
+#define R_ARM_TLS_DESC          13  /* dynamic relocation */
+
+#define R_AARCH64_NONE          256
+#define R_AARCH64_JUMP_SLOT     1026
+#define R_AARCH64_ABS64         257
+#define R_AARCH64_GLOB_DAT      1025
+#define R_AARCH64_RELATIVE      1026
+#define R_AARCH64_IRELATIVE     1032
+#define R_AARCH64_COPY          1024
+#define R_AARCH64_TLS_DTPMOD    1028    /* Module index. */
+#define R_AARCH64_TLS_DTPREL    1029    /* Module-relative offset. */
+#define R_AARCH64_TLS_TPREL     1030    /* TP-relative offset. */
+#define R_AARCH64_TLSDESC       1031    /* 16-byte descriptor: resolver func + arg. */
+
+#define	R_386_NONE	            0
+#define R_386_PC32              2
+#define R_386_JMP_SLOT          7
+#define R_386_32                1
+#define R_386_GLOB_DAT          6
+#define R_386_RELATIVE          8
+#define R_386_IRELATIVE         42
+#define R_386_COPY              5
+#define	R_386_TLS_DTPMOD32      35
+#define	R_386_TLS_DTPOFF32      36
+#define	R_386_TLS_TPOFF32       37
+#define	R_386_TLS_DESC          41
+
+#define R_X86_64_NONE		        0
+#define R_X86_64_PC32           2
+#define R_X86_64_JUMP_SLOT      7
+#define R_X86_64_64             1
+#define R_X86_64_GLOB_DAT       6
+#define R_X86_64_RELATIVE       8
+#define R_X86_64_IRELATIVE      37
+#define R_X86_64_COPY           5
+#define R_X86_64_DTPMOD64       16
+#define R_X86_64_DTPOFF64       17
+#define R_X86_64_TPOFF64        18
+#define R_X86_64_TLSDESC        36
+
+
+
+
+
 #define ELF32_R_SYM(x)    ((x) >> 8)
 #define ELF32_R_TYPE(x)   ((x) & 0xff)
 #define ELF64_R_SYM(i)    ((i) >> 32)
