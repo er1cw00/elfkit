@@ -31,6 +31,15 @@ int main(const int argc, const char * args[]) {
         fprintf(stderr, "elf_reader load image fail!");
         return -1;
     }
+
+    Elf64_Phdr* phdr = (Elf64_Phdr*)reader.get_phdr_base();
+    size_t phnum = reader.get_phdr_num();
+    for (int i = 0; i < phnum; i++) {
+        elf_segment segment;
+        elf_segment_reset_with_phdr64(&segment, phdr+i);
+        printf("i:%d, type:%d, addr:%llx\n", i, segment.p_type, segment.p_offset);
+    }
+
     elf_hash_tab* gnu_hash_tab = image->get_gnu_hash_tab();
     elf_hash_tab* sysv_hash_tab = image->get_sysv_hash_tab();
     elf_symbol_tab* symtab = image->get_sym_tab();
