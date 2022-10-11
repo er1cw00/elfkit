@@ -400,7 +400,7 @@ bool elf_reader::_read_section_data(void) {
     return false;
 }
 
-bool elf_reader::_load_segments(void) {
+bool elf_reader::_read_segments(void) {
     addr_t p_min_addr = (addr_t)NULL;
     addr_t p_max_addr = (addr_t)NULL;
 
@@ -457,7 +457,7 @@ bool elf_reader::_load_segments(void) {
     return true;
 }
 
-bool elf_reader::_read_segments(void) {
+bool elf_reader::_load_segments(void) {
     addr_t p_min_addr = (addr_t)NULL;
     addr_t p_max_addr = (addr_t)NULL;
       
