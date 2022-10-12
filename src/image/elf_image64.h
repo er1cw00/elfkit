@@ -4,7 +4,7 @@
 
 class elf_image64 : public elf_image {
 public:
-    elf_image64(elf_reader & reader);
+    elf_image64(elf_reader* reader);
     virtual ~elf_image64();
 
 public:

@@ -14,7 +14,7 @@
 #include <model/elf_func_array.h>
 #include <image/elf_image32.h>
 
-elf_image32::elf_image32(elf_reader & reader) : elf_image(reader)  {
+elf_image32::elf_image32(elf_reader* reader) : elf_image(reader)  {
     log_trace("elf_image32 ctor, this: %p\n", this);
 }
 

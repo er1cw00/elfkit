@@ -20,20 +20,20 @@ int main(const int argc, const char * args[]) {
     const char * sopath = args[1];
     printf("so path: %s\n", sopath);
 
-    elf_reader reader;
-    if (!reader.open(sopath)) {
+    elf_reader* reader = new elf_reader();
+    if (!reader->open(sopath)) {
         fprintf(stderr, "elf_reader open fail!\n");
         return -1;
     }
     
-    elf_image* image = reader.load();
+    elf_image* image = reader->load();
     if (!image) {
         fprintf(stderr, "elf_reader load image fail!");
         return -1;
     }
 
-    Elf64_Phdr* phdr = (Elf64_Phdr*)reader.get_phdr_base();
-    size_t phnum = reader.get_phdr_num();
+    Elf64_Phdr* phdr = (Elf64_Phdr*)reader->get_phdr_base();
+    size_t phnum = reader->get_phdr_num();
     for (int i = 0; i < phnum; i++) {
         elf_segment segment;
         elf_segment_reset_with_phdr64(&segment, phdr+i);

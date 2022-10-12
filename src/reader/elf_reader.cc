@@ -68,6 +68,7 @@ fail:
     return false;
 }
 void elf_reader::close() {
+    log_trace("elf_image::unload() <<\n");
     if (m_fd != -1) {
         ::close(m_fd);
     }
@@ -91,9 +92,9 @@ elf_image* elf_reader::load() {
 
     elf_image * image = NULL;
     if (this->get_elf_class() == ELFCLASS32) {
-        image = new elf_image32(*this);
+        image = new elf_image32(this);
     } else if (this->get_elf_class() == ELFCLASS64) {
-        image = new elf_image64(*this);
+        image = new elf_image64(this);
     }
     if (image && image->load()) {
         return image;

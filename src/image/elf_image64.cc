@@ -14,7 +14,7 @@
 #include <model/elf_func_array.h>
 #include <image/elf_image64.h>
 
-elf_image64::elf_image64(elf_reader & reader) : elf_image(reader)  {
+elf_image64::elf_image64(elf_reader* reader) : elf_image(reader)  {
     log_trace("elf_image64 ctor, this: %p\n", this);
 }
 
@@ -42,10 +42,10 @@ bool elf_image64::load() {
 
     const char* strtab          = NULL;
     size_t strtab_size          = 0;
-    // const char* shstr           = m_reader.get_shstr_base();
-    // size_t shstr_size           = m_reader.get_shstr_size();
-    // const char* symstr          = m_reader.get_symstr_base();
-    // size_t symstr_size          = m_reader.get_symstr_size();
+    // const char* shstr           = m_reader->get_shstr_base();
+    // size_t shstr_size           = m_reader->get_shstr_size();
+    // const char* symstr          = m_reader->get_symstr_base();
+    // size_t symstr_size          = m_reader->get_symstr_size();
 
 
     addr_t plt_offset           = NULL;
@@ -284,7 +284,7 @@ void elf_image64::_create_reloc_tab(addr_t relr_offset, size_t relr_size,
 Elf64_Phdr* elf_image64::_find_segment_by_type(const uint32_t type) {
     Elf64_Phdr* target = NULL;
     //Elf64_Phdr* phdr = this->m_phdr;
-    Elf64_Phdr* phdr = (Elf64_Phdr*)this->m_reader.get_phdr_base();
+    Elf64_Phdr* phdr = (Elf64_Phdr*)this->m_reader->get_phdr_base();
     for(int i = 0; i < this->m_ehdr->e_phnum; i += 1) {
         if(phdr[i].p_type == type) {
             target = phdr + i;

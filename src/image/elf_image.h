@@ -16,7 +16,7 @@ class elf_func_array;
 
 class elf_image {
 public:
-    elf_image(elf_reader & reader);
+    elf_image(elf_reader*  reader);
     virtual ~elf_image();
 
     const int    get_fd();
@@ -38,7 +38,7 @@ public:
 
     const bool is_use_gnu_hash() {return this->m_is_gnu_hash;}
     const bool is_use_rela() {return this->m_is_use_rela;}
-    elf_reader& get_reader() {return this->m_reader;}
+    elf_reader* get_reader() {return this->m_reader;}
 
     virtual bool load();
     virtual void unload();
@@ -77,7 +77,7 @@ public:
 protected:
     bool _check_mem_range(addr_t offset, size_t size, size_t alignment);
 protected:
-    elf_reader          m_reader;
+    elf_reader*         m_reader;
     
     bool                m_is_gnu_hash;
     bool                m_is_use_rela;
