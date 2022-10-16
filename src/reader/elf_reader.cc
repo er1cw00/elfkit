@@ -465,7 +465,7 @@ bool elf_reader::_load_segments(void) {
     size_t load_size = _get_load_size((void*)m_phdr, m_phdr_num, &p_min_addr, &p_max_addr);
     assert(load_size > 0);
 
-    void* mmap_ptr = mmap(nullptr, load_size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    void* mmap_ptr = mmap(nullptr, load_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (mmap_ptr == MAP_FAILED) {
         log_error("reserve address space fail, load(0x%zu), error(%s)\n", load_size, strerror(errno));
         return false;
@@ -519,7 +519,7 @@ bool elf_reader::_load_segments(void) {
 
         void* seg_addr = mmap((void*)seg_page_start,
                                 file_length,
-                                PROT_EXEC | PROT_READ,
+                                PROT_WRITE | PROT_READ,
                                 MAP_FIXED | MAP_PRIVATE,
                                 this->m_fd,
                                 this->m_file_offset + file_page_start);
