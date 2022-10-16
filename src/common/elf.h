@@ -363,7 +363,7 @@ typedef struct elf64_sym {
 #define R_AARCH64_JUMP_SLOT     1026
 #define R_AARCH64_ABS64         257
 #define R_AARCH64_GLOB_DAT      1025
-#define R_AARCH64_RELATIVE      1026
+#define R_AARCH64_RELATIVE      1027
 #define R_AARCH64_IRELATIVE     1032
 #define R_AARCH64_COPY          1024
 #define R_AARCH64_TLS_DTPMOD    1028    /* Module index. */
