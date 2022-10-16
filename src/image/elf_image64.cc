@@ -25,7 +25,7 @@ elf_image64::~elf_image64() {
 bool elf_image64::load() {
 
     this->m_ehdr = (Elf64_Ehdr*)this->get_load_bias();
-    dump_elf_header((uint8_t*)this->m_ehdr);
+//    dump_elf_header((uint8_t*)this->m_ehdr);
 
     if (this->m_ehdr->e_type != ET_EXEC && this->m_ehdr->e_type != ET_DYN) {
         return false;
@@ -69,9 +69,9 @@ bool elf_image64::load() {
     std::vector<int> needed_list;
 
     for (Elf64_Dyn* d = this->m_dynamic; d->d_tag != DT_NULL; ++d) {
-        log_dbg("dyn: %p  %-16s   0x%0.16llx\n",  d, 
-                                            elf_dynamic_tag_name(d->d_tag),
-                                            (uint64_t)d->d_un.d_val);
+        // log_dbg("dyn: %p  %-16s   0x%0.16llx\n",  d, 
+        //                                     elf_dynamic_tag_name(d->d_tag),
+        //                                     (uint64_t)d->d_un.d_val);
         switch(d->d_tag) {
             case DT_SONAME:
                 break;
@@ -214,7 +214,7 @@ bool elf_image64::load() {
     _create_needed_list(needed_list);
     _create_symbol_tab(symtab);
 
-    log_dbg("rel_entry_size: %zd, sizeof(Elf64_Rel): %lu\n", rel_entry_size, sizeof(Elf64_Rela));
+    //log_dbg("rel_entry_size: %zd, sizeof(Elf64_Rel): %lu\n", rel_entry_size, sizeof(Elf64_Rela));
     assert(rel_entry_size == sizeof(Elf64_Rel) || rel_entry_size == sizeof(Elf64_Rela));
     _create_reloc_tab(relr_offset, relr_size,
                       rel_offset, rel_size,

@@ -334,7 +334,7 @@ bool elf_reader::_read_section_data(void) {
         Elf64_Shdr * shdr = (Elf64_Shdr*)this->m_shdr;
         for (size_t i = 0; i < this->m_shdr_num; ++i) {
             const char * sh_name = &this->m_shstr[shdr[i].sh_name];
-            log_dbg("%-30s %d\n", sh_name, shdr[i].sh_type);
+//            log_dbg("%-30s %d\n", sh_name, shdr[i].sh_type);
             if (shdr[i].sh_type == SHT_STRTAB) {
                 if (strncmp(sh_name, ".strtab", 7) == 0) {
                     symstr_shdr = &shdr[i];
@@ -368,7 +368,7 @@ bool elf_reader::_read_section_data(void) {
         Elf32_Shdr * shdr = (Elf32_Shdr*)this->m_shdr;
         for (size_t i = 0; i < this->m_shdr_num; ++i) {
             const char * sh_name = &this->m_shstr[shdr[i].sh_name];
-            log_dbg("%-30s %d\n", sh_name, shdr[i].sh_type);
+//            log_dbg("%-30s %d\n", sh_name, shdr[i].sh_type);
             if (shdr[i].sh_type == SHT_STRTAB) {
                 if (strncmp(sh_name, ".strtab", 7) == 0) {
                     symstr_shdr = &shdr[i];
