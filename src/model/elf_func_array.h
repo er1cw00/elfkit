@@ -17,6 +17,9 @@ public:
     size_t get_func_count() {
         return m_func_count;
     }
+    addr_t get_func_array() {
+        return m_func_array;
+    }
 protected:
     addr_t  m_func_array;
     size_t  m_func_count;

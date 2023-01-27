@@ -36,6 +36,12 @@ public:
     const size_t get_segment_size();
     const size_t get_segment_list(elf_segment* segments);
 
+    const addr_t get_init_func() {return this->m_init_func;}
+    const addr_t get_finit_func() {return this->m_finit_func;}
+    elf_func_array* get_init_array() {return this->m_init_array;}
+    elf_func_array* get_finit_array() {return this->m_init_array;}
+    elf_func_array* get_preinit_array() {return this->m_init_array;}
+
     const bool is_use_gnu_hash() {return this->m_is_gnu_hash;}
     const bool is_use_rela() {return this->m_is_use_rela;}
     elf_reader* get_reader() {return this->m_reader;}
