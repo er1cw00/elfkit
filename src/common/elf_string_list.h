@@ -8,7 +8,9 @@
 
 class elf_string_list {
 public:
-    elf_string_list() {}
+    elf_string_list() {
+        m_string_list.clear();
+    }
     ~elf_string_list() {}
     void clear() {
         m_string_list.clear();
