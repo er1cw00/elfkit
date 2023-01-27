@@ -327,6 +327,7 @@ typedef struct {
 #define STT_LOPROC         13
 #define STT_HIPROC         15
 
+#define ELF_ST_BIND(x)     ((x) >> 4)
 #define ELF_ST_TYPE(x)     ((x) & 0xf)
 #define ELF_ST_INFO(b,t)   (((b) << 4) + ((t) & 0xf))
 
