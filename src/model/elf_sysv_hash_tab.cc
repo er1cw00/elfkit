@@ -43,7 +43,7 @@ bool elf_sysv_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char 
 }
 
 size_t elf_sysv_hash_tab::get_symbol_nums() {
-    return (size_t)this->m_chain;
+    return (size_t)this->m_nchain;
 }
 void elf_sysv_hash_tab::dump_hash_table() {
 
