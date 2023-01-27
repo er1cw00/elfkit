@@ -7,7 +7,21 @@
 
 elf_image::elf_image(elf_reader* reader) {
     log_trace("elf_image ctor, this: %p\n", this);
-    m_reader = reader;
+    m_reader        = reader;
+    m_is_gnu_hash   = false;
+    m_is_use_rela   = false;
+    m_str_tab       = NULL;
+    m_sysv_hash_tab = NULL;
+    m_gnu_hash_tab  = NULL;
+    m_sym_tab       = NULL;
+    m_init_func     = NULL;
+    m_finit_func    = NULL;
+    m_init_array    = NULL;
+    m_finit_array   = NULL;
+    m_preinit_array = NULL;
+    m_plt_tab       = NULL;
+    m_rel_tab       = NULL;
+    m_relr_tab      = NULL;
 }
 
 elf_image::~elf_image() {

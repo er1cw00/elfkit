@@ -10,11 +10,23 @@ class elf_image;
 class elf_reader {
 public:
     elf_reader() {
-        m_fd          = -1;
-        m_file_size   = 0;
-        m_load_bias   = 0;
-        m_load_size   = 0;
-        m_file_offset = 0;
+        m_fd            = -1;
+        m_file_size     = 0;
+        m_load_bias     = 0;
+        m_load_size     = 0;
+        m_file_offset   = 0;
+        m_phdr          = NULL;
+        m_phdr_num      = 0;
+        m_shdr          = NULL;
+        m_shdr_num      = 0;
+        m_shstr         = NULL;  
+        m_shstr_size    = 0;
+        m_symstr        = NULL;
+        m_symstr_size   = 0;
+        m_symtab        = NULL;
+        m_symtab_size   = 0;
+        m_dyntab        = NULL;
+        m_dyntab_size   = 0;
     }
     ~elf_reader() {
         m_fd          = -1;
