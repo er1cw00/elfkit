@@ -83,6 +83,7 @@ bool elf_image64::load() {
                 uint32_t *bucket  = (uint32_t*)(rawdata + 2);
                 uint32_t *chain   = (uint32_t*)(bucket + nbucket);
                 sym_size  = (size_t)nchain;
+                //log_dbg("nbucket: %d, nchain: %d, bucket:%p, chain:%p\n", nbucket, nchain, bucket, chain);
                 this->m_sysv_hash_tab = new elf_sysv_hash_tab(nbucket, nchain, bucket, chain);
                 break;
             }
@@ -103,7 +104,7 @@ bool elf_image64::load() {
                 }
                 gnu_maskwords -= 1;
 
-                // log_dbg("bbucket(%d), symndx(%d), maskworks(%d), shift2(%d) bfilter(%p), bucket(%p), chain(%p)\n",
+                // log_dbg("nbucket(%d), symndx(%d), maskworks(%d), shift2(%d) bfilter(%p), bucket(%p), chain(%p)\n",
                 //         gnu_nbucket,   
                 //         gnu_symndx,
                 //         gnu_maskwords, 
