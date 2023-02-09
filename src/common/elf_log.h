@@ -1,16 +1,27 @@
-
 #pragma once
 
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define log_trace(...) 
-//#define log_trace(...)   do{ fprintf(stdout, __VA_ARGS__); } while(0)
+#define LOGGER_CONSOLE (1)
+#define LOGGER_SINK    (0)
 
-#define log_info(...)    do{ fprintf(stdout, __VA_ARGS__); } while(0)
-#define log_error(...)   do{ fprintf(stdout, __VA_ARGS__); } while(0)
-#define log_warn(...)    do{ fprintf(stdout, __VA_ARGS__); } while(0)
-#define log_fatal(...)   do{ fprintf(stdout, __VA_ARGS__); } while(0)
-#define log_dbg(...)     do{ fprintf(stdout, __VA_ARGS__); } while(0)
+enum {
+    LOG_DEBUG = 1,
+    LOG_INFO  = 2,
+    LOG_WARN  = 3,
+    LOG_ERROR = 4,
+    LOG_FATAL = 5,
+};
 
+typedef void (*elf_log_sink)(const int level, const char* log);
+void elf_set_logger(elf_log_sink logger);
+
+void elf_log_vwrite(const int level, const char* fmt, ...);
+
+#define log_dbg(fmt...)     elf_log_vwrite(LOG_DEBUG,  ##fmt)
+#define log_info(fmt...)    elf_log_vwrite(LOG_INFO,  ##fmt)
+#define log_warn(fmt...)    elf_log_vwrite(LOG_WARN,   ##fmt)
+#define log_error(fmt...)   elf_log_vwrite(LOG_ERROR, ##fmt)
+#define log_fatal(fmt...)   elf_log_vwrite(LOG_FATAL,  ##fmt)

@@ -1,10 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <assert.h>
 #include <string>
 #include <common/elf.h>
 #include <common/elf_log.h>
 #include <common/elf_common.h>
+
+static elf_log_sink __elf_logger = NULL;
+
+void elf_set_logger(elf_log_sink logger) {
+    __elf_logger = logger;
+}
+
+void elf_log_vwrite(const int level, const char* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    if (__elf_logger != NULL) {
+        char buff[4096];
+        vsnprintf(buff, sizeof(buff), fmt, ap);
+        __elf_logger(level, buff);
+    } else {
+        vfprintf(stderr, fmt, ap);
+    }
+    va_end(ap);
+}
 
 bool elf_safe_add(off_t* out, off_t a, size_t b) {
     assert(a >= 0);
