@@ -6,7 +6,6 @@
 #include <model/elf_type.h>
 
 elf_image::elf_image(elf_reader* reader) {
-    log_trace("elf_image ctor, this: %p\n", this);
     m_reader        = reader;
     m_is_gnu_hash   = false;
     m_is_use_rela   = false;
@@ -25,13 +24,11 @@ elf_image::elf_image(elf_reader* reader) {
 }
 
 elf_image::~elf_image() {
-    log_trace("elf_image dtor, this: %p\n", this);
 }
 bool elf_image::load() {
     return false;
 }
 void elf_image::unload() {
-    log_trace("elf_image::unload() <<\n");
     m_reader->close();
 }
 const int elf_image::get_fd() {

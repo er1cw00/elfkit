@@ -37,16 +37,13 @@ bool elf_gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char *
         assert(0);
     }
     // test against bloom filter
-    //log_dbg("bloom_mask_bits: %d, hash: 0x%x word_num:%d, bloom_word: %llx, h1: %x, h2: %x\n", bloom_mask_bits, hash, word_num, bloom_word, h1, h2);
     if ((1 & (bloom_word >> h1) & (bloom_word >> h2)) == 0) {
-        //log_dbg("lookup name(%s) NOT Found\n", name);
         return false;
     }
 
     // bloom test says "probably yes"...
     uint32_t n = this->m_gnu_bucket[hash % this->m_gnu_nbucket];
     if (n == 0) {
-        //log_dbg(" lookup name(%s) NOT Found\n", name);
         return false;
     }
 
@@ -55,7 +52,6 @@ bool elf_gnu_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char *
                 ((this->m_gnu_chain[n] ^ hash) >> 1) == 0 &&
                 symbol->sym_name != NULL &&
                 strcmp(symbol->sym_name, name) == 0) {
-            //log_dbg("symbol (%s) Found\n", name);
             return true;
         }
     } while ((this->m_gnu_chain[n++] & 1) == 0);

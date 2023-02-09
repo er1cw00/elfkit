@@ -8,10 +8,8 @@ class elf_symbol_tab;
 class elf_hash_tab {
 public:
     elf_hash_tab() {
-        log_trace("elf_hash_tab ctor: %p\n", this);
     }
     virtual ~elf_hash_tab() { 
-        log_trace("elf_hash_tab dtor: %p\n", this);
     }
 
     virtual uint32_t get_hash_code(const char * name) = 0 ;

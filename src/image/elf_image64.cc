@@ -15,11 +15,9 @@
 #include <image/elf_image64.h>
 
 elf_image64::elf_image64(elf_reader* reader) : elf_image(reader)  {
-    log_trace("elf_image64 ctor, this: %p\n", this);
 }
 
 elf_image64::~elf_image64() {
-    log_trace("elf_image64 dtor, this: %p\n", this);
 }
 
 bool elf_image64::load() {
@@ -69,9 +67,6 @@ bool elf_image64::load() {
     std::vector<int> needed_list;
 
     for (Elf64_Dyn* d = this->m_dynamic; d->d_tag != DT_NULL; ++d) {
-        // log_dbg("dyn: %p  %-16s   0x%0.16llx\n",  d, 
-        //                                     elf_dynamic_tag_name(d->d_tag),
-        //                                     (uint64_t)d->d_un.d_val);
         switch(d->d_tag) {
             case DT_SONAME:
                 break;
@@ -83,7 +78,6 @@ bool elf_image64::load() {
                 uint32_t *bucket  = (uint32_t*)(rawdata + 2);
                 uint32_t *chain   = (uint32_t*)(bucket + nbucket);
                 sym_size  = (size_t)nchain;
-                //log_dbg("nbucket: %d, nchain: %d, bucket:%p, chain:%p\n", nbucket, nchain, bucket, chain);
                 this->m_sysv_hash_tab = new elf_sysv_hash_tab(nbucket, nchain, bucket, chain);
                 break;
             }
@@ -103,16 +97,6 @@ bool elf_image64::load() {
                     return false;
                 }
                 gnu_maskwords -= 1;
-
-                // log_dbg("nbucket(%d), symndx(%d), maskworks(%d), shift2(%d) bfilter(%p), bucket(%p), chain(%p)\n",
-                //         gnu_nbucket,   
-                //         gnu_symndx,
-                //         gnu_maskwords, 
-                //         gnu_shift2,
-                //         (uint32_t*)gnu_bloom_filter,
-                //         gnu_bucket,
-                //         gnu_chain);
-
                 this->m_gnu_hash_tab = new elf_gnu_hash_tab(get_elf_class(),
                                                             gnu_nbucket, 
                                                             gnu_symndx,
@@ -215,7 +199,6 @@ bool elf_image64::load() {
     _create_needed_list(needed_list);
     _create_symbol_tab(symtab);
 
-    //log_dbg("rel_entry_size: %zd, sizeof(Elf64_Rel): %lu\n", rel_entry_size, sizeof(Elf64_Rela));
     assert(rel_entry_size == sizeof(Elf64_Rel) || rel_entry_size == sizeof(Elf64_Rela));
     _create_reloc_tab(relr_offset, relr_size,
                       rel_offset, rel_size,

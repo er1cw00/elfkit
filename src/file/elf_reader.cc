@@ -68,7 +68,6 @@ fail:
     return false;
 }
 void elf_reader::close() {
-    log_trace("elf_image::unload() <<\n");
     if (m_fd != -1) {
         ::close(m_fd);
     }
@@ -237,7 +236,6 @@ bool elf_reader::_read_section_headers() {
     }
 
     size_t size = this->m_shdr_num * shdr_size;
-    //log_dbg("filesize: %ld\n", m_file_size);
     if (!_check_file_range(shdr_offset, size, 1)) {
         log_error("\"%s\" has invalid shdr offset/size: %zu/%zu\n",
                   this->get_sopath(),
@@ -334,7 +332,6 @@ bool elf_reader::_read_section_data(void) {
         Elf64_Shdr * shdr = (Elf64_Shdr*)this->m_shdr;
         for (size_t i = 0; i < this->m_shdr_num; ++i) {
             const char * sh_name = &this->m_shstr[shdr[i].sh_name];
-//            log_dbg("%-30s %d\n", sh_name, shdr[i].sh_type);
             if (shdr[i].sh_type == SHT_STRTAB) {
                 if (strncmp(sh_name, ".strtab", 7) == 0) {
                     symstr_shdr = &shdr[i];
@@ -368,7 +365,6 @@ bool elf_reader::_read_section_data(void) {
         Elf32_Shdr * shdr = (Elf32_Shdr*)this->m_shdr;
         for (size_t i = 0; i < this->m_shdr_num; ++i) {
             const char * sh_name = &this->m_shstr[shdr[i].sh_name];
-//            log_dbg("%-30s %d\n", sh_name, shdr[i].sh_type);
             if (shdr[i].sh_type == SHT_STRTAB) {
                 if (strncmp(sh_name, ".strtab", 7) == 0) {
                     symstr_shdr = &shdr[i];
@@ -443,7 +439,7 @@ bool elf_reader::_read_segments(void) {
         }
 
         size_t nread = pread(m_fd, (void*)(m_load_bias + p_vaddr), p_filesz, (off_t)p_offset);
-        log_dbg("read segment: i(%d), addr(%p), offset(%p), filesz(%lx), nread(%lx)\n", 
+        log_info("read segment: i(%d), addr(%p), offset(%p), filesz(%lx), nread(%lx)\n", 
                 i, 
                 (void*)(m_load_bias + p_vaddr),
                 (void*)p_offset,
@@ -523,15 +519,6 @@ bool elf_reader::_load_segments(void) {
                                 MAP_FIXED | MAP_PRIVATE,
                                 this->m_fd,
                                 this->m_file_offset + file_page_start);
-
-        log_dbg("load segment: i(%d), addr(%p), seg_start(%p), seg_page_start(%p), file_start(%p), file_page_start(%p)\n", 
-                        i, 
-                        seg_addr,
-                        (void*)seg_start,
-                        (void*)seg_page_start,
-                        (void*)file_start,
-                        (void*)file_page_start);
-
         if (seg_addr == MAP_FAILED) {
             log_error("couldn't map \"%s\" segment %d: %s\n", m_soname.c_str(), i, strerror(errno));
             return false;

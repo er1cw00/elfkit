@@ -15,11 +15,9 @@
 #include <image/elf_image32.h>
 
 elf_image32::elf_image32(elf_reader* reader) : elf_image(reader)  {
-    log_trace("elf_image32 ctor, this: %p\n", this);
 }
 
 elf_image32::~elf_image32() {
-    log_trace("elf_image32 dtor, this: %p\n", this);
 }
 
 bool elf_image32::load() {

@@ -34,11 +34,9 @@ bool elf_sysv_hash_tab::find_symbol_by_name(elf_symbol_tab* sym_tab, const char 
     uint32_t hash = get_hash_code(name);
     uint32_t index = this->m_bucket[hash % this->m_nbucket];
 
-    log_dbg("search sym name(%s), hash(%x), index(%x)\n", name, hash, index);
     for (uint32_t n = index; n != 0; n = m_chain[n]) {
         return sym_tab->get_symbol(n, symbol);
     }
-    log_warn("sym name(%s) not found\n", name);
     return false;
 }
 
