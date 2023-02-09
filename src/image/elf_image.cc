@@ -1,7 +1,7 @@
 
 #include <common/elf_log.h>
 #include <image/elf_image.h>
-#include <reader/elf_reader.h>
+#include <file/elf_reader.h>
 #include <model/elf_hash_tab.h>
 #include <model/elf_type.h>
 

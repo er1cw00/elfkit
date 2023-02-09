@@ -2,7 +2,7 @@
 
 #include <common/elf_common.h>
 #include <common/elf_string_list.h>
-#include <reader/elf_reader.h>
+#include <file/elf_reader.h>
 
 struct elf_symbol;
 struct elf_section;

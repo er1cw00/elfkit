@@ -14,7 +14,7 @@
 
 #include <common/elf.h>
 #include <common/elf_log.h>
-#include <reader/elf_reader.h>
+#include <file/elf_reader.h>
 #include <image/elf_image.h>
 #include <image/elf_image32.h>
 #include <image/elf_image64.h>

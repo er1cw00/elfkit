@@ -10,5 +10,5 @@
 #include <model/elf_reloc_tab.h>
 #include <model/elf_symbol_tab.h>
 #include <model/elf_string_tab.h>
-#include <reader/elf_reader.h>
+#include <file/elf_reader.h>
 #include <image/elf_image.h>
