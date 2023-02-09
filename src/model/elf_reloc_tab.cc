@@ -6,8 +6,7 @@
 #include <model/elf_type.h>
 #include <model/elf_reloc_tab.h>
 
-elf_reloc_tab::elf_reloc_tab(uint8_t elf_class, addr_t offset, size_t size, bool is_rela) {
-    log_trace("elf_reloc_tab ctor: %p, %d\n", this, elf_class);  
+elf_reloc_tab::elf_reloc_tab(uint8_t elf_class, addr_t offset, size_t size, bool is_rela) {  
     m_elf_class   = elf_class;
     m_offset      = offset;
     m_size        = size;  
@@ -21,9 +20,7 @@ elf_reloc_tab::elf_reloc_tab(uint8_t elf_class, addr_t offset, size_t size, bool
     }
 }
 
-elf_reloc_tab::~elf_reloc_tab() {
-    log_trace("elf_reloc_tab dtor: %p\n", this);
-}
+elf_reloc_tab::~elf_reloc_tab() {}
 
 bool elf_reloc_tab::get_reloc(const int i, elf_reloc* reloc) {
     if (i >= m_size) {
