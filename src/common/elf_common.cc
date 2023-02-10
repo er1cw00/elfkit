@@ -7,9 +7,10 @@
 #include <common/elf_log.h>
 #include <common/elf_common.h>
 
-static elf_log_sink __elf_logger = NULL;
+static elf_logger_t __elf_logger = NULL;
 
-void elf_set_logger(elf_log_sink logger) {
+extern "C"
+void elf_logger_init(elf_logger_t logger) {
     __elf_logger = logger;
 }
 
