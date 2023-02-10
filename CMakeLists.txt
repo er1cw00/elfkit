@@ -6,7 +6,7 @@ set(LIB_NAME  ${PROJECT})
 
 project(${PROJECT})
 
-message(status " CMAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}")
+#message(status " CMAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}")
 
 aux_source_directory(src         SOURCE_FILES)
 aux_source_directory(src/common  SOURCE_FILES)
@@ -45,3 +45,6 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/" # source directory
         FILES_MATCHING # install only matched files
         PATTERN "*.h" # select header files
 )
+
+add_subdirectory(test)
+enable_testing()
