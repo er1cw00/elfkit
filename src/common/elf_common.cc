@@ -10,7 +10,7 @@
 static elf_logger_t __elf_logger = NULL;
 
 extern "C"
-void elf_logger_init(elf_logger_t logger) {
+void elf_set_logger(elf_logger_t logger) {
     __elf_logger = logger;
 }
 
@@ -136,7 +136,19 @@ const char * elf_phdr_type_name(int p_type) {
     }
     return "UNKNOWN";
 }
-
+const char* elf_protection_flag_name(int p_flag) {
+    const char * _labels = "XWR";
+    static char result[4];
+    for (int i = 0; i < 3; i++) {
+        if (p_flag & 1) {
+            result[i] = _labels[i];
+        } else {
+            result[i] = '-';
+        }
+    }
+    result[3] = 0;
+    return result;
+} 
 const char* elf_dynamic_tag_name(int d_tag) {
     const static struct dyn_name_map_t {
         const char * dyn_name;

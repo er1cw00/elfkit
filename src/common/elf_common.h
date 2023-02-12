@@ -29,6 +29,7 @@ typedef uint64_t  addr_t;
 const char * elf_phdr_type_name(int p_type);
 const char * elf_shdr_type_name(int sh_type);
 const char * elf_dynamic_tag_name(int d_tag);
+const char * elf_protection_flag_name(int p_flag);
 
 bool elf_safe_add(off_t* out, off_t a, size_t b);
 void elf_dump_hex(uint8_t * pbuf, int size);
