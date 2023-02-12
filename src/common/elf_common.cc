@@ -127,9 +127,9 @@ const char * elf_phdr_type_name(int p_type) {
         } else if (p_type == PT_HIPROC) {
             return "PT_HIPROC";
         } else if (p_type == PT_GNU_EH_FRAME) {
-            return "GNU_EH_FRAME";
+            return "EH_FRAME";
         }  else if (p_type == PT_GNU_PROPERTY) {
-            return "GNU_PROPERTY";
+            return "PROPERTY";
         }  else if (p_type == PT_GNU_STACK) {
             return "GNU_STACK";
         } 

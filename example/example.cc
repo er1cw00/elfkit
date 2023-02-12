@@ -100,7 +100,7 @@ void show_section(elf_image* image) {
 void show_program(elf_reader* reader, elf_image* image) {
     
     if (reader->get_elf_class() == ELFCLASS32) {
-        printf("Index    Type        Offset    VirAddr    PhyAddr     Filesz    Memsz     Flag    Align\n");
+        printf("Index    Type       Offset    VirAddr    PhyAddr     Filesz    Memsz     Flag    Align\n");
         Elf32_Phdr* phdr = (Elf32_Phdr*)reader->get_phdr_base();
         size_t phnum = reader->get_phdr_num();
         for (int i = 0; i < phnum; i++) {
@@ -116,11 +116,11 @@ void show_program(elf_reader* reader, elf_image* image) {
                             phdr[i].p_align);
         }
     } else if (reader->get_elf_class() == ELFCLASS64) {
-        printf("Index    Type          Offset             VirAddr         PhyAddr        Filesz       Memsz    Flag    Align\n");
+        printf("Index    Type         Offset         VirAddr        PhyAddr        Filesz   Memsz     Flag  Align\n");
         Elf64_Phdr* phdr = (Elf64_Phdr*)reader->get_phdr_base();
         size_t phnum = reader->get_phdr_num();
         for (int i = 0; i < phnum; i++) {
-            printf("  %02d     %s       %012x       %012x   %012x   %06x   %06x    %s   %4x\n", 
+            printf("  %02d     %-10s   %012x   %012x   %012x   %06x   %06x    %s   %4x\n", 
                             i, 
                             elf_phdr_type_name(phdr[i].p_type), 
                             phdr[i].p_offset,
