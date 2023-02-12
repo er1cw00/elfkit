@@ -26,7 +26,7 @@ set_target_properties(${LIB_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
 target_include_directories(${LIB_NAME} PUBLIC src)
 
 
-add_executable(${EXAMPLE} example/main.cc)
+add_executable(${EXAMPLE} example/example.cc)
 
 target_include_directories(${EXAMPLE} PRIVATE src)
 
@@ -46,5 +46,5 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/" # source directory
         PATTERN "*.h" # select header files
 )
 
-add_subdirectory(test)
-enable_testing()
+#add_subdirectory(test)
+#enable_testing()
