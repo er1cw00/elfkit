@@ -30,6 +30,9 @@ bool elf_reloc_tab::get_reloc(const int i, elf_reloc* reloc) {
     return false;
 }
 
+bool elf_reloc_tab::is_use_rela() {
+    return m_is_use_rela;
+}
 size_t elf_reloc_tab::size() {
     return m_size;
 }
