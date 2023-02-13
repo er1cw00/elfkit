@@ -274,3 +274,29 @@ const char * elf_shdr_type_name(int sh_type) {
     snprintf(_unk_type, 32, "0x%08X", (uint32_t)sh_type);
     return _unk_type;
 }
+
+const char * elf_sym_bind_name(uint32_t s_bind) {
+    static const char * _labels[] = {"LOCAL", "GLOBAL", "WEAK"};
+    if (s_bind > 2) {
+        return "UNKNOW";
+    }
+    return _labels[s_bind];
+}
+
+const char * elf_sym_type_name(uint32_t s_type) {
+    static const char * _labels[] = {
+        "NOTYPE",
+        "OBJECT",
+        "FUNC",
+        "SECTION",
+        "FILE",
+        "COMMON",
+        "TLS"
+    };
+    if (s_type == STT_GNU_IFUNC) {
+        return "IFUNC";
+    } else if (s_type > 6) {
+        return "UNKNOW";
+    }
+    return _labels[s_type];
+}

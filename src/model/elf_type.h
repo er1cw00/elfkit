@@ -51,7 +51,6 @@ void elf_dynamic_reset_with_dyn64(elf_dynamic *dynamic, Elf64_Dyn* dyn);
 
 
 struct elf_symbol {
-
     int         st_name;
     addr_t      st_value;
     size_t      st_size;

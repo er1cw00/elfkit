@@ -121,7 +121,7 @@ void show_program(elf_image* image) {
     image->get_segment_list(phdr);
     printf("Index    Type         Offset         VirAddr        PhyAddr        Filesz   Memsz     Flag  Align\n");
     for (int i = 0; i < phnum; i++) {
-            printf("  %02d     %-10s   %01llx   %012llx   %012llx   %06llx   %06llx    %s   %4llx\n", 
+            printf("  %02d     %-10s   %012llx   %012llx   %012llx   %06llx   %06llx    %s   %4llx\n", 
                             i, 
                             elf_phdr_type_name(phdr[i].p_type), 
                             phdr[i].p_offset,
@@ -169,9 +169,36 @@ void show_hash_tab(elf_image* image) {
         sysv_hash_tab->dump_hash_table();
     }
 }
-void show_sym_tab(elf_image* image) {
 
+void show_dynsym_tab(elf_image* image) {
+    elf_hash_tab* gnu_hash_tab = image->get_gnu_hash_tab();
+    elf_hash_tab* sysv_hash_tab = image->get_sysv_hash_tab();
+    elf_symbol_tab* symtab = image->get_sym_tab();
+    size_t s1 = gnu_hash_tab != NULL ? gnu_hash_tab->get_symbol_nums() : 0;
+    size_t s2 = sysv_hash_tab != NULL ? sysv_hash_tab->get_symbol_nums() : 0;
+    if (symtab) {
+        size_t total = s1 + s2;
+        printf("symtab size: %lu + %lu = %lu\n", s1, s2, total);
+        printf("Index  Value       Size  Type    Bind    Name  \n");
+        for (int symidx = 0; symidx < total; symidx++) {
+            const char* sym_name = "<<not found>>";
+            elf_symbol sym;
+            if (symtab->get_symbol(symidx, &sym)) {
+                uint32_t bind = ELF_ST_BIND(sym.st_info);
+                uint32_t type = ELF_ST_TYPE(sym.st_info);
+                if (sym.sym_name) {sym_name = sym.sym_name;}
+                printf("%5d  %010llx  %3d   %-6s  %-6s  %s\n",
+                    symidx, 
+                    sym.st_value,
+                    sym.st_size,
+                    elf_sym_bind_name(bind),
+                    elf_sym_type_name(type),
+                    sym_name);
+            }
+        }
+    }
 }
+
 void show_reloc_tab(elf_image* image) {
 
 }
@@ -214,7 +241,7 @@ int main(const int argc, char *const * args) {
         show_hash_tab(image);
     }
     if (__show_sym_tab) {
-        show_sym_tab(image);      
+        show_dynsym_tab(image);      
     } 
     if (__show_reloc_tab) {
         show_reloc_tab(image);
