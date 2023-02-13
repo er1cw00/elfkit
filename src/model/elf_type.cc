@@ -2,7 +2,7 @@
 
 #include <model/elf_type.h>
 
-void elf_section_reset_with_shdr32(elf_section* section, Elf32_Shdr* shdr) {
+void elf_section_reset_with_shdr32(const char* shstr, elf_section* section, Elf32_Shdr* shdr) {
     assert(shdr != NULL);
     section->sh_name        = (int32_t)shdr->sh_name;
     section->sh_type        = (uint32_t)shdr->sh_type;
@@ -14,9 +14,10 @@ void elf_section_reset_with_shdr32(elf_section* section, Elf32_Shdr* shdr) {
     section->sh_info        = (uint32_t)shdr->sh_info;
     section->sh_addralign   = (uint64_t)shdr->sh_addralign;
     section->sh_entsize     = (uint64_t)shdr->sh_entsize;
+    section->name           = &shstr[shdr->sh_name];
 }
 
-void elf_section_reset_with_shdr64(elf_section* section, Elf64_Shdr* shdr) {
+void elf_section_reset_with_shdr64(const char* shstr, elf_section* section, Elf64_Shdr* shdr) {
     assert(shdr != NULL);
     section->sh_name        = (int32_t)shdr->sh_name;
     section->sh_type        = (uint32_t)shdr->sh_type;
@@ -28,6 +29,7 @@ void elf_section_reset_with_shdr64(elf_section* section, Elf64_Shdr* shdr) {
     section->sh_info        = (uint32_t)shdr->sh_info;
     section->sh_addralign   = (uint64_t)shdr->sh_addralign;
     section->sh_entsize     = (uint64_t)shdr->sh_entsize;
+    section->name           = &shstr[shdr->sh_name];
 }
 
 void elf_segment_reset_with_phdr32(elf_segment *segment, Elf32_Phdr *phdr) {

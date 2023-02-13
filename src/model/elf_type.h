@@ -14,12 +14,13 @@ struct elf_section {
     uint32_t sh_info;
     uint64_t sh_addralign;
     uint64_t sh_entsize;
+    const char * name;
 };
 
 typedef struct elf_section elf_section;
 
-void elf_section_reset_with_shdr32(elf_section* section, Elf32_Shdr* shdr);
-void elf_section_reset_with_shdr64(elf_section* section, Elf64_Shdr* shdr);
+void elf_section_reset_with_shdr32(const char* shstr, elf_section* section, Elf32_Shdr* shdr);
+void elf_section_reset_with_shdr64(const char* shstr, elf_section* section, Elf64_Shdr* shdr);
 
 
 struct elf_segment {

@@ -72,18 +72,19 @@ const size_t elf_image::get_section_size() {
 }
 const size_t elf_image::get_section_list(elf_section* sections) {
     size_t shnum = m_reader->get_shdr_num();
+    const char * shstr = m_reader->get_shstr_base();
     if (get_elf_class() == ELFCLASS32) {
         Elf32_Shdr* shdr = (Elf32_Shdr*)m_reader->get_shdr_base();
         if (sections && shdr) {
             for (int i = 0; i < shnum; i++) {
-                elf_section_reset_with_shdr32(&sections[i], &shdr[i]);
+                elf_section_reset_with_shdr32(shstr, &sections[i], &shdr[i]);
             }
         }
     } else if (get_elf_class() == ELFCLASS64) {
         Elf64_Shdr* shdr = (Elf64_Shdr*)m_reader->get_shdr_base();
         if (sections && shdr) {
             for (int i = 0; i < shnum; i++) {
-                elf_section_reset_with_shdr64(&sections[i], &shdr[i]);
+                elf_section_reset_with_shdr64(shstr, &sections[i], &shdr[i]);
             }
         }
     }
