@@ -83,7 +83,7 @@ bool elf_image32::load() {
                 uint32_t gnu_symndx        = rawdata[1];
                 uint32_t gnu_maskwords     = rawdata[2];
                 uint32_t gnu_shift2        = rawdata[3];
-                uint32_t gnu_bloom_filter  = (uint32_t)(this->get_load_bias() + d->d_un.d_ptr + 16);
+                uint64_t gnu_bloom_filter  = (uint64_t)(this->get_load_bias() + d->d_un.d_ptr + 16);
                 uint32_t* gnu_bucket       = (uint32_t *)(gnu_bloom_filter + gnu_maskwords * 4);
                 uint32_t* gnu_chain        = (uint32_t *)(gnu_bucket + gnu_nbucket - gnu_symndx);
                 if (!powerof2(gnu_maskwords)) {
@@ -194,7 +194,6 @@ bool elf_image32::load() {
     _create_needed_list(needed_list);
     _create_symbol_tab(symtab);
 
-log_dbg("rel_entry_size: %d, %d, %d\n", rel_entry_size, sizeof(Elf32_Rel), sizeof(Elf32_Rela));
     assert(rel_entry_size == sizeof(Elf32_Rel) || rel_entry_size == sizeof(Elf32_Rela));
     _create_reloc_tab(relr_offset, relr_size,
                       rel_offset, rel_size,
