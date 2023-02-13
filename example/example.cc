@@ -200,7 +200,53 @@ void show_dynsym_tab(elf_image* image) {
 }
 
 void show_reloc_tab(elf_image* image) {
-
+    elf_reloc_tab* plt_tab = image->get_plt_tab();
+    elf_reloc_tab* rel_tab = image->get_rel_tab();
+    elf_symbol_tab* symtab = image->get_sym_tab();
+    uint16_t em = image->get_machine_type();
+    if (plt_tab) {
+        elf_reloc_list_t& list = plt_tab->get_list();
+        printf("Relocation section \'.%s.plt\' contains %d entries:\n", 
+                        rel_tab->is_use_rela() ? "rela" : "rel",
+                        list.size());
+        printf("Index   Offset        SymIdx       SymType           Sym.Value     Sym.Name\n");
+        for (int i = 0; i < list.size(); i++) {
+            elf_reloc & reloc = list[i];
+             const char* sym_name = "<<not found>>";
+            int sym_idx = elf_reloc_get_symbol_index(&reloc);
+            int sym_type = elf_reloc_get_symbol_type(&reloc);
+            elf_symbol sym;
+            if (symtab->get_symbol(sym_idx, &sym) && sym.sym_name) {sym_name = sym.sym_name;}
+            printf("%5d   %012llx  %5d   %-18s     %012llx  %s \n",
+                    i,
+                    reloc.r_offset,
+                    sym_idx,
+                    elf_reloc_stype_name(em, sym_type),
+                    sym.st_value,
+                    sym_name);
+        }
+    }
+    if (rel_tab) {
+        elf_reloc_list_t& list = rel_tab->get_list();
+        printf("Relocation section \'.%s.dyn\' contains %d entries:\n", 
+                        rel_tab->is_use_rela() ? "rela" : "rel",
+                        list.size());
+        for (int i = 0; i < list.size(); i++) {
+            elf_reloc & reloc = list[i];
+             const char* sym_name = "<<not found>>";
+            int sym_idx = elf_reloc_get_symbol_index(&reloc);
+            int sym_type = elf_reloc_get_symbol_type(&reloc);
+            elf_symbol sym;
+            if (symtab->get_symbol(sym_idx, &sym) && sym.sym_name) {sym_name = sym.sym_name;}
+            printf("%5d   %012llx  %5d   %-18s     %012llx  %s \n",
+                    i,
+                    reloc.r_offset,
+                    sym_idx,
+                    elf_reloc_stype_name(em, sym_type),
+                    sym.st_value,
+                    sym_name);
+        }
+    }
 }
 
 int main(const int argc, char *const * args) {
