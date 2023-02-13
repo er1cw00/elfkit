@@ -8,10 +8,8 @@
 #include <model/elf_hash_tab.h>
 #include <model/elf_sysv_hash_tab.h>
 #include <model/elf_gnu_hash_tab.h>
-#include <model/elf_reloc_tab.h>
 #include <model/elf_symbol_tab.h>
-#include <model/elf_string_tab.h>
-#include <model/elf_func_array.h>
+
 #include <image/elf_image64.h>
 
 elf_image64::elf_image64(elf_reader* reader) : elf_image(reader)  {
@@ -210,63 +208,16 @@ bool elf_image64::load() {
 void elf_image64::unload() {
     return;
 }
-void elf_image64::_create_str_tab(const char* strtab, const size_t strtab_size) {
-    // if (shstr && shstr_size > 0) {
-    //     this->m_shstr_tab = new elf_string_tab(shstr, shstr_size);
-    // }
-    if (strtab && strtab_size > 0) {
-        this->m_str_tab = new elf_string_tab(strtab, strtab_size);
-    }
-}
-void elf_image64::_create_func_array(addr_t init_array, size_t init_array_count,
-                                     addr_t finit_array,  size_t finit_array_count,
-                                     addr_t preinit_array, size_t preinit_array_count) {
 
-    if (init_array != NULL && init_array_count > 0) {
-        this->m_init_array = new elf_func_array(init_array, init_array_count, get_elf_class());
-    }
-    if (finit_array != NULL && finit_array_count > 0) {
-        this->m_finit_array = new elf_func_array(finit_array, finit_array_count, get_elf_class());    
-    }
-    if (preinit_array != NULL && preinit_array_count > 0) {
-        this->m_preinit_array = new elf_func_array(preinit_array, preinit_array_count, get_elf_class());    
-    }
-}
-void elf_image64::_create_needed_list(std::vector<int> & needed_list) {
-    if (!needed_list.empty() && this->m_str_tab) {
-        for(std::vector<int>::iterator itor = needed_list.begin(); itor != needed_list.end(); itor++) {
-            const char * name = this->m_str_tab->get_string(*itor);
-            if (name != NULL) {
-                this->m_needed_list.append(name);
-            }
-        }
-    }
-}
+
 void elf_image64::_create_symbol_tab(Elf64_Sym* symtab) {
     if (symtab) {
         this->m_sym_tab = new elf_symbol_tab(symtab, 0, this->m_str_tab);
     }
 }
-void elf_image64::_create_reloc_tab(addr_t relr_offset, size_t relr_size,
-                                    addr_t rel_offset, size_t rel_size, 
-                                    addr_t plt_offset, size_t plt_size,
-                                    size_t rel_entry_size) {
-    
-    if (plt_offset && plt_size > 0) {
-        m_plt_tab = new elf_reloc_tab(get_elf_class(), plt_offset, plt_size/rel_entry_size, m_is_use_rela);
-    }
-    if (rel_offset && rel_size > 0) {
-        m_rel_tab = new elf_reloc_tab(get_elf_class(), rel_offset, rel_size/rel_entry_size, m_is_use_rela);
-    }
-    if (relr_offset && relr_size > 0) {
-        log_fatal("not support DT_RELR\n");
-        assert(false);
-    }
-}
 
 Elf64_Phdr* elf_image64::_find_segment_by_type(const uint32_t type) {
     Elf64_Phdr* target = NULL;
-    //Elf64_Phdr* phdr = this->m_phdr;
     Elf64_Phdr* phdr = (Elf64_Phdr*)this->m_reader->get_phdr_base();
     for(int i = 0; i < this->m_ehdr->e_phnum; i += 1) {
         if(phdr[i].p_type == type) {

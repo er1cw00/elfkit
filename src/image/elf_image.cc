@@ -4,6 +4,9 @@
 #include <file/elf_reader.h>
 #include <model/elf_hash_tab.h>
 #include <model/elf_type.h>
+#include <model/elf_func_array.h>
+#include <model/elf_string_tab.h>
+#include <model/elf_reloc_tab.h>
 
 elf_image::elf_image(elf_reader* reader) {
     m_reader        = reader;
@@ -161,4 +164,49 @@ bool elf_image::_check_mem_range(addr_t offset, size_t size, size_t alignment) {
         (range_start < mem_end) &&
         (range_end <= mem_end) &&
         ((offset % alignment) == 0);
+}
+void elf_image::_create_str_tab(const char* strtab, const size_t strtab_size) {
+
+    if (strtab && strtab_size > 0) {
+        this->m_str_tab = new elf_string_tab(strtab, strtab_size);
+    }
+}
+void elf_image::_create_needed_list(std::vector<int> & needed_list) {
+    if (!needed_list.empty() && this->m_str_tab) {
+        for(std::vector<int>::iterator itor = needed_list.begin(); itor != needed_list.end(); itor++) {
+            const char * name = this->m_str_tab->get_string(*itor);
+            if (name != NULL) {
+                this->m_needed_list.append(name);
+            }
+        }
+    }
+}
+void elf_image::_create_func_array(addr_t init_array, size_t init_array_count,
+                                     addr_t finit_array,  size_t finit_array_count,
+                                     addr_t preinit_array, size_t preinit_array_count) {
+    if (init_array != NULL && init_array_count > 0) {
+        this->m_init_array = new elf_func_array(init_array, init_array_count, get_elf_class());
+    }
+    if (finit_array != NULL && finit_array_count > 0) {
+        this->m_finit_array = new elf_func_array(finit_array, finit_array_count, get_elf_class());    
+    }
+    if (preinit_array != NULL && preinit_array_count > 0) {
+        this->m_preinit_array = new elf_func_array(preinit_array, preinit_array_count, get_elf_class());    
+    }
+}
+
+void elf_image::_create_reloc_tab(addr_t relr_offset, size_t relr_size,
+                                    addr_t rel_offset, size_t rel_size, 
+                                    addr_t plt_offset, size_t plt_size,
+                                    size_t rel_entry_size) {
+    if (plt_offset && plt_size > 0) {
+        m_plt_tab = new elf_reloc_tab(get_elf_class(), plt_offset, plt_size/rel_entry_size, m_is_use_rela);
+    }
+    if (rel_offset && rel_size > 0) {
+        m_rel_tab = new elf_reloc_tab(get_elf_class(), rel_offset, rel_size/rel_entry_size, m_is_use_rela);
+    }
+    if (relr_offset && relr_size > 0) {
+        log_fatal("not support DT_RELR\n");
+        assert(false);
+    }
 }
