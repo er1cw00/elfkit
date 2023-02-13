@@ -91,14 +91,37 @@ void dump_func_array(const char *tag, elf_func_array* array) {
     }
     printf("]\n");
 }
-void show_section(elf_image* image) {
 
+
+
+
+void show_section(elf_reader* reader, elf_image* image) {
+    const char * shstr = reader->get_shstr_base();
+
+    if (reader->get_elf_class() == ELFCLASS32) {
+
+    } else if (reader->get_elf_class() == ELFCLASS64) {
+        printf("Index  Name                    Type          Addr          Offset        Size    ES  Align\n");
+        size_t shnum = reader->get_shdr_num();
+        Elf64_Shdr * shdr = (Elf64_Shdr*)reader->get_shdr_base();
+        for (int i = 0; i < shnum; i++) {
+            const char * sh_name = &shstr[shdr[i].sh_name];
+            printf("  %02d  %-22s   %-12s  %012x  %012x  %06x  %02x  %04x\n", 
+                            i, 
+                            sh_name, 
+                            elf_shdr_type_name(shdr[i].sh_type),
+                            shdr[i].sh_addr,
+                            shdr[i].sh_offset,
+                            shdr[i].sh_size,
+                            shdr[i].sh_entsize,
+                            shdr[i].sh_addralign);
+        }
+    }
 }
 
 
 
 void show_program(elf_reader* reader, elf_image* image) {
-    
     if (reader->get_elf_class() == ELFCLASS32) {
         printf("Index    Type       Offset    VirAddr    PhyAddr     Filesz    Memsz     Flag    Align\n");
         Elf32_Phdr* phdr = (Elf32_Phdr*)reader->get_phdr_base();
@@ -171,7 +194,7 @@ int main(const int argc, char *const * args) {
         return -1;
     }
     if (__show_section) {
-        show_section(image);
+        show_section(reader, image);
     }
     if (__show_program) {
         show_program(reader, image);
