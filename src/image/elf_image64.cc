@@ -23,7 +23,6 @@ elf_image64::~elf_image64() {
 bool elf_image64::load() {
 
     this->m_ehdr = (Elf64_Ehdr*)this->get_load_bias();
-//    dump_elf_header((uint8_t*)this->m_ehdr);
 
     if (this->m_ehdr->e_type != ET_EXEC && this->m_ehdr->e_type != ET_DYN) {
         return false;
@@ -32,7 +31,7 @@ bool elf_image64::load() {
     if (dyn_phdr == NULL) {
         return  false;
     }
-    this->m_dynamic             = (Elf64_Dyn*)(this->get_load_bias() + dyn_phdr->p_vaddr);
+    this->m_dynamic             = (void*)(this->get_load_bias() + dyn_phdr->p_vaddr);
     this->m_dynamic_size        = (size_t)(dyn_phdr->p_memsz/sizeof(Elf64_Dyn));
 
     Elf64_Sym* symtab           = NULL;
@@ -66,7 +65,7 @@ bool elf_image64::load() {
 
     std::vector<int> needed_list;
 
-    for (Elf64_Dyn* d = this->m_dynamic; d->d_tag != DT_NULL; ++d) {
+    for (Elf64_Dyn* d = (Elf64_Dyn*)this->m_dynamic; d->d_tag != DT_NULL; ++d) {
         switch(d->d_tag) {
             case DT_SONAME:
                 break;

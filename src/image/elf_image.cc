@@ -112,6 +112,28 @@ const size_t elf_image::get_segment_list(elf_segment* segments) {
     }
     return phnum;
 }
+const size_t elf_image::get_dynamic_size() {
+    return m_dynamic_size;
+}
+const size_t elf_image::get_dynamic_list(elf_dynamic* dynamic) {
+     size_t dyn_num = m_dynamic_size;
+    if (get_elf_class() == ELFCLASS32) {
+        Elf32_Dyn * dyn = (Elf32_Dyn*)m_dynamic;
+        if (dynamic && dyn) {
+            for (int i = 0; i < dyn_num; i++) {
+                elf_dynamic_reset_with_dyn32(&dynamic[i], &dyn[i]);
+            }
+        }
+    } else if (get_elf_class() == ELFCLASS64) {
+        Elf64_Dyn * dyn = (Elf64_Dyn*)m_dynamic;
+        if (dynamic && dyn) {
+             for (int i = 0; i < dyn_num; i++) {
+                elf_dynamic_reset_with_dyn64(&dynamic[i], &dyn[i]);
+            }
+        }
+    }
+    return dyn_num;
+}
 
 bool elf_image::get_symbol_by_addr(const addr_t addr, elf_symbol* symbol) {
     elf_hash_tab * hashtab = is_use_gnu_hash() ? m_gnu_hash_tab : m_sysv_hash_tab;

@@ -30,9 +30,5 @@ protected:
 
 protected:
     Elf64_Ehdr      *m_ehdr;
-    
-    Elf64_Dyn       *m_dynamic;
-    size_t          m_dynamic_size;
-
     friend class elf_image;
 };

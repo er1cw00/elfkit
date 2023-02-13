@@ -2,6 +2,7 @@
 
 #include <common/elf_common.h>
 #include <common/elf_string_list.h>
+#include <model/elf_type.h>
 #include <file/elf_reader.h>
 
 struct elf_symbol;
@@ -35,6 +36,9 @@ public:
 
     const size_t get_segment_size();
     const size_t get_segment_list(elf_segment* segments);
+
+    const size_t get_dynamic_size();
+    const size_t get_dynamic_list(elf_dynamic* dynamic);
 
     const addr_t get_init_func() {return this->m_init_func;}
     const addr_t get_finit_func() {return this->m_finit_func;}
@@ -88,6 +92,8 @@ protected:
     bool                m_is_gnu_hash;
     bool                m_is_use_rela;
 
+    void                *m_dynamic;
+    size_t              m_dynamic_size;
 //    elf_string_tab*     m_shstr_tab;
     elf_string_tab*     m_str_tab;
 
