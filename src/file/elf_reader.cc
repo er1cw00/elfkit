@@ -186,8 +186,8 @@ bool elf_reader::_check_elf_header() {
             log_error("unsupported elf type(0x%04x)\n", ehdr->e_type);
             return false;
         }
-        if (ehdr->e_machine != EM_AARCH64 && ehdr->e_machine != EM_X86_64)  {
-            log_error("unsupported class64 cpu arch\n");
+        if (ehdr->e_machine != EM_ARM && ehdr->e_machine != EM_386 && ehdr->e_machine != EM_486 )  {
+            log_error("unsupported class32 cpu arch\n");
             return false;
         }
         if (sizeof(Elf32_Phdr) != ehdr->e_phentsize) {
