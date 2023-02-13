@@ -12,8 +12,8 @@ public:
     virtual void unload();
     
 protected:
-    Elf64_Phdr* _find_segment_by_type(const uint32_t type);
     void _create_symbol_tab(Elf64_Sym* symtab);
+    Elf64_Phdr* _find_segment_by_type(const uint32_t type);
 
 protected:
     Elf64_Ehdr      *m_ehdr;

@@ -10,8 +10,9 @@ public:
 public:
     virtual bool load();
     virtual void unload();
-    
+
 protected:
+    void _create_symbol_tab(Elf32_Sym* symtab); 
     Elf32_Phdr* _find_segment_by_type(const uint32_t type);
 
 protected:

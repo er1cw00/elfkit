@@ -86,7 +86,7 @@ bool elf_image64::load() {
                 uint32_t gnu_maskwords     = rawdata[2];
                 uint32_t gnu_shift2        = rawdata[3];
                 uint64_t gnu_bloom_filter  = (uint64_t)(this->get_load_bias() + d->d_un.d_ptr + 16);
-                uint32_t* gnu_bucket       = (uint32_t *)(gnu_bloom_filter + gnu_maskwords * sizeof(void*));
+                uint32_t* gnu_bucket       = (uint32_t *)(gnu_bloom_filter + gnu_maskwords * 8);
                 uint32_t* gnu_chain        = (uint32_t *)(gnu_bucket + gnu_nbucket - gnu_symndx);
                 if (!powerof2(gnu_maskwords)) {
                     log_error("invalid maskwords for gnu_hash = 0x%x, in \"%s\" expecting power to two\n",
