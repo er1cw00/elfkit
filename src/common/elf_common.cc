@@ -300,3 +300,91 @@ const char * elf_sym_type_name(uint32_t s_type) {
     }
     return _labels[s_type];
 }
+
+const char * elf_reloc_stype_name(uint16_t em, uint32_t r_type) {
+    struct reloc_stype {
+        const uint32_t val; 
+        const char * name;
+    }; 
+    static reloc_stype _arm32_stype[] = {
+        {R_ARM_NONE,         "R_ARM_NONE"},
+        {R_ARM_JUMP_SLOT,    "R_ARM_JUMP_SLOT"},
+        {R_ARM_ABS32,        "R_ARM_ABS32"},
+        {R_ARM_ABS16,        "R_ARM_ABS16"},
+        {R_ARM_ABS12,        "R_ARM_ABS12"},
+        {R_ARM_THM_ABS5,     "R_ARM_THM_ABS5"},
+        {R_ARM_ABS8,         "R_ARM_ABS8"},
+        {R_ARM_GLOB_DAT,     "R_ARM_GLOB_DAT"},
+        {R_ARM_RELATIVE,     "R_ARM_RELATIVE"},
+        {R_ARM_IRELATIVE,    "R_ARM_IRELATIVE"},
+        {R_ARM_COPY,         "R_ARM_COPY"},
+        {R_ARM_TLS_DTPMOD32, "R_ARM_TLS_DTPMOD32"},
+        {R_ARM_TLS_DTPOFF32, "R_ARM_TLS_DTPOFF32"},     
+        {R_ARM_TLS_TPOFF32,  "R_ARM_TLS_TPOFF32"},      
+        {R_ARM_TLS_DESC,     "R_ARM_TLS_DESC"},
+    };
+    static reloc_stype _arm64_stype[] = {
+        {R_AARCH64_NONE,        "R_AARCH64_NONE"},
+        {R_AARCH64_JUMP_SLOT,   "R_AARCH64_JUMP_SLOT"},
+        {R_AARCH64_ABS64,       "R_AARCH64_ABS64"},
+        {R_AARCH64_ABS32,       "R_AARCH64_ABS32"},
+        {R_AARCH64_ABS16,       "R_AARCH64_ABS16"},
+        {R_AARCH64_GLOB_DAT,    "R_AARCH64_GLOB_DAT"},
+        {R_AARCH64_RELATIVE,    "R_AARCH64_RELATIVE"},
+        {R_AARCH64_IRELATIVE,   "R_AARCH64_IRELATIVE"},
+        {R_AARCH64_COPY,        "R_AARCH64_COPY"},
+        {R_AARCH64_TLS_DTPMOD,  "R_AARCH64_TLS_DTPMOD"},
+        {R_AARCH64_TLS_DTPREL,  "R_AARCH64_TLS_DTPREL"},
+        {R_AARCH64_TLS_TPREL,   "R_AARCH64_TLS_TPREL"},
+        {R_AARCH64_TLSDESC,     "R_AARCH64_TLSDESC"},
+    };
+    static reloc_stype _x86_stype[] = {
+        {R_386_NONE,         "R_386_NONE"},
+        {R_386_PC32,         "R_386_PC32"},
+        {R_386_JMP_SLOT,     "R_386_JMP_SLOT"},
+        {R_386_32,           "R_386_32"},
+        {R_386_GLOB_DAT,     "R_386_GLOB_DAT"},
+        {R_386_RELATIVE,     "R_386_RELATIVE"},
+        {R_386_IRELATIVE,    "R_386_IRELATIVE"},
+        {R_386_COPY,         "R_386_COPY"},
+        {R_386_TLS_DTPMOD32, "R_386_TLS_DTPMOD32"},
+        {R_386_TLS_DTPOFF32, "R_386_TLS_DTPOFF32"},
+        {R_386_TLS_TPOFF32,  "R_386_TLS_TPOFF32"},
+        {R_386_TLS_DESC,     "R_386_TLS_DESC"},
+    };
+    static reloc_stype _x64_stype[] = {
+        {R_X86_64_NONE,       "R_X86_64_NONE"},
+        {R_X86_64_PC32,       "R_X86_64_PC32"},
+        {R_X86_64_JUMP_SLOT,  "R_X86_64_JUMP_SLOT"},
+        {R_X86_64_64,         "R_X86_64_64"},
+        {R_X86_64_GLOB_DAT,   "R_X86_64_GLOB_DAT"},
+        {R_X86_64_RELATIVE,   "R_X86_64_RELATIVE"},
+        {R_X86_64_IRELATIVE,  "R_X86_64_IRELATIVE"},
+        {R_X86_64_COPY,       "R_X86_64_COPY"},
+        {R_X86_64_DTPMOD64,   "R_X86_64_DTPMOD64"},
+        {R_X86_64_DTPOFF64,   "R_X86_64_DTPOFF64"},
+        {R_X86_64_TPOFF64,    "R_X86_64_TPOFF64"},
+        {R_X86_64_TLSDESC,    "R_X86_64_TLSDESC"},
+    };
+    reloc_stype *stype = NULL;
+    size_t num = 0;
+    if (em == EM_ARM) {
+        stype = _arm32_stype;
+        num = sizeof(_arm32_stype) / sizeof(reloc_stype);
+    } else if (em == EM_AARCH64) {
+        stype = _arm64_stype;
+        num = sizeof(_arm64_stype) / sizeof(reloc_stype);
+    } else if (em == EM_386 || em == EM_486) {
+        stype = _x86_stype;
+        num = sizeof(_x86_stype) / sizeof(reloc_stype);
+    }  else if (em == EM_X86_64) {
+        stype = _x64_stype;
+        num = sizeof(_x64_stype) / sizeof(reloc_stype);
+    }
+    for (int i = 0; i < num; i++) {
+        if (stype[i].val == r_type) {
+            return stype[i].name;
+        }
+    }
+    return "UNKNOW";
+}

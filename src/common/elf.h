@@ -351,6 +351,10 @@ typedef struct elf64_sym {
 #define R_ARM_NONE              0
 #define R_ARM_JUMP_SLOT         22
 #define R_ARM_ABS32             2
+#define R_ARM_ABS16		          5
+#define R_ARM_ABS12		          6
+#define R_ARM_THM_ABS5		      7
+#define R_ARM_ABS8	          	8
 #define R_ARM_GLOB_DAT          21
 #define R_ARM_RELATIVE          23
 #define R_ARM_IRELATIVE         160
@@ -363,6 +367,8 @@ typedef struct elf64_sym {
 #define R_AARCH64_NONE          256
 #define R_AARCH64_JUMP_SLOT     1026
 #define R_AARCH64_ABS64         257
+#define R_AARCH64_ABS32         258
+#define R_AARCH64_ABS16         259
 #define R_AARCH64_GLOB_DAT      1025
 #define R_AARCH64_RELATIVE      1027
 #define R_AARCH64_IRELATIVE     1032

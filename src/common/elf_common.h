@@ -32,6 +32,7 @@ const char * elf_dynamic_tag_name(int d_tag);
 const char * elf_protection_flag_name(int p_flag);
 const char * elf_sym_bind_name(uint32_t s_bind);
 const char * elf_sym_type_name(uint32_t s_type);
+const char * elf_reloc_stype_name(uint16_t em, uint32_t r_type);
 
 bool elf_safe_add(off_t* out, off_t a, size_t b);
 void elf_dump_hex(uint8_t * pbuf, int size);
