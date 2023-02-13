@@ -92,23 +92,7 @@ void dump_func_array(const char *tag, elf_func_array* array) {
     printf("]\n");
 }
 
-void show_dynamic(elf_image* image) {
-    size_t dyn_num = image->get_dynamic_size();
-    if (dyn_num <= 0) {return;}
-    elf_dynamic * dyn = (elf_dynamic*)malloc(sizeof(elf_dynamic) * dyn_num);
-    if (dyn == NULL) {return;}
-    image->get_dynamic_list(dyn);
-    printf("Index  Name          Value\n");
-    for (int i = 0; i < dyn_num; i++) {
-        printf(" %2d  %-14s  0x%016llx\n",
-                i,
-                elf_dynamic_tag_name(dyn[i].d_tag), 
-                uint64_t(dyn[i].d_val));
-    }
-    return;
-}
-
-void show_section(elf_reader* reader, elf_image* image) {
+void show_section(elf_image* image) {
     size_t shnum = image->get_section_size();
     if (shnum <= 0) {return;}
     elf_section * shdr = (elf_section*)malloc(sizeof(elf_section) * shnum);
@@ -129,7 +113,7 @@ void show_section(elf_reader* reader, elf_image* image) {
     return;
 }
 
-void show_program(elf_reader* reader, elf_image* image) {
+void show_program(elf_image* image) {
     size_t phnum = image->get_segment_size();
     if (phnum <= 0) {return;}
     elf_segment * phdr = (elf_segment*)malloc(sizeof(elf_segment) * phnum);
@@ -151,6 +135,22 @@ void show_program(elf_reader* reader, elf_image* image) {
     return;
 }
 
+void show_dynamic(elf_image* image) {
+    size_t dyn_num = image->get_dynamic_size();
+    if (dyn_num <= 0) {return;}
+    elf_dynamic * dyn = (elf_dynamic*)malloc(sizeof(elf_dynamic) * dyn_num);
+    if (dyn == NULL) {return;}
+    image->get_dynamic_list(dyn);
+    printf("Index  Name          Value\n");
+    for (int i = 0; i < dyn_num; i++) {
+        printf(" %2d  %-14s  0x%016llx\n",
+                i,
+                elf_dynamic_tag_name(dyn[i].d_tag), 
+                uint64_t(dyn[i].d_val));
+    }
+    return;
+}
+
 void show_init_func(elf_image* image) {
     printf("init_func addr: %p\n",      (void*)image->get_init_func());
     printf("finit_func addr: %p\n",     (void*)image->get_finit_func());
@@ -159,6 +159,16 @@ void show_init_func(elf_image* image) {
     dump_func_array("preinit_array:",   image->get_preinit_array());
 }
 
+void show_hash_tab(elf_image* image) {
+    elf_hash_tab* gnu_hash_tab = image->get_gnu_hash_tab();
+    if (gnu_hash_tab) {
+        gnu_hash_tab->dump_hash_table();
+    }
+    elf_hash_tab* sysv_hash_tab = image->get_sysv_hash_tab();
+    if (sysv_hash_tab) {
+        sysv_hash_tab->dump_hash_table();
+    }
+}
 void show_sym_tab(elf_image* image) {
 
 }
@@ -189,18 +199,20 @@ int main(const int argc, char *const * args) {
         return -1;
     }
     if (__show_section) {
-        show_section(reader, image);
+        show_section(image);
     }
     if (__show_program) {
-        show_program(reader, image);
+        show_program(image);
     }
     if (__show_dynamic) {
         show_dynamic(image);
-
     }
     if (__show_init_func) {
         show_init_func(image);
     } 
+    if (__show_hash_tab) {
+        show_hash_tab(image);
+    }
     if (__show_sym_tab) {
         show_sym_tab(image);      
     } 
