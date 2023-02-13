@@ -119,13 +119,13 @@ void elf_gnu_hash_tab::dump_hash_table() {
     buckets.append("]");
     log_info("buckets:        %s\n", buckets.c_str());
 
-    std::string chains = "[";
-    // for(int i = 0; i < m_gnu_nbucket; i++) {
-    //     char buf[32];
-    //     uint32_t n = m_gnu_chain[i];
-    //     snprintf(buf, 32, i == 0 ? "%d" : ",%d", n);
-    //     chains.append(buf);
-    // }
+    std::string chains = " [";
+    for(int i = 0; i < m_gnu_nbucket; i++) {
+        char buf[32];
+        uint32_t n = m_gnu_chain[i];
+        snprintf(buf, 32, i == 0 ? "%d" : ",%d", n);
+        chains.append(buf);
+    }
     chains.append("]");
     log_info("chains:        %s\n", chains.c_str());
 
