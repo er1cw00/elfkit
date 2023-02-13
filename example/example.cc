@@ -92,42 +92,52 @@ void dump_func_array(const char *tag, elf_func_array* array) {
     printf("]\n");
 }
 
-
-
+void show_dynamic(elf_image* image) {
+    size_t dyn_num = image->get_dynamic_size();
+    if (dyn_num <= 0) {return;}
+    elf_dynamic * dyn = (elf_dynamic*)malloc(sizeof(elf_dynamic) * dyn_num);
+    if (dyn == NULL) {return;}
+    image->get_dynamic_list(dyn);
+    printf("Index  Name          Value\n");
+    for (int i = 0; i < dyn_num; i++) {
+        printf(" %2d  %-14s  0x%016llx\n",
+                i,
+                elf_dynamic_tag_name(dyn[i].d_tag), 
+                uint64_t(dyn[i].d_val));
+    }
+    return;
+}
 
 void show_section(elf_reader* reader, elf_image* image) {
-    const char * shstr = reader->get_shstr_base();
-
-    if (reader->get_elf_class() == ELFCLASS32) {
-
-    } else if (reader->get_elf_class() == ELFCLASS64) {
-        printf("Index  Name                    Type          Addr          Offset        Size    ES  Align\n");
-        size_t shnum = reader->get_shdr_num();
-        Elf64_Shdr * shdr = (Elf64_Shdr*)reader->get_shdr_base();
-        for (int i = 0; i < shnum; i++) {
-            const char * sh_name = &shstr[shdr[i].sh_name];
-            printf("  %02d  %-22s   %-12s  %012x  %012x  %06x  %02x  %04x\n", 
+    size_t shnum = image->get_section_size();
+    if (shnum <= 0) {return;}
+    elf_section * shdr = (elf_section*)malloc(sizeof(elf_section) * shnum);
+    if (!shdr) {return;}
+    image->get_section_list(shdr);
+    printf("Index  Name                    Type          Addr          Offset        Size    ES  Align\n");
+    for (int i = 0; i < shnum; i++) {
+        printf("  %02d  %-22s   %-12s  %012llx  %012llx  %06llx  %02llx  %04llx\n", 
                             i, 
-                            sh_name, 
+                            shdr[i].name, 
                             elf_shdr_type_name(shdr[i].sh_type),
                             shdr[i].sh_addr,
                             shdr[i].sh_offset,
                             shdr[i].sh_size,
                             shdr[i].sh_entsize,
                             shdr[i].sh_addralign);
-        }
     }
+    return;
 }
-
-
 
 void show_program(elf_reader* reader, elf_image* image) {
-    if (reader->get_elf_class() == ELFCLASS32) {
-        printf("Index    Type       Offset    VirAddr    PhyAddr     Filesz    Memsz     Flag    Align\n");
-        Elf32_Phdr* phdr = (Elf32_Phdr*)reader->get_phdr_base();
-        size_t phnum = reader->get_phdr_num();
-        for (int i = 0; i < phnum; i++) {
-            printf("%02d  %s   %08x   %08x   %08x   %06x   %06x    %s   %4x\n", 
+    size_t phnum = image->get_segment_size();
+    if (phnum <= 0) {return;}
+    elf_segment * phdr = (elf_segment*)malloc(sizeof(elf_segment) * phnum);
+    if (!phdr) {return;}
+    image->get_segment_list(phdr);
+    printf("Index    Type         Offset         VirAddr        PhyAddr        Filesz   Memsz     Flag  Align\n");
+    for (int i = 0; i < phnum; i++) {
+            printf("  %02d     %-10s   %01llx   %012llx   %012llx   %06llx   %06llx    %s   %4llx\n", 
                             i, 
                             elf_phdr_type_name(phdr[i].p_type), 
                             phdr[i].p_offset,
@@ -137,25 +147,10 @@ void show_program(elf_reader* reader, elf_image* image) {
                             phdr[i].p_memsz,
                             elf_protection_flag_name(phdr[i].p_flags),
                             phdr[i].p_align);
-        }
-    } else if (reader->get_elf_class() == ELFCLASS64) {
-        printf("Index    Type         Offset         VirAddr        PhyAddr        Filesz   Memsz     Flag  Align\n");
-        Elf64_Phdr* phdr = (Elf64_Phdr*)reader->get_phdr_base();
-        size_t phnum = reader->get_phdr_num();
-        for (int i = 0; i < phnum; i++) {
-            printf("  %02d     %-10s   %012x   %012x   %012x   %06x   %06x    %s   %4x\n", 
-                            i, 
-                            elf_phdr_type_name(phdr[i].p_type), 
-                            phdr[i].p_offset,
-                            phdr[i].p_vaddr,
-                            phdr[i].p_paddr,
-                            phdr[i].p_filesz,
-                            phdr[i].p_memsz,
-                            elf_protection_flag_name(phdr[i].p_flags),
-                            phdr[i].p_align);
-        }
-    } 
+    }
+    return;
 }
+
 void show_init_func(elf_image* image) {
     printf("init_func addr: %p\n",      (void*)image->get_init_func());
     printf("finit_func addr: %p\n",     (void*)image->get_finit_func());
@@ -198,6 +193,10 @@ int main(const int argc, char *const * args) {
     }
     if (__show_program) {
         show_program(reader, image);
+    }
+    if (__show_dynamic) {
+        show_dynamic(image);
+
     }
     if (__show_init_func) {
         show_init_func(image);
