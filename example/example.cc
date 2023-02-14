@@ -187,7 +187,7 @@ void show_dynsym_tab(elf_image* image) {
                 uint32_t bind = ELF_ST_BIND(sym.st_info);
                 uint32_t type = ELF_ST_TYPE(sym.st_info);
                 if (sym.sym_name) {sym_name = sym.sym_name;}
-                printf("%5d  %010llx  %3d   %-6s  %-6s  %s\n",
+                printf("%5d  %010llx  %3zd   %-6s  %-6s  %s\n",
                     symidx, 
                     sym.st_value,
                     sym.st_size,
@@ -206,7 +206,7 @@ void show_reloc_tab(elf_image* image) {
     uint16_t em = image->get_machine_type();
     if (plt_tab) {
         elf_reloc_list_t& list = plt_tab->get_list();
-        printf("Relocation section \'.%s.plt\' contains %d entries:\n", 
+        printf("Relocation section \'.%s.plt\' contains %zd entries:\n", 
                         rel_tab->is_use_rela() ? "rela" : "rel",
                         list.size());
         printf("Index   Offset        SymIdx       SymType           Sym.Value     Sym.Name\n");
@@ -228,7 +228,7 @@ void show_reloc_tab(elf_image* image) {
     }
     if (rel_tab) {
         elf_reloc_list_t& list = rel_tab->get_list();
-        printf("Relocation section \'.%s.dyn\' contains %d entries:\n", 
+        printf("Relocation section \'.%s.dyn\' contains %zd entries:\n", 
                         rel_tab->is_use_rela() ? "rela" : "rel",
                         list.size());
         for (int i = 0; i < list.size(); i++) {
