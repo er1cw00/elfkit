@@ -14,15 +14,20 @@
 
 void usage() {
 
-    fprintf(stderr, "./elfkit [sofile] options\n");
-    fprintf(stderr, "    --help print this message\n");
-    fprintf(stderr, "    --file input elf file path\n");
-    fprintf(stderr, "    --init print init func\n");
+    fprintf(stderr, "./elfkit sofile [-hSldinasr]\n");
+    fprintf(stderr, "    --help, -h      print this message\n");
+    fprintf(stderr, "    --section, -S   print init func\n");
+    fprintf(stderr, "    --program, -l   print init func\n");
+    fprintf(stderr, "    --dynamic, -d   print init func\n");
+    fprintf(stderr, "    --init, -i      print init func\n");
+    fprintf(stderr, "    --needed, -n    print init func\n");
+    fprintf(stderr, "    --hash, -a      print init func\n");
+    fprintf(stderr, "    --sym, -s       print init func\n");
+    fprintf(stderr, "    --reloc, -r     print init func\n");
 }
 
 struct option long_opts[] = {
     {"help",     no_argument,       0, 'h'},
-    {"file",     required_argument, 0, 'f'},
     {"section",  no_argument,       0, 'S'},
     {"program",  no_argument,       0, 'l'},
     {"dynamic",  no_argument,       0, 'd'},
@@ -47,15 +52,15 @@ bool __show_reloc_tab     = false;
 char __sopath[PATH_MAX];
 
 bool parse_opts(const int argc, char *const * args) {
-    bool result = false;
     while(1) {
         int index = -1;
-        int c = getopt_long_only(argc, args, "hf:Sldinasr", long_opts, &index);
+        int c = getopt_long(argc, args, "hSldinasr", long_opts, &index);
         if (c < 0) {
             break;
         } 
+        printf("c:%d, index:%d, arg:%s\n", c, index, optarg);
         switch (c) {
-            case 'f': strncpy(__sopath, optarg, sizeof(__sopath));result = true; break;
+            case 'f':  break;
             case 'S': __show_section    = true; break;
             case 'l': __show_program    = true; break;
             case 'd': __show_dynamic    = true; break;
@@ -68,7 +73,11 @@ bool parse_opts(const int argc, char *const * args) {
             default: __show_help = true; break;
         }
     }
-    return result;
+    if (optind < argc) {
+        strncpy(__sopath, args[optind], sizeof(__sopath));
+        return true;
+    }
+    return false;
 }
 void dump_func_array(const char *tag, elf_func_array* array) {
     if (array == NULL) {
