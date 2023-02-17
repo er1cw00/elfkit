@@ -16,8 +16,10 @@ aux_source_directory(src/model   SOURCE_FILES)
 #file(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src "*.cc")
 file(GLOB_RECURSE HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src "*.h")
 
-set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS}    -g -fsanitize=address -fno-omit-frame-pointer -Wno-null-conversion -Wno-null-arithmetic")
-set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -g -fsanitize=address -fno-omit-frame-pointer ")
+set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS}     -Wno-null-conversion -Wno-null-arithmetic")
+
+#set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS}    -g -fsanitize=address -fno-omit-frame-pointer ")
+#set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -g -fsanitize=address -fno-omit-frame-pointer ")
 
 add_library(${LIB_NAME} STATIC ${SOURCE_FILES})
 
