@@ -21,9 +21,8 @@ elf_image32::~elf_image32() {
 }
 
 bool elf_image32::load() {
-     this->m_ehdr = (Elf32_Ehdr*)this->get_load_bias();
-
-    if (this->m_ehdr->e_type != ET_EXEC && this->m_ehdr->e_type != ET_DYN) {
+    uint16_t etype = this->get_elf_type();
+    if (etype != ET_EXEC && etype != ET_DYN) {
         return false;
     }
     Elf32_Phdr * dyn_phdr = _find_segment_by_type(PT_DYNAMIC);
@@ -212,7 +211,8 @@ void elf_image32::_create_symbol_tab(Elf32_Sym* symtab) {
 Elf32_Phdr* elf_image32::_find_segment_by_type(const uint32_t type) {
     Elf32_Phdr* target = NULL;
     Elf32_Phdr* phdr = (Elf32_Phdr*)this->m_reader->get_phdr_base();
-    for(int i = 0; i < this->m_ehdr->e_phnum; i += 1) {
+    size_t phnum = this->m_reader->get_phdr_num();
+    for(int i = 0; i < phnum; i += 1) {
         if(phdr[i].p_type == type) {
             target = phdr + i;
             break;

@@ -95,8 +95,11 @@ elf_image* elf_reader::load() {
     } else if (this->get_elf_class() == ELFCLASS64) {
         image = new elf_image64(this);
     }
-    if (image && image->load()) {
-        return image;
+    if (image) {
+        if (image->load()) {
+            return image;
+        }
+        delete image;
     }
     return NULL;
 }
@@ -409,7 +412,7 @@ bool elf_reader::_read_segments(void) {
         log_error("reserve address space fail, load(0x%zu), error(%s)\n", load_size, strerror(errno));
         return false;
     }
-    m_load_bias = (addr_t)mmap_ptr;
+    m_load_bias = (addr_t)mmap_ptr - p_min_addr;
     m_load_size = load_size;
 
     log_info("m_load_bias: 0x%llx, load_size: 0x%lx\n", m_load_bias, m_load_size);
@@ -439,7 +442,7 @@ bool elf_reader::_read_segments(void) {
         }
 
         size_t nread = pread(m_fd, (void*)(m_load_bias + p_vaddr), p_filesz, (off_t)p_offset);
-        log_info("read segment: i(%d), addr(%p), offset(%p), filesz(%lx), nread(%lx)\n", 
+        log_info("read segment: i(%d), addr(%p), offset(%p), filesz(%lx), nread(%lx), %s\n", 
                 i, 
                 (void*)(m_load_bias + p_vaddr),
                 (void*)p_offset,

@@ -19,14 +19,14 @@ elf_image64::~elf_image64() {
 }
 
 bool elf_image64::load() {
-
-    this->m_ehdr = (Elf64_Ehdr*)this->get_load_bias();
-
-    if (this->m_ehdr->e_type != ET_EXEC && this->m_ehdr->e_type != ET_DYN) {
+   
+    uint16_t etype = this->get_elf_type();
+    if (etype != ET_EXEC && etype != ET_DYN) {
         return false;
     }
     Elf64_Phdr * dyn_phdr = _find_segment_by_type(PT_DYNAMIC);
     if (dyn_phdr == NULL) {
+        log_error("could not find dynamic segment.\n");
         return  false;
     }
     this->m_dynamic             = (void*)(this->get_load_bias() + dyn_phdr->p_vaddr);
@@ -219,7 +219,8 @@ void elf_image64::_create_symbol_tab(Elf64_Sym* symtab) {
 Elf64_Phdr* elf_image64::_find_segment_by_type(const uint32_t type) {
     Elf64_Phdr* target = NULL;
     Elf64_Phdr* phdr = (Elf64_Phdr*)this->m_reader->get_phdr_base();
-    for(int i = 0; i < this->m_ehdr->e_phnum; i += 1) {
+    size_t phnum = this->m_reader->get_phdr_num();
+    for(int i = 0; i < phnum; i += 1) {
         if(phdr[i].p_type == type) {
             target = phdr + i;
             break;

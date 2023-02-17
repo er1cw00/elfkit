@@ -34,39 +34,30 @@ bool elf_image::load() {
 void elf_image::unload() {
     m_reader->close();
 }
-const int elf_image::get_fd() {
-    return m_reader->get_fd();
-}
-const char* elf_image::get_soname() {
-    return m_reader->get_soname();
-}
-const char* elf_image::get_sopath() {
-    return m_reader->get_sopath();
-}
-const size_t elf_image::get_file_size() {
-    return m_reader->get_file_size();
-}
-const size_t elf_image::get_load_size() {
-    return m_reader->get_load_size();
-}
-const addr_t elf_image::get_load_bias() {
-    return m_reader->get_load_bias();
-}
-const uint8_t elf_image::get_elf_class() {
-    return m_reader->get_elf_class();
+
+const uint16_t elf_image::get_elf_type() {
+if (get_elf_class() == ELFCLASS32) {
+        Elf32_Ehdr *hdr = (Elf32_Ehdr*)m_reader->get_elf_header();
+        return hdr->e_type;
+    } else if (get_elf_class() == ELFCLASS64) {
+        Elf64_Ehdr *hdr = (Elf64_Ehdr*)m_reader->get_elf_header();
+        return hdr->e_type;
+    }
+    return (uint16_t)ET_NONE;
 }
 const uint16_t elf_image::get_machine_type() {
     if (get_elf_class() == ELFCLASS32) {
-        elf32_hdr *hdr = (elf32_hdr*)get_load_bias();
+        Elf32_Ehdr *hdr = (Elf32_Ehdr*)m_reader->get_elf_header();
         return hdr->e_machine;
     } else if (get_elf_class() == ELFCLASS64) {
-        elf64_hdr *hdr = (elf64_hdr*)get_load_bias();
+        Elf64_Ehdr *hdr = (Elf64_Ehdr*)m_reader->get_elf_header();
         return hdr->e_machine;
     }
     return (uint16_t)EM_NONE;
 }
+
 const uint8_t elf_image::get_data_order() {
-    uint8_t* ident = (uint8_t*)get_load_bias();
+    uint8_t* ident = (uint8_t*)m_reader->get_elf_header();
     return ident[5];
 }
 
@@ -166,7 +157,7 @@ bool elf_image::_check_mem_range(addr_t offset, size_t size, size_t alignment) {
         ((offset % alignment) == 0);
 }
 void elf_image::_create_str_tab(const char* strtab, const size_t strtab_size) {
-
+log_dbg("set str tab: %p, %zd\n", strtab, strtab_size);
     if (strtab && strtab_size > 0) {
         this->m_str_tab = new elf_string_tab(strtab, strtab_size);
     }
@@ -176,7 +167,7 @@ void elf_image::_create_needed_list(std::vector<int> & needed_list) {
         for(std::vector<int>::iterator itor = needed_list.begin(); itor != needed_list.end(); itor++) {
             const char * name = this->m_str_tab->get_string(*itor);
             if (name != NULL) {
-                this->m_needed_list.append(name);
+               this->m_needed_list.append(name);
             }
         }
     }

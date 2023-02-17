@@ -20,14 +20,15 @@ public:
     elf_image(elf_reader*  reader);
     virtual ~elf_image();
 
-    const int    get_fd();
-    const char * get_soname();
-    const char * get_sopath();
-    const size_t get_file_size();
-
-    const size_t get_load_size();
-    const addr_t get_load_bias();
-    const uint8_t get_elf_class();
+    const int    get_fd() {return m_reader->get_fd();}
+    const char * get_soname() { return m_reader->get_soname();}
+    const char * get_sopath() {return m_reader->get_sopath();}
+    const size_t get_file_size() {return m_reader->get_file_size();}
+    const size_t get_load_size() {return m_reader->get_load_size();}
+    const addr_t get_load_bias() {return m_reader->get_load_bias();}
+    const uint8_t get_elf_class() {return m_reader->get_elf_class();}
+    
+    const uint16_t get_elf_type();
     const uint16_t get_machine_type();
     const uint8_t get_data_order();
 
