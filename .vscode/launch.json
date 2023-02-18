@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "preLaunchTask":"build",
+            "program": "${workspaceFolder}/build/example",
+            "args": [
+                "/Users/wadahana/workspace/unicorn/btx.go/runtime/android/demo/demo64.so",
+                "-lS"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [{
+                "name": "PATH",
+                "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
+            }],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}

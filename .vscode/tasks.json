@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cmake",
+			"label": "build",
+			"command": "build",
+			"targets": [
+				"example"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "ElfKit build task"
+		},
+		{
+			"type": "cmake",
+			"label": "clean",
+			"command": "clean",
+			"problemMatcher": [],
+			"detail": "ElfKit clean task"
+		}
+	]
+}
