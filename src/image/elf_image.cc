@@ -157,7 +157,6 @@ bool elf_image::_check_mem_range(addr_t offset, size_t size, size_t alignment) {
         ((offset % alignment) == 0);
 }
 void elf_image::_create_str_tab(const char* strtab, const size_t strtab_size) {
-log_dbg("set str tab: %p, %zd\n", strtab, strtab_size);
     if (strtab && strtab_size > 0) {
         this->m_str_tab = new elf_string_tab(strtab, strtab_size);
     }

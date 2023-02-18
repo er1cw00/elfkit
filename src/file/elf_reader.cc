@@ -442,7 +442,7 @@ bool elf_reader::_read_segments(void) {
         }
 
         size_t nread = pread(m_fd, (void*)(m_load_bias + p_vaddr), p_filesz, (off_t)p_offset);
-        log_info("read segment: i(%d), addr(%p), offset(%p), filesz(%lx), nread(%lx), %s\n", 
+        log_info("read segment: i(%d), addr(%p), offset(%p), filesz(%lx), nread(%lx)\n", 
                 i, 
                 (void*)(m_load_bias + p_vaddr),
                 (void*)p_offset,
