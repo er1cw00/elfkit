@@ -58,7 +58,6 @@ bool parse_opts(const int argc, char *const * args) {
         if (c < 0) {
             break;
         } 
-        printf("c:%d, index:%d, arg:%s\n", c, index, optarg);
         switch (c) {
             case 'f':  break;
             case 'S': __show_section    = true; break;
@@ -160,6 +159,14 @@ void show_dynamic(elf_image* image) {
     return;
 }
 
+void show_needed_lib_list(elf_image *image) {
+    elf_string_list needed_list = image->get_needed_list();
+    printf("Needed library contains : [\n");
+    for (int i = 0; i < needed_list.size(); i++) {
+        printf("  %s\n", needed_list.get(i));
+    }
+    printf("]\n");
+}
 void show_init_func(elf_image* image) {
     printf("init_func addr: %p\n",      (void*)image->get_init_func());
     printf("finit_func addr: %p\n",     (void*)image->get_finit_func());
@@ -187,7 +194,7 @@ void show_dynsym_tab(elf_image* image) {
     size_t s2 = sysv_hash_tab != NULL ? sysv_hash_tab->get_symbol_nums() : 0;
     if (symtab) {
         size_t total = s1 + s2;
-        printf("symtab size: %lu + %lu = %lu\n", s1, s2, total);
+        printf("Symbol Table contains %zd entries:\n", total);
         printf("Index  Value       Size  Type    Bind    Name  \n");
         for (int symidx = 0; symidx < total; symidx++) {
             const char* sym_name = "<<not found>>";
@@ -292,6 +299,9 @@ int main(const int argc, char *const * args) {
     if (__show_init_func) {
         show_init_func(image);
     } 
+    if (__show_needed_lib) {
+        show_needed_lib_list(image);
+    }
     if (__show_hash_tab) {
         show_hash_tab(image);
     }
