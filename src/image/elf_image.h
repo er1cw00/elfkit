@@ -85,7 +85,7 @@ public:
         return this->m_relr_tab;
     }
     virtual addr_t get_arm_exidx_offset() {
-        return NULL;
+        return (addr_t)NULL;
     }
     virtual size_t get_arm_exidx_count() {
         return 0;
