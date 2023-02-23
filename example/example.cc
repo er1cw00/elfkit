@@ -14,16 +14,18 @@
 
 void usage() {
 
-    fprintf(stderr, "./elfkit sofile [-hSldinasr]\n");
+    fprintf(stderr, "./elfkit sofile [-hSldinasre]\n");
     fprintf(stderr, "    --help, -h      print this message\n");
-    fprintf(stderr, "    --section, -S   print init func\n");
-    fprintf(stderr, "    --program, -l   print init func\n");
-    fprintf(stderr, "    --dynamic, -d   print init func\n");
+    fprintf(stderr, "    --section, -S   print sections\n");
+    fprintf(stderr, "    --program, -l   print segments\n");
+    fprintf(stderr, "    --dynamic, -d   print dynamic segment\n");
     fprintf(stderr, "    --init, -i      print init func\n");
-    fprintf(stderr, "    --needed, -n    print init func\n");
-    fprintf(stderr, "    --hash, -a      print init func\n");
-    fprintf(stderr, "    --sym, -s       print init func\n");
-    fprintf(stderr, "    --reloc, -r     print init func\n");
+    fprintf(stderr, "    --needed, -n    print needed library list\n");
+    fprintf(stderr, "    --hash, -a      print hash tab\n");
+    fprintf(stderr, "    --sym, -s       print symbol\n");
+    fprintf(stderr, "    --reloc, -r     print relocation\n");
+    fprintf(stderr, "    --armexidx, -e  print arm.exidx offset and count\n");
+
 }
 
 struct option long_opts[] = {
@@ -36,6 +38,7 @@ struct option long_opts[] = {
     {"hash",     no_argument,       0, 'a'},
     {"sym",      no_argument,       0, 's'},
     {"reloc",    no_argument,       0, 'r'},
+    {"armexidx", no_argument,       0, 'e'},
     {NULL, 0, 0, 0}
 };
 
@@ -48,13 +51,13 @@ bool __show_init_func     = false;
 bool __show_hash_tab      = false;
 bool __show_sym_tab       = false;
 bool __show_reloc_tab     = false;
-
+bool __show_arm_exidx     = false;
 char __sopath[PATH_MAX];
 
 bool parse_opts(const int argc, char *const * args) {
     while(1) {
         int index = -1;
-        int c = getopt_long(argc, args, "hSldinasr", long_opts, &index);
+        int c = getopt_long(argc, args, "hSldinasre", long_opts, &index);
         if (c < 0) {
             break;
         } 
@@ -68,6 +71,7 @@ bool parse_opts(const int argc, char *const * args) {
             case 'a': __show_hash_tab   = true; break;
             case 's': __show_sym_tab    = true; break;
             case 'r': __show_reloc_tab  = true; break;
+            case 'e':__show_arm_exidx   = true; break;
             case 'h': 
             default: __show_help = true; break;
         }
@@ -264,6 +268,12 @@ void show_reloc_tab(elf_image* image) {
         }
     }
 }
+void show_arm_exidx(elf_image* image) {
+    printf("arm.exidx offset: 0x%x, count: %zd\n", 
+        (uint32_t)image->get_arm_exidx_offset(), 
+        image->get_arm_exidx_count());
+    return;
+}
 
 int main(const int argc, char *const * args) {
     if (!parse_opts(argc, args) || strlen(__sopath) == 0) {
@@ -310,6 +320,9 @@ int main(const int argc, char *const * args) {
     } 
     if (__show_reloc_tab) {
         show_reloc_tab(image);
+    }
+    if (__show_arm_exidx) {
+        show_arm_exidx(image);
     }
     return 0;
 }

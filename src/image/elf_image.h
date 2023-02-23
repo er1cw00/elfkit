@@ -84,7 +84,12 @@ public:
     virtual elf_reloc_tab* get_relr_tab() {
         return this->m_relr_tab;
     }
-
+    virtual addr_t get_arm_exidx_offset() {
+        return NULL;
+    }
+    virtual size_t get_arm_exidx_count() {
+        return 0;
+    }
 protected:
     bool _check_mem_range(addr_t offset, size_t size, size_t alignment);
     void _create_str_tab(const char* strtab, const size_t strtab_size);

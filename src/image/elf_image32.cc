@@ -15,6 +15,8 @@
 #include <image/elf_image32.h>
 
 elf_image32::elf_image32(elf_reader* reader) : elf_image(reader)  {
+    m_arm_exidx_offset = NULL;
+    m_arm_exidx_count = 0;
 }
 
 elf_image32::~elf_image32() {
@@ -24,6 +26,9 @@ bool elf_image32::load() {
     uint16_t etype = this->get_elf_type();
     if (etype != ET_EXEC && etype != ET_DYN) {
         return false;
+    }
+    if (this->get_machine_type() == EM_ARM) {
+        _load_arm_exidx();
     }
     Elf32_Phdr * dyn_phdr = _find_segment_by_type(PT_DYNAMIC);
     if (dyn_phdr == NULL) {
@@ -37,7 +42,6 @@ bool elf_image32::load() {
 
     const char* strtab          = NULL;
     size_t strtab_size          = 0;
-
 
     addr_t plt_offset           = NULL;
     size_t plt_size             = 0;
@@ -55,7 +59,6 @@ bool elf_image32::load() {
     size_t init_array_count     = 0;
     size_t finit_array_count    = 0;
     size_t preinit_array_count  = 0;
-
 
     std::vector<int> needed_list;
 
@@ -203,11 +206,36 @@ bool elf_image32::load() {
 void elf_image32::unload() {
     return;
 }
+addr_t elf_image32::get_arm_exidx_offset() {
+    if (this->get_machine_type() != EM_ARM) {
+        return NULL;
+    }
+    return this->m_arm_exidx_offset;
+}
+size_t elf_image32::get_arm_exidx_count() {
+    if (this->get_machine_type() != EM_ARM) {
+        return 0;
+    }
+    return this->m_arm_exidx_count;
+}
 void elf_image32::_create_symbol_tab(Elf32_Sym* symtab) {
     if (symtab) {
         this->m_sym_tab = new elf_symbol_tab(symtab, 0, this->m_str_tab);
     }
 }
+void elf_image32::_load_arm_exidx() {
+    Elf32_Phdr* phdr = _find_segment_by_type(PT_ARM_EXIDX);
+    if (phdr == NULL) {
+        log_warn("there is not arm.exidx segment in so (%s)!", this->get_soname());
+        this->m_arm_exidx_offset = NULL;
+        this->m_arm_exidx_count = 0;
+        return;
+    } 
+    this->m_arm_exidx_offset = (addr_t)phdr->p_vaddr;
+    this->m_arm_exidx_count = (size_t)phdr->p_memsz / 8;
+    return;
+}
+
 Elf32_Phdr* elf_image32::_find_segment_by_type(const uint32_t type) {
     Elf32_Phdr* target = NULL;
     Elf32_Phdr* phdr = (Elf32_Phdr*)this->m_reader->get_phdr_base();
