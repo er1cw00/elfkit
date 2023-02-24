@@ -15,14 +15,15 @@ void elf_set_logger(elf_logger_t logger) {
 }
 
 void elf_log_vwrite(const int level, const char* fmt, ...) {
+    static char line[4096];
     va_list ap;
     va_start(ap, fmt);
+    vsnprintf(line, sizeof(line), fmt, ap);
     if (__elf_logger != NULL) {
-        char buff[4096];
-        vsnprintf(buff, sizeof(buff), fmt, ap);
-        __elf_logger(level, buff);
+        __elf_logger(level, line);
     } else {
-        vfprintf(stderr, fmt, ap);
+        fprintf(stdout, "%s\n", line);
+        fflush(stdout);
     }
     va_end(ap);
 }
