@@ -234,7 +234,7 @@ void show_reloc_tab(elf_image* image) {
         printf("Relocation section \'.%s.plt\' contains %zd entries:\n", 
                         rel_tab->is_use_rela() ? "rela" : "rel",
                         list.size());
-        printf("Index   Offset        SymIdx       SymType           Sym.Value     Sym.Name\n");
+        printf("Index   Offset        Addend         SymIdx      SymType            Sym.Value     Sym.Name\n");
         for (int i = 0; i < list.size(); i++) {
             elf_reloc & reloc = list[i];
              const char* sym_name = "<<not found>>";
@@ -242,9 +242,10 @@ void show_reloc_tab(elf_image* image) {
             int sym_type = elf_reloc_get_symbol_type(&reloc);
             elf_symbol sym;
             if (symtab->get_symbol(sym_idx, &sym) && sym.sym_name) {sym_name = sym.sym_name;}
-            printf("%5d   %012llx  %5d   %-18s     %012llx  %s \n",
+            printf("%5d   %012llx  %012llx  %5d   %-18s     %012llx  %s \n",
                     i,
                     reloc.r_offset,
+                    reloc.r_addend,
                     sym_idx,
                     elf_reloc_stype_name(em, sym_type),
                     sym.st_value,
@@ -263,9 +264,10 @@ void show_reloc_tab(elf_image* image) {
             int sym_type = elf_reloc_get_symbol_type(&reloc);
             elf_symbol sym;
             if (symtab->get_symbol(sym_idx, &sym) && sym.sym_name) {sym_name = sym.sym_name;}
-            printf("%5d   %012llx  %5d   %-18s     %012llx  %s \n",
+            printf("%5d   %012llx  %012llx   %5d   %-18s     %012llx  %s \n",
                     i,
                     reloc.r_offset,
+                    reloc.r_addend,
                     sym_idx,
                     elf_reloc_stype_name(em, sym_type),
                     sym.st_value,
