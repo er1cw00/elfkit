@@ -38,18 +38,19 @@ bool elf_safe_add(off_t* out, off_t a, size_t b) {
 }
 
 void elf_dump_hex(uint8_t * pbuf, int size) {
-    int i = 0;
+    int j = 0;
     fprintf(stderr, "00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F\n");
-    for (int j = 0; j < size; j += 16) {
-        i = j;
+    fprintf(stderr, "------------------------------------------------\n");
+    for (int i = 0; i < size; i += 16) {
         fprintf(stderr, "%02X %02X %02X %02X %02X %02X %02X %02X  ", 
             pbuf[i + 0], pbuf[i + 1], pbuf[i + 2], pbuf[i + 3],
             pbuf[i + 4], pbuf[i + 5], pbuf[i + 6], pbuf[i + 7]);
         fprintf(stderr, "%02X %02X %02X %02X %02X %02X %02X %02X\n", 
             pbuf[i + 8], pbuf[i + 9], pbuf[i + 10], pbuf[i + 11],
             pbuf[i + 12], pbuf[i + 13], pbuf[i + 14], pbuf[i + 15]);
+        j += 16;
     }
-    for (int j = i; j < size; j += 1) {
+    for (; j < size; j += 1) {
         fprintf(stderr, "%02X ", pbuf[j]);
     }
     fprintf(stderr, "\n");
