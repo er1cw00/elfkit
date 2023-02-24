@@ -85,7 +85,7 @@ bool parse_opts(const int argc, char *const * args) {
     }
     return false;
 }
-void dump_func_array(const char *tag, elf_func_array* array) {
+void dump_func_array64(const char *tag, elf_func_array* array) {
     if (array == NULL) {
         printf(".%s is empty!\n", tag);
         return;
@@ -102,6 +102,27 @@ void dump_func_array(const char *tag, elf_func_array* array) {
             printf("0x%llx, ", (uint64_t)addr[i]);
         } else {
             printf("0x%llx", (uint64_t)addr[i]);
+        }
+    }
+    printf("]\n");
+}
+void dump_func_array32(const char *tag, elf_func_array* array) {
+    if (array == NULL) {
+        printf(".%s is empty!\n", tag);
+        return;
+    } 
+    uint32_t* addr = (uint32_t*)array->get_func_array();
+    size_t count = array->get_func_count();
+    if (addr == NULL || count == 0) {
+        printf(".%s pointer is %p, count is %ld\n", tag, addr, count);
+        return;
+    }
+    printf(".%s has %ld func: [\n", tag, count);
+    for (int i = 0; i < count; i++) {
+        if (i < count - 1) {
+            printf("0x%x, ", (uint32_t)addr[i]);
+        } else {
+            printf("0x%x", (uint32_t)addr[i]);
         }
     }
     printf("]\n");
@@ -179,9 +200,16 @@ void show_needed_lib_list(elf_image *image) {
 void show_init_func(elf_image* image) {
     printf("init_func addr: %p\n",      (void*)image->get_init_func());
     printf("finit_func addr: %p\n",     (void*)image->get_finit_func());
-    dump_func_array("init_array:",      image->get_init_array());
-    dump_func_array("finit_array:",     image->get_finit_array());
-    dump_func_array("preinit_array:",   image->get_preinit_array());
+    if (image->get_elf_class() == ELFCLASS32) {
+        dump_func_array32("init_array:",      image->get_init_array());
+        dump_func_array32("finit_array:",     image->get_finit_array());
+        dump_func_array32("preinit_array:",   image->get_preinit_array());
+    } else {
+        dump_func_array64("init_array:",      image->get_init_array());
+        dump_func_array64("finit_array:",     image->get_finit_array());
+        dump_func_array64("preinit_array:",   image->get_preinit_array());
+    }
+    return;
 }
 
 void show_hash_tab(elf_image* image) {

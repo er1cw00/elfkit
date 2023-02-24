@@ -139,7 +139,7 @@ bool elf_image32::load() {
                 finit_array = (addr_t)(this->get_load_bias() + d->d_un.d_ptr);
                 break;            
             case DT_FINI_ARRAYSZ:
-                init_array_count = (size_t)(d->d_un.d_val) / sizeof(Elf32_Addr);
+                finit_array_count = (size_t)(d->d_un.d_val) / sizeof(Elf32_Addr);
                 break;
             case DT_PREINIT_ARRAY:
                 preinit_array = (addr_t)(this->get_load_bias() + d->d_un.d_ptr);
