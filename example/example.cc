@@ -99,9 +99,9 @@ void dump_func_array(const char *tag, elf_func_array* array) {
     printf(".%s has %ld func: [\n", tag, count);
     for (int i = 0; i < count; i++) {
         if (i < count - 1) {
-            printf("0x%p, ", (uint64_t*)addr[i]);
+            printf("0x%llx, ", (uint64_t)addr[i]);
         } else {
-            printf("0x%p", (uint64_t*)addr[i]);
+            printf("0x%llx", (uint64_t)addr[i]);
         }
     }
     printf("]\n");

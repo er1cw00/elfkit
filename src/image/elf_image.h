@@ -44,8 +44,8 @@ public:
     const addr_t get_init_func() {return this->m_init_func;}
     const addr_t get_finit_func() {return this->m_finit_func;}
     elf_func_array* get_init_array() {return this->m_init_array;}
-    elf_func_array* get_finit_array() {return this->m_init_array;}
-    elf_func_array* get_preinit_array() {return this->m_init_array;}
+    elf_func_array* get_finit_array() {return this->m_finit_array;}
+    elf_func_array* get_preinit_array() {return this->m_preinit_array;}
 
     const bool is_use_gnu_hash() {return this->m_is_gnu_hash;}
     const bool is_use_rela() {return this->m_is_use_rela;}
