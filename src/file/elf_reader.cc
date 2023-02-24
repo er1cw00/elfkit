@@ -415,7 +415,7 @@ bool elf_reader::_read_segments(void) {
     m_load_bias = (addr_t)mmap_ptr - p_min_addr;
     m_load_size = load_size;
 
-    log_info("m_load_bias: 0x%llx, load_size: 0x%lx\n", m_load_bias, m_load_size);
+    log_info("m_load_bias: 0x%llx, load_size: 0x%lx", m_load_bias, m_load_size);
     for (int i = 0; i < m_phdr_num; ++i) {
         uint32_t p_type;
         addr_t p_vaddr;
