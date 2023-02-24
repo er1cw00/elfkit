@@ -14,17 +14,17 @@
 
 void usage() {
 
-    fprintf(stderr, "./elfkit sofile [-hSldinasre]\n");
-    fprintf(stderr, "    --help, -h      print this message\n");
-    fprintf(stderr, "    --section, -S   print sections\n");
-    fprintf(stderr, "    --program, -l   print segments\n");
-    fprintf(stderr, "    --dynamic, -d   print dynamic segment\n");
-    fprintf(stderr, "    --init, -i      print init func\n");
-    fprintf(stderr, "    --needed, -n    print needed library list\n");
-    fprintf(stderr, "    --hash, -a      print hash tab\n");
-    fprintf(stderr, "    --sym, -s       print symbol\n");
-    fprintf(stderr, "    --reloc, -r     print relocation\n");
-    fprintf(stderr, "    --armexidx, -e  print arm.exidx offset and count\n");
+    fprintf(stdout, "./elfkit sofile [-hSldinasre]\n");
+    fprintf(stdout, "    --help, -h      print this message\n");
+    fprintf(stdout, "    --section, -S   print sections\n");
+    fprintf(stdout, "    --program, -l   print segments\n");
+    fprintf(stdout, "    --dynamic, -d   print dynamic segment\n");
+    fprintf(stdout, "    --init, -i      print init func\n");
+    fprintf(stdout, "    --needed, -n    print needed library list\n");
+    fprintf(stdout, "    --hash, -a      print hash tab\n");
+    fprintf(stdout, "    --sym, -s       print symbol\n");
+    fprintf(stdout, "    --reloc, -r     print relocation\n");
+    fprintf(stdout, "    --armexidx, -e  print arm.exidx offset and count\n");
 
 }
 
@@ -285,7 +285,6 @@ int main(const int argc, char *const * args) {
         return 0;
     }
     char *sopath = __sopath;
-//    sopath=args[1];
     printf("so path: (%s)\n", sopath);
     elf_reader* reader = new elf_reader();
     if (!reader->open(sopath)) {
