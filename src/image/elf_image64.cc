@@ -26,7 +26,7 @@ bool elf_image64::load() {
     }
     Elf64_Phdr * dyn_phdr = _find_segment_by_type(PT_DYNAMIC);
     if (dyn_phdr == NULL) {
-        log_error("could not find dynamic segment.\n");
+        log_error("could not find dynamic segment.");
         return  false;
     }
     this->m_dynamic             = (void*)(this->get_load_bias() + dyn_phdr->p_vaddr);
@@ -89,7 +89,7 @@ bool elf_image64::load() {
                 uint32_t* gnu_bucket       = (uint32_t *)(gnu_bloom_filter + gnu_maskwords * 8);
                 uint32_t* gnu_chain        = (uint32_t *)(gnu_bucket + gnu_nbucket - gnu_symndx);
                 if (!powerof2(gnu_maskwords)) {
-                    log_error("invalid maskwords for gnu_hash = 0x%x, in \"%s\" expecting power to two\n",
+                    log_error("invalid maskwords for gnu_hash = 0x%x, in \"%s\" expecting power to two.",
                             gnu_maskwords, get_soname());
                     return false;
                 }
@@ -116,7 +116,7 @@ bool elf_image64::load() {
                 break;
             case DT_SYMENT:
                 if (d->d_un.d_ptr != sizeof(Elf64_Sym)) {
-                    log_error("invalid DT_SYMENT: %zd in \"%s\"\n", (size_t)d->d_un.d_ptr, get_soname());
+                    log_error("invalid DT_SYMENT: %zd in \"%s\".", (size_t)d->d_un.d_ptr, get_soname());
                     exit(0);
                 }
                 break;
@@ -184,7 +184,7 @@ bool elf_image64::load() {
             case DT_DEBUG:
             case DT_RUNPATH:
             default:
-                //log_warn("unsupport dyn tag: %s\n", elf_dynamic_tag_name(d->d_tag));
+                //log_warn("unsupport dyn tag: %s", elf_dynamic_tag_name(d->d_tag));
                 break;
         }   
     }

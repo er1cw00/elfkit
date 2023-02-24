@@ -81,11 +81,11 @@ size_t elf_gnu_hash_tab::get_symbol_nums() {
 }
 
 void elf_gnu_hash_tab::dump_hash_table() {
-    log_info("dump gnu hash tab: \n");
-    log_info("buckets num:    %d\n",    m_gnu_nbucket);
-    log_info("symbol index:   %d\n",    m_gnu_symndx);
-    log_info("mask words num: %d\n",    m_gnu_maskwords + 1);
-    log_info("shift count:    %d\n",    m_gnu_shift2);
+    log_info("dump gnu hash tab: ");
+    log_info("buckets num:    %d",    m_gnu_nbucket);
+    log_info("symbol index:   %d",    m_gnu_symndx);
+    log_info("mask words num: %d",    m_gnu_maskwords + 1);
+    log_info("shift count:    %d",    m_gnu_shift2);
 
     std::string filters = "[";
     if (m_elf_class == ELFCLASS32) {
@@ -107,7 +107,7 @@ void elf_gnu_hash_tab::dump_hash_table() {
 
     }
     filters.append("]");
-    log_info("bloom filter:   %s\n",    filters.c_str());
+    log_info("bloom filter:   %s",    filters.c_str());
 
     std::string buckets = "[";
     for(int i = 0; i < m_gnu_nbucket; i++) {
@@ -117,7 +117,7 @@ void elf_gnu_hash_tab::dump_hash_table() {
         buckets.append(buf);
     }
     buckets.append("]");
-    log_info("buckets:        %s\n", buckets.c_str());
+    log_info("buckets:        %s", buckets.c_str());
 
     std::string chains = " [";
     for(int i = 0; i < m_gnu_nbucket; i++) {
@@ -127,7 +127,7 @@ void elf_gnu_hash_tab::dump_hash_table() {
         chains.append(buf);
     }
     chains.append("]");
-    log_info("chains:        %s\n", chains.c_str());
+    log_info("chains:        %s", chains.c_str());
 
     return;
 }

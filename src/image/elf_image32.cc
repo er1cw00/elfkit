@@ -63,7 +63,7 @@ bool elf_image32::load() {
     std::vector<int> needed_list;
 
     for (Elf32_Dyn* d = (Elf32_Dyn*)this->m_dynamic; d->d_tag != DT_NULL; ++d) {
-        //log_warn("unsupport dyn tag: %s\n", elf_dynamic_tag_name(d->d_tag));
+        //log_warn("unsupport dyn tag: %s", elf_dynamic_tag_name(d->d_tag));
         switch(d->d_tag) {
             case DT_SONAME:
                 break;
@@ -89,7 +89,7 @@ bool elf_image32::load() {
                 uint32_t* gnu_bucket       = (uint32_t *)(gnu_bloom_filter + gnu_maskwords * 4);
                 uint32_t* gnu_chain        = (uint32_t *)(gnu_bucket + gnu_nbucket - gnu_symndx);
                 if (!powerof2(gnu_maskwords)) {
-                    log_error("invalid maskwords for gnu_hash = 0x%x, in \"%s\" expecting power to two\n",
+                    log_error("invalid maskwords for gnu_hash = 0x%x, in \"%s\" expecting power to two.",
                             gnu_maskwords, get_soname());
                     return false;
                 }
@@ -116,7 +116,7 @@ bool elf_image32::load() {
                 break;
             case DT_SYMENT:
                 if (d->d_un.d_ptr != sizeof(Elf32_Sym)) {
-                    log_error("invalid DT_SYMENT: %zd in \"%s\"\n", (size_t)d->d_un.d_ptr, get_soname());
+                    log_error("invalid DT_SYMENT: %zd in \"%s\".", (size_t)d->d_un.d_ptr, get_soname());
                     exit(0);
                 }
                 break;
@@ -184,7 +184,7 @@ bool elf_image32::load() {
             case DT_DEBUG:
             case DT_RUNPATH:
             default:
-                //log_warn("unsupport dyn tag: %s\n", elf_dynamic_tag_name(d->d_tag));
+                //log_warn("unsupport dyn tag: %s", elf_dynamic_tag_name(d->d_tag));
                 break;
         }
     }

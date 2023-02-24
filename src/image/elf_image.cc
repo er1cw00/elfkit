@@ -196,7 +196,7 @@ void elf_image::_create_reloc_tab(addr_t relr_offset, size_t relr_size,
         m_rel_tab = new elf_reloc_tab(get_elf_class(), rel_offset, rel_size/rel_entry_size, m_is_use_rela);
     }
     if (relr_offset && relr_size > 0) {
-        log_fatal("not support DT_RELR\n");
+        log_fatal("not support DT_RELR");
         assert(false);
     }
 }
