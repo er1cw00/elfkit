@@ -16,6 +16,7 @@ void usage() {
 
     fprintf(stdout, "./elfkit sofile [-hSldinasre]\n");
     fprintf(stdout, "    --help, -h      print this message\n");
+    fprintf(stdout, "    --header, -f    print elf file header\n");    
     fprintf(stdout, "    --section, -S   print sections\n");
     fprintf(stdout, "    --program, -l   print segments\n");
     fprintf(stdout, "    --dynamic, -d   print dynamic segment\n");
@@ -30,6 +31,7 @@ void usage() {
 
 struct option long_opts[] = {
     {"help",     no_argument,       0, 'h'},
+    {"header",   no_argument,       0, 'f'},
     {"section",  no_argument,       0, 'S'},
     {"program",  no_argument,       0, 'l'},
     {"dynamic",  no_argument,       0, 'd'},
@@ -43,6 +45,7 @@ struct option long_opts[] = {
 };
 
 bool __show_help          = false;
+bool __show_header        = false;
 bool __show_section       = false;
 bool __show_program       = false;
 bool __show_dynamic       = false;
@@ -57,12 +60,12 @@ char __sopath[PATH_MAX];
 bool parse_opts(const int argc, char *const * args) {
     while(1) {
         int index = -1;
-        int c = getopt_long(argc, args, "hSldinasre", long_opts, &index);
+        int c = getopt_long(argc, args, "hfSldinasre", long_opts, &index);
         if (c < 0) {
             break;
         } 
         switch (c) {
-            case 'f':  break;
+            case 'f': __show_header     = true; break;
             case 'S': __show_section    = true; break;
             case 'l': __show_program    = true; break;
             case 'd': __show_dynamic    = true; break;
@@ -103,7 +106,9 @@ void dump_func_array(const char *tag, elf_func_array* array) {
     }
     printf("]\n");
 }
-
+void show_section(elf_reader* reader) {
+    dump_elf_header((const uint8_t*)reader->get_elf_header());
+}
 void show_section(elf_image* image) {
     size_t shnum = image->get_section_size();
     if (shnum <= 0) {return;}
@@ -295,6 +300,9 @@ int main(const int argc, char *const * args) {
     if (!image) {
         fprintf(stderr, "elf_reader load image fail!");
         return -1;
+    }
+    if (__show_header) {
+        show_section(reader);
     }
     if (__show_section) {
         show_section(image);
