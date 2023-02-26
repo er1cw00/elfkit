@@ -282,7 +282,7 @@ bool elf_reader::_read_section_headers() {
     }
     this->m_shstr = (const char *)this->m_shstr_fragment.data();
     this->m_shstr_size = shstr_size;
-    log_info("read section header: shdr(0x%p), shdr_num(%zu)", this->m_shdr, this->m_shdr_num);
+    log_info("read section header: shdr(%p), shdr_num(%zu)", this->m_shdr, this->m_shdr_num);
     return true;
 }
 
@@ -324,7 +324,7 @@ bool elf_reader::_read_segment_headers() {
         return false;
     }
     this->m_phdr = m_phdr_fragment.data();
-    log_info("read program header: phdr(0x%p), phdr_num(%zu)", this->m_phdr, this->m_phdr_num);
+    log_info("read program header: phdr(%p), phdr_num(%zu)", this->m_phdr, this->m_phdr_num);
     return true;
 }
 
@@ -415,7 +415,7 @@ bool elf_reader::_read_segments(void) {
     m_load_bias = (addr_t)mmap_ptr - p_min_addr;
     m_load_size = load_size;
 
-    log_info("m_load_bias: 0x%llx, load_size: 0x%lx", m_load_bias, m_load_size);
+    log_info("load_bias: 0x%llx, load_size: 0x%lx", m_load_bias, m_load_size);
     for (int i = 0; i < m_phdr_num; ++i) {
         uint32_t p_type;
         addr_t p_vaddr;
@@ -473,7 +473,7 @@ bool elf_reader::_load_segments(void) {
     m_load_size = load_size;
 
 
-    log_info("m_load_bias: 0x%llx, load_size: 0x%lx", m_load_bias, m_load_size);
+    log_info("load_bias: 0x%llx, load_size: 0x%lx", m_load_bias, m_load_size);
     for (int i = 0; i < m_phdr_num; ++i) {
         uint32_t p_type;
         addr_t p_vaddr;
