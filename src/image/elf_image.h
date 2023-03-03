@@ -26,6 +26,7 @@ public:
     const size_t get_file_size() {return m_reader->get_file_size();}
     const size_t get_load_size() {return m_reader->get_load_size();}
     const addr_t get_load_bias() {return m_reader->get_load_bias();}
+    const addr_t get_load_base() {return m_reader->get_load_base();}
     const uint8_t get_elf_class() {return m_reader->get_elf_class();}
     
     const uint16_t get_elf_type();

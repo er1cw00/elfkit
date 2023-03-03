@@ -42,6 +42,7 @@ public:
     const void* get_elf_header() {return (void*)&m_ehdr;}
     const uint8_t get_elf_class(void) {return m_elf_class;}
     const addr_t get_load_bias() {return m_load_bias;}
+    const addr_t get_load_base() {return m_load_base;}
     const size_t get_load_size() {return m_load_size;}
     const size_t get_file_size() {return m_file_size;}
 
@@ -86,6 +87,7 @@ protected:
     size_t          m_file_offset;
     size_t          m_load_size;
     addr_t          m_load_bias;
+    addr_t          m_load_base;
     elf_mapped      m_phdr_fragment;
     elf_mapped      m_shdr_fragment;
 

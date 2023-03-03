@@ -401,21 +401,22 @@ bool elf_reader::_read_section_data(void) {
 }
 
 bool elf_reader::_read_segments(void) {
-    addr_t p_min_addr = (addr_t)NULL;
-    addr_t p_max_addr = (addr_t)NULL;
+    addr_t min_addr = (addr_t)NULL;
+    addr_t max_addr = (addr_t)NULL;
 
-    size_t load_size = _get_load_size((void*)m_phdr, m_phdr_num, &p_min_addr, &p_max_addr);
+    size_t load_size = _get_load_size((void*)m_phdr, m_phdr_num, &min_addr, &max_addr);
     assert(load_size > 0);
     
-    void* mmap_ptr = mmap(nullptr, load_size,  PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    void* mmap_ptr = mmap(nullptr, load_size + min_addr,  PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (mmap_ptr == MAP_FAILED) {
         log_error("reserve address space fail, load(0x%zu), error(%s)", load_size, strerror(errno));
         return false;
     }
-    m_load_bias = (addr_t)mmap_ptr - p_min_addr;
+    m_load_base = (addr_t)mmap_ptr + min_addr;
+    m_load_bias = (addr_t)mmap_ptr;
     m_load_size = load_size;
 
-    log_info("load_bias: 0x%llx, load_size: 0x%lx", m_load_bias, m_load_size);
+    log_info("load_base: 0x%llx, load_bias: 0x%llx, load_size: 0x%lx", m_load_base, m_load_bias, m_load_size);
     for (int i = 0; i < m_phdr_num; ++i) {
         uint32_t p_type;
         addr_t p_vaddr;
@@ -458,22 +459,23 @@ bool elf_reader::_read_segments(void) {
 }
 
 bool elf_reader::_load_segments(void) {
-    addr_t p_min_addr = (addr_t)NULL;
-    addr_t p_max_addr = (addr_t)NULL;
+    addr_t min_addr = (addr_t)NULL;
+    addr_t max_addr = (addr_t)NULL;
       
-    size_t load_size = _get_load_size((void*)m_phdr, m_phdr_num, &p_min_addr, &p_max_addr);
+    size_t load_size = _get_load_size((void*)m_phdr, m_phdr_num, &min_addr, &max_addr);
     assert(load_size > 0);
 
-    void* mmap_ptr = mmap(nullptr, load_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    void* mmap_ptr = mmap(nullptr, load_size + min_addr, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (mmap_ptr == MAP_FAILED) {
         log_error("reserve address space fail, load(0x%zu), error(%s)", load_size, strerror(errno));
         return false;
     }
+    assert(min_addr == 0);
+    m_load_base = (addr_t)mmap_ptr + min_addr;
     m_load_bias = (addr_t)mmap_ptr;
     m_load_size = load_size;
 
-
-    log_info("load_bias: 0x%llx, load_size: 0x%lx", m_load_bias, m_load_size);
+    log_info("load_base: 0x%llx, load_bias: 0x%llx, load_size: 0x%lx", m_load_base, m_load_bias, m_load_size);
     for (int i = 0; i < m_phdr_num; ++i) {
         uint32_t p_type;
         addr_t p_vaddr;
@@ -501,7 +503,6 @@ bool elf_reader::_load_segments(void) {
         if (p_type != PT_LOAD) {
             continue;
         }
-
 
         addr_t seg_start       = p_vaddr + m_load_bias;
         addr_t seg_end         = seg_start + p_memsz;
@@ -598,8 +599,8 @@ size_t elf_reader::_get_load_size(void* phdr, size_t phdr_num, addr_t* out_min_v
         min_vaddr = 0;
     }
 
-    min_vaddr = PAGE_START(min_vaddr);
-    max_vaddr = PAGE_END(max_vaddr);
+    //min_vaddr = PAGE_START(min_vaddr);
+    //max_vaddr = PAGE_END(max_vaddr);
 
     if (out_min_vaddr != NULL) {
         *out_min_vaddr = min_vaddr;
