@@ -16,6 +16,6 @@ protected:
     Elf64_Phdr* _find_segment_by_type(const uint32_t type);
 
 protected:
-    Elf64_Ehdr      m_ehdr;
+    Elf64_Ehdr      *m_ehdr;
     friend class elf_image;
 };

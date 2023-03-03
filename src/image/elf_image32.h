@@ -21,6 +21,6 @@ protected:
 protected:
     addr_t              m_arm_exidx_offset;
     size_t              m_arm_exidx_count;
-
+    Elf32_Ehdr          *m_ehdr;
     friend class elf_image;
 };

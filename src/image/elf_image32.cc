@@ -23,8 +23,8 @@ elf_image32::~elf_image32() {
 }
 
 bool elf_image32::load() {
-    uint16_t etype = this->get_elf_type();
-    if (etype != ET_EXEC && etype != ET_DYN) {
+   this->m_ehdr = (Elf32_Ehdr*)this->get_load_base();
+    if (this->m_ehdr->e_type != ET_EXEC && this->m_ehdr->e_type != ET_DYN) {
         return false;
     }
     if (this->get_machine_type() == EM_ARM) {

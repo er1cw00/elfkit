@@ -37,27 +37,27 @@ void elf_image::unload() {
 
 const uint16_t elf_image::get_elf_type() {
 if (get_elf_class() == ELFCLASS32) {
-        Elf32_Ehdr *hdr = (Elf32_Ehdr*)m_reader->get_elf_header();
+        Elf32_Ehdr *hdr = (Elf32_Ehdr*)m_reader->get_load_base();
         return hdr->e_type;
     } else if (get_elf_class() == ELFCLASS64) {
-        Elf64_Ehdr *hdr = (Elf64_Ehdr*)m_reader->get_elf_header();
+        Elf64_Ehdr *hdr = (Elf64_Ehdr*)m_reader->get_load_base();
         return hdr->e_type;
     }
     return (uint16_t)ET_NONE;
 }
 const uint16_t elf_image::get_machine_type() {
     if (get_elf_class() == ELFCLASS32) {
-        Elf32_Ehdr *hdr = (Elf32_Ehdr*)m_reader->get_elf_header();
+        Elf32_Ehdr *hdr = (Elf32_Ehdr*)m_reader->get_load_base();
         return hdr->e_machine;
     } else if (get_elf_class() == ELFCLASS64) {
-        Elf64_Ehdr *hdr = (Elf64_Ehdr*)m_reader->get_elf_header();
+        Elf64_Ehdr *hdr = (Elf64_Ehdr*)m_reader->get_load_base();
         return hdr->e_machine;
     }
     return (uint16_t)EM_NONE;
 }
 
 const uint8_t elf_image::get_data_order() {
-    uint8_t* ident = (uint8_t*)m_reader->get_elf_header();
+    uint8_t* ident = (uint8_t*)m_reader->get_load_base();
     return ident[5];
 }
 
