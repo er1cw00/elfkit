@@ -79,6 +79,7 @@ void elf_symbol_reset_with_sym32(elf_symbol* symbol, Elf32_Sym *sym) {
     symbol->st_other     = (uint8_t)sym->st_other;
     symbol->st_shndx     = (uint16_t)sym->st_shndx;
     symbol->sym_name     = NULL;
+    symbol->sym_off      = (addr_t)sym;
 }
 
 void elf_symbol_reset_with_sym64(elf_symbol* symbol, Elf64_Sym *sym) {
@@ -89,6 +90,7 @@ void elf_symbol_reset_with_sym64(elf_symbol* symbol, Elf64_Sym *sym) {
     symbol->st_value     = (addr_t)sym->st_value;
     symbol->st_size      = (size_t)sym->st_size;
     symbol->sym_name     = NULL;
+    symbol->sym_off      = (addr_t)sym;
 }
 
 void elf_reloc_reset_with_rel32(elf_reloc * reloc, const Elf32_Rel * rel) {

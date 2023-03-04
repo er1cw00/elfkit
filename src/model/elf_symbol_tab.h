@@ -18,7 +18,7 @@ public:
         this->m_symtab       = (addr_t)symtab;
         this->m_symtab_size  = symtab_size;
         this->m_strtab       = strtab;
-        this->m_elf_class    = ELFCLASS32;   
+        this->m_elf_class    = ELFCLASS32;
     }
     ~elf_symbol_tab() {
     }

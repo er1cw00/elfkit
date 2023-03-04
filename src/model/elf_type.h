@@ -58,6 +58,7 @@ struct elf_symbol {
     uint8_t     st_other;
     uint16_t    st_shndx;
     char*       sym_name;
+    addr_t      sym_off;
 };
 
 typedef struct elf_symbol elf_symbol;
