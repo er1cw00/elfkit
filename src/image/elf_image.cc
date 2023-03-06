@@ -110,7 +110,7 @@ const size_t elf_image::get_dynamic_size() {
     return m_dynamic_size;
 }
 const size_t elf_image::get_dynamic_list(elf_dynamic* dynamic) {
-     size_t dyn_num = m_dynamic_size;
+    size_t dyn_num = m_dynamic_size;
     if (get_elf_class() == ELFCLASS32) {
         Elf32_Dyn * dyn = (Elf32_Dyn*)m_dynamic;
         if (dynamic && dyn) {
@@ -128,11 +128,35 @@ const size_t elf_image::get_dynamic_list(elf_dynamic* dynamic) {
     }
     return dyn_num;
 }
-
+const bool elf_image::get_dynamic_by_type(const uint32_t type, elf_dynamic* dynamic) {
+    size_t dyn_num = m_dynamic_size;
+    if (dynamic == NULL || m_dynamic == NULL || dyn_num <= 0) {
+        return false;
+    }
+    if (get_elf_class() == ELFCLASS32) {
+        Elf32_Dyn * dyn = (Elf32_Dyn*)m_dynamic;
+        for (int i = 0; i < dyn_num; i++) {
+            if (dyn[i].d_tag == (Elf32_Sword)type) {
+                elf_dynamic_reset_with_dyn32(dynamic, &dyn[i]);
+                return true;
+            }
+        }
+    } else if (get_elf_class() == ELFCLASS64) {
+        Elf64_Dyn * dyn = (Elf64_Dyn*)m_dynamic;
+        for (int i = 0; i < dyn_num; i++) {
+            if (dyn[i].d_tag == (Elf64_Sxword)type) {
+                elf_dynamic_reset_with_dyn64(dynamic, &dyn[i]);
+                return true;
+            }
+        }
+    }
+    return false;
+}
 bool elf_image::get_symbol_by_addr(const addr_t addr, elf_symbol* symbol) {
     elf_hash_tab * hashtab = is_use_gnu_hash() ? m_gnu_hash_tab : m_sysv_hash_tab;
     if (hashtab && m_sym_tab) {
-        return hashtab->find_symbol_by_addr(m_sym_tab, addr, symbol);
+         addr_t offset = addr - this->get_load_bias();
+        return hashtab->find_symbol_by_addr(m_sym_tab, offset, symbol);
     }
     return false;
 }

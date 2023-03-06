@@ -41,7 +41,8 @@ public:
 
     const size_t get_dynamic_size();
     const size_t get_dynamic_list(elf_dynamic* dynamic);
-
+    const bool get_dynamic_by_type(const uint32_t type, elf_dynamic* dynamic);
+    
     const addr_t get_init_func() {return this->m_init_func;}
     const addr_t get_finit_func() {return this->m_finit_func;}
     elf_func_array* get_init_array() {return this->m_init_array;}
