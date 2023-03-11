@@ -31,7 +31,7 @@ typedef struct elf64_hdr {
 | e_shoff    | shdr 偏移地址 |
 | e_phnum    | phdr 数量 |
 | e_shnum    | shdr 数量 |
-| e_shstrndx | shdr 名字的字符串表shdr索引 |
+| e_shstrndx | 存储 shdr 名字字符串表的shdr节索引 |
 
 
 
@@ -58,12 +58,12 @@ typedef struct elf64_shdr {
 |sh_name| 节名字，在shstr表中的索引值|
 |sh_type| 节类型 |
 |sh_flags|  |
-|sh_addr|   |
-|sh_size|  |
+|sh_addr| section 内容地址 |
+|sh_size| section 内容大小 |
 |sh_link| |
 |sh_info| |
-|sh_addralign| |
-|sh_entsize| |
+|sh_addralign| 地址对齐|
+|sh_entsize| section header 大小|
 
 ### 2.2 Segment
 
