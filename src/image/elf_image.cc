@@ -17,9 +17,9 @@ elf_image::elf_image(elf_reader* reader) {
     m_gnu_hash_tab  = NULL;
     m_sym_tab       = NULL;
     m_init_func     = NULL;
-    m_finit_func    = NULL;
+    m_fini_func    = NULL;
     m_init_array    = NULL;
-    m_finit_array   = NULL;
+    m_fini_array   = NULL;
     m_preinit_array = NULL;
     m_plt_tab       = NULL;
     m_rel_tab       = NULL;
@@ -196,13 +196,13 @@ void elf_image::_create_needed_list(std::vector<int> & needed_list) {
     }
 }
 void elf_image::_create_func_array(addr_t init_array, size_t init_array_count,
-                                     addr_t finit_array,  size_t finit_array_count,
+                                     addr_t fini_array,  size_t fini_array_count,
                                      addr_t preinit_array, size_t preinit_array_count) {
     if (init_array != NULL && init_array_count > 0) {
         this->m_init_array = new elf_func_array(init_array, init_array_count, get_elf_class());
     }
-    if (finit_array != NULL && finit_array_count > 0) {
-        this->m_finit_array = new elf_func_array(finit_array, finit_array_count, get_elf_class());    
+    if (fini_array != NULL && fini_array_count > 0) {
+        this->m_fini_array = new elf_func_array(fini_array, fini_array_count, get_elf_class());    
     }
     if (preinit_array != NULL && preinit_array_count > 0) {
         this->m_preinit_array = new elf_func_array(preinit_array, preinit_array_count, get_elf_class());    

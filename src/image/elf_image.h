@@ -44,9 +44,9 @@ public:
     const bool get_dynamic_by_type(const uint32_t type, elf_dynamic* dynamic);
     
     const addr_t get_init_func() {return this->m_init_func;}
-    const addr_t get_finit_func() {return this->m_finit_func;}
+    const addr_t get_fini_func() {return this->m_fini_func;}
     elf_func_array* get_init_array() {return this->m_init_array;}
-    elf_func_array* get_finit_array() {return this->m_finit_array;}
+    elf_func_array* get_fini_array() {return this->m_fini_array;}
     elf_func_array* get_preinit_array() {return this->m_preinit_array;}
 
     const bool is_use_gnu_hash() {return this->m_is_gnu_hash;}
@@ -97,7 +97,7 @@ protected:
     void _create_str_tab(const char* strtab, const size_t strtab_size);
     void _create_needed_list(std::vector<int> & needed_list);
     void _create_func_array(addr_t init_array, size_t init_array_count,
-                        addr_t finit_array,  size_t finit_array_count,
+                        addr_t fini_array,  size_t fini_array_count,
                         addr_t preinit_array, size_t preinit_array_count); 
     void _create_reloc_tab(addr_t relr_offset, size_t relr_size,
                         addr_t rel_offset, size_t rel_size,
@@ -120,9 +120,9 @@ protected:
     elf_symbol_tab*     m_sym_tab;
 
     addr_t              m_init_func;
-    addr_t              m_finit_func;
+    addr_t              m_fini_func;
     elf_func_array*     m_init_array;
-    elf_func_array*     m_finit_array;
+    elf_func_array*     m_fini_array;
     elf_func_array*     m_preinit_array;
     
     elf_reloc_tab*      m_plt_tab;

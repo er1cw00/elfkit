@@ -54,10 +54,10 @@ bool elf_image64::load() {
     size_t relr_size            = 0;
 
     addr_t init_array           = 0;
-    addr_t finit_array          = 0;
+    addr_t fini_array           = 0;
     addr_t preinit_array        = 0;
     size_t init_array_count     = 0;
-    size_t finit_array_count    = 0;
+    size_t fini_array_count     = 0;
     size_t preinit_array_count  = 0;
 
 
@@ -66,6 +66,7 @@ bool elf_image64::load() {
     for (Elf64_Dyn* d = (Elf64_Dyn*)this->m_dynamic; d->d_tag != DT_NULL; ++d) {
         switch(d->d_tag) {
             case DT_SONAME:
+                log_dbg("soname : 0x%x\n",  d->d_un.d_ptr);
                 break;
             case DT_HASH:
             {
@@ -127,7 +128,7 @@ bool elf_image64::load() {
                 this->m_init_func = (addr_t)(this->get_load_bias() + d->d_un.d_ptr);
                 break;
             case DT_FINI:
-                this->m_finit_func = (addr_t)(this->get_load_bias() + d->d_un.d_ptr);
+                this->m_fini_func = (addr_t)(this->get_load_bias() + d->d_un.d_ptr);
                 break;
             case DT_INIT_ARRAY:
                 init_array = (addr_t)(this->get_load_bias() + d->d_un.d_ptr);
@@ -136,10 +137,10 @@ bool elf_image64::load() {
                 init_array_count = (size_t)(d->d_un.d_val) / sizeof(Elf64_Addr);
                 break;
             case DT_FINI_ARRAY:
-                finit_array = (addr_t)(this->get_load_bias() + d->d_un.d_ptr);
+                fini_array = (addr_t)(this->get_load_bias() + d->d_un.d_ptr);
                 break;            
             case DT_FINI_ARRAYSZ:
-                finit_array_count = (size_t)(d->d_un.d_val) / sizeof(Elf64_Addr);
+                fini_array_count = (size_t)(d->d_un.d_val) / sizeof(Elf64_Addr);
                 break;
             case DT_PREINIT_ARRAY:
                 preinit_array = (addr_t)(this->get_load_bias() + d->d_un.d_ptr);
@@ -191,7 +192,7 @@ bool elf_image64::load() {
     _create_str_tab(strtab, strtab_size);
 
     _create_func_array(init_array, init_array_count,
-                       finit_array, finit_array_count, 
+                       fini_array, fini_array_count, 
                        preinit_array, preinit_array_count);
     _create_needed_list(needed_list);
     _create_symbol_tab(symtab);

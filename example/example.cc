@@ -199,14 +199,14 @@ void show_needed_lib_list(elf_image *image) {
 }
 void show_init_func(elf_image* image) {
     printf("init_func addr: %p\n",      (void*)image->get_init_func());
-    printf("finit_func addr: %p\n",     (void*)image->get_finit_func());
+    printf("fini_func addr: %p\n",      (void*)image->get_fini_func());
     if (image->get_elf_class() == ELFCLASS32) {
         dump_func_array32("init_array:",      image->get_init_array());
-        dump_func_array32("finit_array:",     image->get_finit_array());
+        dump_func_array32("fini_array:",      image->get_fini_array());
         dump_func_array32("preinit_array:",   image->get_preinit_array());
     } else {
         dump_func_array64("init_array:",      image->get_init_array());
-        dump_func_array64("finit_array:",     image->get_finit_array());
+        dump_func_array64("fini_array:",      image->get_fini_array());
         dump_func_array64("preinit_array:",   image->get_preinit_array());
     }
     return;
