@@ -18,6 +18,9 @@ public:
     addr_t get_func_array() {
         return m_func_array;
     }
+    uint8_t get_elf_class() {
+        return m_elf_class;
+    }
 protected:
     addr_t  m_func_array;
     size_t  m_func_count;
