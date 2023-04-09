@@ -470,7 +470,6 @@ bool elf_reader::_load_segments(void) {
         log_error("reserve address space fail, load(0x%zu), error(%s)", load_size, strerror(errno));
         return false;
     }
-    assert(min_addr == 0);
     m_load_base = (addr_t)mmap_ptr + min_addr;
     m_load_bias = (addr_t)mmap_ptr;
     m_load_size = load_size;
@@ -621,3 +620,4 @@ bool elf_reader::_check_file_range(off_t offset, size_t size, size_t alignment) 
         (range_end <= m_file_size) &&
         ((offset % alignment) == 0);
 }
+
